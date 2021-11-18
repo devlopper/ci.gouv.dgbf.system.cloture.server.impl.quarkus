@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.field.FieldHelper;
+import org.cyk.utility.service.client.SpecificServiceGetter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
@@ -17,6 +18,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 @ApplicationScoped
 public class Assertor {
 
+	@Inject SpecificServiceGetter specificServiceGetter;
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject OperationPersistence operationPersistence;
 	

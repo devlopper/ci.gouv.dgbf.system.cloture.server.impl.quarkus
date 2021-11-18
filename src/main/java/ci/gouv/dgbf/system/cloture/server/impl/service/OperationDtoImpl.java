@@ -1,6 +1,7 @@
 package ci.gouv.dgbf.system.cloture.server.impl.service;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
@@ -24,6 +25,9 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	@JsonbProperty(value = JSON_START_DATE_NUMBER_OF_MILLISECOND)
 	Long startDateNumberOfMillisecond;
 	
+	@JsonbProperty(value = JSON_START_DATE_STRING)
+	String startDateString;
+	
 	@JsonbProperty(value = JSON_GROUP_IDENTIFIER)
 	String groupIdentifier;
 	
@@ -36,8 +40,14 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	@JsonbProperty(value = JSON_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND)
 	Long executionBeginDateNumberOfMillisecond;
 	
+	@JsonbProperty(value = JSON_EXECUTION_BEGIN_DATE_STRING)
+	String executionBeginDateString;
+	
 	@JsonbProperty(value = JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND)
 	Long executionEndDateNumberOfMillisecond;
+	
+	@JsonbProperty(value = JSON_EXECUTION_END_DATE_STRING)
+	String executionEndDateString;
 	
 	@JsonbProperty(value = JSON_EXECUTION_STATUS)
 	OperationExecutionStatus executionStatus;
@@ -73,17 +83,24 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	}
 	
 	static {
-		AbstractServiceImpl.setProjections(OperationDtoImpl.class, Map.of(
+		Map<String,String> map = new HashMap<>();
+		map.putAll(Map.of(
 				JSON_IDENTIFIER,OperationImpl.FIELD_IDENTIFIER
     			,JSON_CODE,OperationImpl.FIELD_CODE
     			,JSON_NAME,OperationImpl.FIELD_NAME
     			,JSON_START_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_START_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_START_DATE_STRING,OperationImpl.FIELD_START_DATE_STRING
     			,JSON_GROUP_IDENTIFIER,OperationImpl.FIELD_GROUP_IDENTIFIER
     			,JSON_PROCEDURE_NAME,OperationImpl.FIELD_PROCEDURE_NAME
     			,JSON_TRIGGER,OperationImpl.FIELD_TRIGGER
     			,JSON_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND
-    			,JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_EXECUTION_BEGIN_DATE_STRING,OperationImpl.FIELD_EXECUTION_BEGIN_DATE_STRING
+    			));
+		map.putAll(Map.of(
+				JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_EXECUTION_END_DATE_STRING,OperationImpl.FIELD_EXECUTION_END_DATE_STRING
     			,JSON_EXECUTION_STATUS,OperationImpl.FIELD_EXECUTION_STATUS
     			));
+		AbstractServiceImpl.setProjections(OperationDtoImpl.class, map);
 	}
 }

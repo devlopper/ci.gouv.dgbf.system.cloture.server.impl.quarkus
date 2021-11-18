@@ -29,6 +29,12 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 				new OperationImplExecutionBeginDateNumberOfMillisecondReader().readThenSet(operations, null);
 			else if(OperationImpl.FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND.equals(fieldName))
 				new OperationImplExecutionEndDateNumberOfMillisecondReader().readThenSet(operations, null);
+			else if(OperationImpl.FIELD_START_DATE_STRING.equals(fieldName))
+				new OperationImplStartDateStringReader().readThenSet(operations, null);
+			else if(OperationImpl.FIELD_EXECUTION_BEGIN_DATE_STRING.equals(fieldName))
+				new OperationImplExecutionBeginDateStringReader().readThenSet(operations, null);
+			else if(OperationImpl.FIELD_EXECUTION_END_DATE_STRING.equals(fieldName))
+				new OperationImplExecutionEndDateStringReader().readThenSet(operations, null);
 		}
 	}
 }

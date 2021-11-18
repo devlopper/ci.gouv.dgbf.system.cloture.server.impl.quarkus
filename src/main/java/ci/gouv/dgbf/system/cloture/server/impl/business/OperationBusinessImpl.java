@@ -11,7 +11,6 @@ import javax.transaction.Transactional;
 
 import org.cyk.utility.__kernel__.log.LogHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
-import org.cyk.utility.__kernel__.throwable.ThrowablesMessages;
 import org.cyk.utility.business.Validator;
 import org.cyk.utility.business.server.AbstractSpecificBusinessImpl;
 import org.cyk.utility.persistence.EntityManagerGetter;
@@ -61,7 +60,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		if(operation == null)
 			throw new RuntimeException(String.format("L'opération à exécuter est obligatoire"));
 		operation.setTrigger(trigger);
-		ThrowablesMessages.throwIfNotEmpty(validator.validate(Operation.class,List.of(operation), EXECUTE));
+		throwIfNotEmpty(validator.validate(Operation.class,List.of(operation), EXECUTE));
 		operation.setExecutionStatus(OperationExecutionStatus.EN_COURS);
 		operation.setExecutionBeginDate(LocalDateTime.now());
 		operation.setExecutionEndDate(null);

@@ -7,7 +7,7 @@ public class Procedures {
 	public static String PA_EXECUTER_PROCEDURE(String name) {
 		if(UNKNOWN_NAME.equals(name))
 			throw new RuntimeException("Cette procédure n'existe pas");
-		TimeHelper.pause(7 * 1000l);
+		TimeHelper.pause(1 * 1000l);
 		return null;
 	}
 	

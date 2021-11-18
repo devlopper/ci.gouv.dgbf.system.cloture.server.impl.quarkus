@@ -63,11 +63,11 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 	
 	public static void validateOperationBeginExecutionProcedureName(Operation operation,ThrowablesMessages throwablesMessages) {
 		if(StringHelper.isBlank(operation.getProcedureName()))
-			throw new RuntimeException(String.format("Le nom de la procédure de l'opération <<%s>> est obligatoire",operation.getName()));
+			throwablesMessages.add(String.format("Le nom de la procédure de l'opération <<%s>> est obligatoire",operation.getName()));
 	}
 	
 	public static void validateOperationBeginExecutionTrigger(Operation operation,ThrowablesMessages throwablesMessages) {
 		if(StringHelper.isBlank(operation.getTrigger()))
-			throw new RuntimeException(String.format("Le nom d'utilisateur devant démarrer l'opération <<%s>> est obligatoire",operation.getName()));
+			throwablesMessages.add(String.format("Le nom d'utilisateur devant démarrer l'opération <<%s>> est obligatoire",operation.getName()));
 	}
 }

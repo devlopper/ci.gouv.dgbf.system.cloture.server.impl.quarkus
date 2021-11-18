@@ -32,4 +32,26 @@ public class OperationServiceTest {
         	.body(OperationDto.JSON_IDENTIFIER, equalTo("V01"))
         	;
     }
+	
+	@Test
+    public void execute_passed_blocking() {
+		io.restassured.response.Response response = given().queryParam("identifiant", "OPassedBlocking").queryParam("declencheur", "test")
+				//.log().all()
+				.when().post("/api/operations/execution");
+		response.then()
+		//.log().all()
+        	.statusCode(Response.Status.OK.getStatusCode())
+        	;
+    }
+	
+	@Test
+    public void execute_future() {
+		io.restassured.response.Response response = given().queryParam("identifiant", "OFuture").queryParam("declencheur", "test")
+				//.log().all()
+				.when().post("/api/operations/execution");
+		response.then()
+		//.log().all()
+        	.statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+        	;
+    }
 }

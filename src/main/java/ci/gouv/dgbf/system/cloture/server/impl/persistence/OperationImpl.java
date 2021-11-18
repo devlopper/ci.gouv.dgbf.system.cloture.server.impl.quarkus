@@ -44,13 +44,16 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	@NotNull @JoinColumn(name = COLUMN_GROUP,nullable = false) @ManyToOne OperationGroupImpl group;
 	@Transient String groupIdentifier;
 	@NotNull @Column(name = COLUMN_START_DATE,nullable = false) LocalDateTime startDate;
+	@Transient String startDateString;
 	@Transient Long startDateNumberOfMillisecond;
 	@NotNull @Column(name = COLUMN_PROCEDURE_NAME,nullable = false) String procedureName;
 	/* Execution */
 	@Column(name = COLUMN_TRIGGER) String trigger;
 	@Column(name = COLUMN_EXECUTION_BEGIN_DATE) LocalDateTime executionBeginDate;
+	@Transient String executionBeginDateString;
 	@Transient Long executionBeginDateNumberOfMillisecond;
 	@Column(name = COLUMN_EXECUTION_END_DATE) LocalDateTime executionEndDate;
+	@Transient String executionEndDateString;
 	@Transient Long executionEndDateNumberOfMillisecond;
 	@Column(name = COLUMN_EXECUTION_STATUS) @Enumerated(EnumType.STRING) OperationExecutionStatus executionStatus;
 	
@@ -79,12 +82,15 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_GROUP_IDENTIFIER = "groupIdentifier";
 	public static final String FIELD_START_DATE = "startDate";
 	public static final String FIELD_START_DATE_NUMBER_OF_MILLISECOND = "startDateNumberOfMillisecond";
+	public static final String FIELD_START_DATE_STRING = "startDateString";
 	public static final String FIELD_PROCEDURE_NAME = "procedureName";
 	public static final String FIELD_TRIGGER = "trigger";
 	public static final String FIELD_EXECUTION_BEGIN_DATE = "executionBeginDate";
 	public static final String FIELD_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND = "executionBeginDateNumberOfMillisecond";
+	public static final String FIELD_EXECUTION_BEGIN_DATE_STRING = "executionBeginDateString";
 	public static final String FIELD_EXECUTION_END_DATE = "executionEndDate";
 	public static final String FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND = "executionEndDateNumberOfMillisecond";
+	public static final String FIELD_EXECUTION_END_DATE_STRING = "executionEndDateString";
 	public static final String FIELD_EXECUTION_STATUS = "executionStatus";
 	
 	public static final String ENTITY_NAME = "OperationImpl";
