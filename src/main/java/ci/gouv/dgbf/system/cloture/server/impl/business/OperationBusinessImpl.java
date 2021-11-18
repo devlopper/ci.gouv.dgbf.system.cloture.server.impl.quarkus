@@ -32,7 +32,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Inject EventBus eventBus;
 	
 	private void executeProcedure(Operation operation,EntityManager entityManager,Boolean isUserTransaction) {
-		LogHelper.logInfo(String.format("Exécution de l'opération <<%s>> par <<%s>> en cours", operation.getName(),operation.getTrigger()), getClass());
+		LogHelper.logInfo(String.format("Exécution de l'opération [%s] par [%s] en cours", operation.getName(),operation.getTrigger()), getClass());
 		operationPersistence.executeProcedure(operation.getProcedureName());
 		operation.setExecutionStatus(OperationExecutionStatus.EXECUTEE);
 		operation.setExecutionEndDate(LocalDateTime.now());
@@ -41,7 +41,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		entityManager.merge(operation);
 		if(Boolean.TRUE.equals(isUserTransaction))
 			entityManager.getTransaction().commit();
-		LogHelper.logInfo(String.format("Exécution de l'opération <<%s>> par <<%s>> terminée", operation.getName(),operation.getTrigger()), getClass());
+		LogHelper.logInfo(String.format("Exécution de l'opération [%s] par [%s] terminée", operation.getName(),operation.getTrigger()), getClass());
 	}
 	
 	public static final String EVENT_CHANNEL_EXECUTE_PROCEDURE = "execute_procedure";
