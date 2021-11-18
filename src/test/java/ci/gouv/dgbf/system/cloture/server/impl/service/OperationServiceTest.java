@@ -27,7 +27,7 @@ public class OperationServiceTest {
 				//.log().all()
 				.when().get("/api/operations/V01");
 		response.then()
-		.log().all()
+		//.log().all()
         	.statusCode(Response.Status.OK.getStatusCode())
         	.body(OperationDto.JSON_IDENTIFIER, equalTo("V01"))
         	;

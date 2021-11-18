@@ -6,6 +6,6 @@ INSERT INTO TA_GROUPE_OPERATION(IDENTIFIANT,CODE,LIBELLE) VALUES ('L','L','Liqui
 INSERT INTO TA_GROUPE_OPERATION(IDENTIFIANT,CODE,LIBELLE) VALUES ('O','O','Ordonnancement');
 INSERT INTO TA_GROUPE_OPERATION(IDENTIFIANT,CODE,LIBELLE) VALUES ('PC','PC','Prise en charge');
 
-INSERT INTO TA_OPERATION(IDENTIFIANT,CODE,LIBELLE,GROUPE,DATE_DEBUT,PROCEDURE_LIBELLE,EXECUTION_STATUS) VALUES ('V01','V01','Verrouillage des engagements par bon de commande dont l''ordonnateur n''a pas fait la 1ere validation','E',DATE '2021-11-1','P','RUNNING');
+INSERT INTO TA_OPERATION(IDENTIFIANT,CODE,LIBELLE,GROUPE,DATE_DEBUT,PROCEDURE_LIBELLE,EXECUTION_STATUS) VALUES ('V01','V01','Verrouillage des engagements par bon de commande dont l''ordonnateur n''a pas fait la 1ere validation','E',DATE '2021-11-1','P','EN_COURS');
 INSERT INTO TA_OPERATION(IDENTIFIANT,CODE,LIBELLE,GROUPE,DATE_DEBUT,PROCEDURE_LIBELLE) VALUES ('V02','V02','Verrouillage des engagements par bon de commande dont l''ordonnateur n''a pas fait la 2eme validation','E',DATE '2021-11-1','P');
 INSERT INTO TA_OPERATION(IDENTIFIANT,CODE,LIBELLE,GROUPE,DATE_DEBUT,PROCEDURE_LIBELLE) VALUES ('V03','V03','Verrouillage des engagements direct hors Personnel, Abonnement et Dette non validés une première fois par l’Ordonnateur','E',DATE '2021-11-1','P');

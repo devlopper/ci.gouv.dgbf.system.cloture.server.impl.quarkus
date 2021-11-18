@@ -35,7 +35,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	private void executeProcedure(Operation operation,EntityManager entityManager,Boolean isUserTransaction) {
 		LogHelper.logInfo(String.format("Exécution de l'opération <<%s>> par <<%s>> en cours", operation.getName(),operation.getTrigger()), getClass());
 		operationPersistence.executeProcedure(operation.getProcedureName());
-		operation.setExecutionStatus(OperationExecutionStatus.EXECUTED);
+		operation.setExecutionStatus(OperationExecutionStatus.EXECUTEE);
 		operation.setExecutionEndDate(LocalDateTime.now());
 		if(Boolean.TRUE.equals(isUserTransaction))
 			entityManager.getTransaction().begin();
@@ -62,7 +62,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 			throw new RuntimeException(String.format("L'opération à exécuter est obligatoire"));
 		operation.setTrigger(trigger);
 		ThrowablesMessages.throwIfNotEmpty(validator.validate(Operation.class,List.of(operation), EXECUTE));
-		operation.setExecutionStatus(OperationExecutionStatus.RUNNING);
+		operation.setExecutionStatus(OperationExecutionStatus.EN_COURS);
 		operation.setExecutionBeginDate(LocalDateTime.now());
 		operation.setExecutionEndDate(null);
 		entityManager.merge(operation);		
