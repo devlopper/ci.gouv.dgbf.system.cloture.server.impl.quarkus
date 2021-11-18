@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -18,7 +17,6 @@ import lombok.experimental.Accessors;
 @Getter @Setter @Accessors(chain=true) 
 @Entity(name = OperationGroupImpl.ENTITY_NAME) @Access(AccessType.FIELD)
 @Table(name=OperationGroupImpl.TABLE_NAME)
-@Cacheable
 public class OperationGroupImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements OperationGroup,Serializable {
 
 	@Override

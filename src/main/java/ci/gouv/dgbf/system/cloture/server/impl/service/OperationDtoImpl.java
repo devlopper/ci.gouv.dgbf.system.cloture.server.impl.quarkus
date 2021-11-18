@@ -17,8 +17,8 @@ import lombok.experimental.Accessors;
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor @RequestScoped @Unremovable
 public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements OperationDto,Serializable {
 
-	@JsonbProperty(value = OperationDto.JSON_END_DATE_NUMBER_OF_MILLISECOND)
-	Long endDateNumberOfMillisecond;
+	@JsonbProperty(value = OperationDto.JSON_START_DATE_NUMBER_OF_MILLISECOND)
+	Long startDateNumberOfMillisecond;
 	
 	@JsonbProperty(value = OperationDto.JSON_GROUP_IDENTIFIER)
 	String groupIdentifier;

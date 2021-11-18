@@ -28,8 +28,10 @@ public class OperationServiceImpl extends AbstractSpecificServiceImpl<OperationD
 	}
 
 	@Override
-	public Response execute(String identifier) {
-		operationBusiness.execute(identifier, null);
+	public Response execute(String identifier,String trigger,Boolean blocking) {
+		if(blocking == null)
+			blocking = Boolean.TRUE;
+		operationBusiness.execute(identifier, trigger,blocking);
 		return Response.ok().build();
 	}
 }

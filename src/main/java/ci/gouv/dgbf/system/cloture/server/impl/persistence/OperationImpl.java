@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedStoredProcedureQueries;
@@ -16,10 +17,12 @@ import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureParameter;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationExecutionStatus;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -27,24 +30,26 @@ import lombok.experimental.Accessors;
 @Getter @Setter @Accessors(chain=true) 
 @Entity(name = OperationImpl.ENTITY_NAME) @Access(AccessType.FIELD)
 @Table(name=OperationImpl.TABLE_NAME)
-@Cacheable
 @NamedStoredProcedureQueries(value = {
 	@NamedStoredProcedureQuery(
 		name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE_PROCEDURE
 		,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE_PROCEDURE
 		,parameters = {
-				@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_PROCEDURE_NAME , mode = ParameterMode.IN,type = String.class)
-			}
+			@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_PROCEDURE_NAME , mode = ParameterMode.IN,type = String.class)
+		}
 	)
 })
 public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Operation,Serializable {
 
-	@JoinColumn(name = COLUMN_GROUP) @ManyToOne OperationGroupImpl group;
+	@NotNull @JoinColumn(name = COLUMN_GROUP,nullable = false) @ManyToOne OperationGroupImpl group;
 	@Transient String groupIdentifier;
-	@Column(name = COLUMN_END_DATE) LocalDateTime endDate;	
+	@NotNull @Column(name = COLUMN_START_DATE,nullable = false) LocalDateTime startDate;	
+	@NotNull @Column(name = COLUMN_PROCEDURE_NAME,nullable = false) String procedureName;
+	/* Execution */
 	@Column(name = COLUMN_TRIGGER) String trigger;
 	@Column(name = COLUMN_EXECUTION_BEGIN_DATE) LocalDateTime executionBeginDate;
 	@Column(name = COLUMN_EXECUTION_END_DATE) LocalDateTime executionEndDate;
+	@Column(name = COLUMN_EXECUTION_STATUS) @Enumerated(EnumType.STRING) OperationExecutionStatus executionStatus;
 	
 	@Override
 	public OperationImpl setIdentifier(String identifier) {
@@ -67,15 +72,26 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 		return this;
 	}
 	
+	public static final String FIELD_GROUP = "group";
+	public static final String FIELD_START_DATE = "startDate";
+	public static final String FIELD_PROCEDURE_NAME = "procedureName";
+	public static final String FIELD_TRIGGER = "trigger";
+	public static final String FIELD_EXECUTION_BEGIN_DATE = "executionBeginDate";
+	public static final String FIELD_EXECUTION_END_DATE = "executionEndDate";
+	public static final String FIELD_EXECUTION_STATUS = "executionStatus";
+	
 	public static final String ENTITY_NAME = "OperationImpl";
 	public static final String TABLE_NAME = "TA_OPERATION";
 	
 	public static final String COLUMN_GROUP = "GROUPE";
-	public static final String COLUMN_END_DATE = "DATE_FIN";
+	public static final String COLUMN_START_DATE = "DATE_DEBUT";
+	public static final String COLUMN_PROCEDURE_NAME = "PROCEDURE_LIBELLE";
 	public static final String COLUMN_TRIGGER = "EXECUTEE_PAR";
 	public static final String COLUMN_EXECUTION_BEGIN_DATE = "EXECUTION_DATE_DEBUT";
 	public static final String COLUMN_EXECUTION_END_DATE = "EXECUTION_DATE_FIN";
+	public static final String COLUMN_EXECUTION_STATUS = "EXECUTION_STATUS";
 	
 	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE_PROCEDURE = "PA_EXECUTER_PROCEDURE";
 	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_PROCEDURE_NAME = "NOM_PROCEDURE";
+	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_RESULT_IDENTIFIER = "RESULTAT_IDENTIFIANT";
 }
