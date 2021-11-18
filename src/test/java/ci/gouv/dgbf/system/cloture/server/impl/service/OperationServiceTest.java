@@ -22,11 +22,12 @@ public class OperationServiceTest {
 	@Test
     public void get_one() {
 		io.restassured.response.Response response = given().param("projections", OperationDto.JSON_IDENTIFIER, OperationDto.JSON_CODE, OperationDto.JSON_NAME
+				, OperationDto.JSON_START_DATE_NUMBER_OF_MILLISECOND, OperationDto.JSON_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND, OperationDto.JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND
 				, OperationDto.JSON_EXECUTION_STATUS)
 				//.log().all()
 				.when().get("/api/operations/V01");
 		response.then()
-		//.log().all()
+		.log().all()
         	.statusCode(Response.Status.OK.getStatusCode())
         	.body(OperationDto.JSON_IDENTIFIER, equalTo("V01"))
         	;
