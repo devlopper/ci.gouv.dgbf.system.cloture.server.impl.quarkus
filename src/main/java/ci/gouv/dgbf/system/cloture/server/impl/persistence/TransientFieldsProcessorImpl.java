@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.persistence.query.Filter;
 
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import io.quarkus.arc.Unremovable;
 
@@ -17,6 +18,8 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 	protected void __process__(Class<?> klass,Collection<?> objects,Filter filter, Collection<String> fieldsNames) {
 		if(Operation.class.equals(klass) || OperationImpl.class.equals(klass))
 			processOperations(CollectionHelper.cast(OperationImpl.class, objects),fieldsNames);
+		else if(Act.class.equals(klass) || ActImpl.class.equals(klass))
+			processActs(CollectionHelper.cast(ActImpl.class, objects),fieldsNames);
 		else
 			super.__process__(klass,objects,filter, fieldsNames);
 	}
@@ -35,6 +38,13 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 				new OperationImplExecutionBeginDateStringReader().readThenSet(operations, null);
 			else if(OperationImpl.FIELD_EXECUTION_END_DATE_STRING.equals(fieldName))
 				new OperationImplExecutionEndDateStringReader().readThenSet(operations, null);
+		}
+	}
+	
+	public void processActs(Collection<ActImpl> acts,Collection<String> fieldsNames) {
+		for(String fieldName : fieldsNames) {
+			if(ActImpl.FIELD_OPERATION_DATE_STRING.equals(fieldName))
+				new ActImplOperationDateStringReader().readThenSet(acts, null);
 		}
 	}
 }

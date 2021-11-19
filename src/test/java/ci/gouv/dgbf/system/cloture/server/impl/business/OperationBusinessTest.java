@@ -17,7 +17,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(Profiles.Business.class)
+@TestProfile(Profiles.Business.Default.class)
 public class OperationBusinessTest {
 
 	@Inject ci.gouv.dgbf.system.cloture.server.impl.Assertor assertor;
@@ -57,6 +57,6 @@ public class OperationBusinessTest {
 		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			operationBusiness.execute("OFuture", "user01");
 		});
-		assertThat(exception.getMessage()).isEqualTo("L'opération <<Verrouiller>> ne peut être démarrée qu'à partir du 01/01/2099 à 00:00");
+		assertThat(exception.getMessage()).isEqualTo("L'opération [Verrouiller] ne peut être démarrée qu'à partir du 01/01/2099 à 00:00");
 	}
 }

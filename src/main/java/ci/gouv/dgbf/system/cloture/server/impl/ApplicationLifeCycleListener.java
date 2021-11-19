@@ -13,8 +13,11 @@ import org.cyk.utility.persistence.server.TransientFieldsProcessor;
 import org.cyk.utility.persistence.server.query.string.RuntimeQueryStringBuilder;
 import org.cyk.utility.service.server.PersistenceEntityClassGetterImpl;
 
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationGroupImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationGroupDtoImpl;
@@ -40,6 +43,9 @@ public class ApplicationLifeCycleListener {
     	
     	MapperClassGetter.MAP.put(OperationDtoImpl.class, OperationDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationDtoImpl.class,OperationImpl.class);
+    	
+    	MapperClassGetter.MAP.put(ActDtoImpl.class, ActDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(ActDtoImpl.class,ActImpl.class);
     	/**/
     	
     }

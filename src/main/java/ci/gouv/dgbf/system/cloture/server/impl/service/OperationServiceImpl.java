@@ -17,7 +17,7 @@ import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 @Path(OperationService.PATH)
 public class OperationServiceImpl extends AbstractSpecificServiceImpl<OperationDto,OperationDtoImpl,Operation,OperationImpl> implements OperationService,Serializable {
 
-	@Inject OperationGroupDtoImplMapper mapper;
+	@Inject OperationDtoImplMapper mapper;
 	@Inject OperationBusiness operationBusiness;
 	
 	public OperationServiceImpl() {

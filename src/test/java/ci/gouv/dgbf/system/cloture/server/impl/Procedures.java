@@ -11,5 +11,18 @@ public class Procedures {
 		return null;
 	}
 	
+	public static String PA_VERROUILLER_ACTE(String identifier) {
+		if(IDENTIFIER_ERROR.equals(identifier))
+			throw new RuntimeException("Une erreur est survenue");
+		return null;
+	}
+	
+	public static String PA_DEVERROUILLER_ACTE(String identifier) {
+		if(IDENTIFIER_ERROR.equals(identifier))
+			throw new RuntimeException("Une erreur est survenue");
+		return null;
+	}
+	
 	public static final String UNKNOWN_NAME = "XXX";
+	public static final String IDENTIFIER_ERROR = "XXX";
 }

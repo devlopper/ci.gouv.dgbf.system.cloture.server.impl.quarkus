@@ -24,14 +24,10 @@ public class OperationPersistenceImpl extends org.cyk.quarkus.extension.hibernat
 	}
 
 	@Override
-	public String executeProcedure(String name) {
+	public void executeProcedure(String name) {
 		ProcedureExecutorArguments arguments = new ProcedureExecutorArguments();
 		arguments.setName(OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE_PROCEDURE);
 		arguments.setParameters(Map.of(OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_PROCEDURE_NAME,name));
-		//String resultIdentifier = "";
-		//arguments.setParameters(Map.of(OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_RESULT_IDENTIFIER,resultIdentifier));
 		procedureExecutor.execute(arguments);
-		//System.out.println("OperationPersistenceImpl.executeProcedure() ::: "+resultIdentifier);
-		return null;
 	}
 }

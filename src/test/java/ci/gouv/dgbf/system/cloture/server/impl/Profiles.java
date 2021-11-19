@@ -24,6 +24,20 @@ public interface Profiles {
 			}
 		}
 		
+		public class Act implements QuarkusTestProfile {
+			@Override
+			public Map<String, String> getConfigOverrides() {
+				Map<String, String> map = new HashMap<>();
+				map.put("quarkus.hibernate-orm.sql-load-script", "persistence-act.sql");
+				return map;
+			}
+			
+			@Override
+			public Set<String> tags() {
+				return Set.of(Persistence.class.getSimpleName().toLowerCase()+"."+Act.class.getSimpleName().toLowerCase());
+			}
+		}
+		
 		public class Filter implements QuarkusTestProfile {
 			@Override
 			public Map<String, String> getConfigOverrides() {
@@ -38,21 +52,37 @@ public interface Profiles {
 			}
 		}
 	}
-		
-	public class Business implements QuarkusTestProfile {
-		@Override
-		public Map<String, String> getConfigOverrides() {
-			Map<String, String> map = new HashMap<>();
-			map.put("quarkus.hibernate-orm.sql-load-script", "business.sql");
-			return map;
+	
+	public interface Business {
+		public class Default implements QuarkusTestProfile {
+			@Override
+			public Map<String, String> getConfigOverrides() {
+				Map<String, String> map = new HashMap<>();
+				map.put("quarkus.hibernate-orm.sql-load-script", "business.sql");
+				return map;
+			}
+			
+			@Override
+			public Set<String> tags() {
+				return Collections.singleton(Business.class.getSimpleName().toLowerCase());
+			}
 		}
 		
-		@Override
-		public Set<String> tags() {
-			return Collections.singleton(Business.class.getSimpleName().toLowerCase());
+		public class Act implements QuarkusTestProfile {
+			@Override
+			public Map<String, String> getConfigOverrides() {
+				Map<String, String> map = new HashMap<>();
+				map.put("quarkus.hibernate-orm.sql-load-script", "business-act.sql");
+				return map;
+			}
+			
+			@Override
+			public Set<String> tags() {
+				return Set.of(Business.class.getSimpleName().toLowerCase()+"."+Act.class.getSimpleName().toLowerCase());
+			}
 		}
 	}
-
+	
 	public interface Service {
 		public class Unit implements QuarkusTestProfile {
 			@Override
