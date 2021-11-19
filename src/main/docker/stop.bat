@@ -1,1 +1,1 @@
-docker stop file-server-quarkus
+docker stop mic-cloture-api

@@ -1,0 +1,23 @@
+Publishing with time stamp : v0.0.0-202111191558 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+Publishing with time stamp : v0.0.0-202111191603 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+Publishing with time stamp : v0.0.0-202111191604 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+e8d04140fa6a: Preparing
+f4f5ffb8138f: Preparing
+5c377b4c4db6: Preparing
+37dea77f0225: Preparing
+b94581cdf7ba: Preparing
+0b911edbb97f: Preparing
+54e42005468d: Preparing
+0b911edbb97f: Waiting
+54e42005468d: Waiting
+f4f5ffb8138f: Pushed
+5c377b4c4db6: Pushed
+e8d04140fa6a: Pushed
+0b911edbb97f: Pushed
+37dea77f0225: Pushed
+54e42005468d: Pushed
+b94581cdf7ba: Pushed
+v0.0.0-202111191604: digest: sha256:28c24ffdb95e0cc33be38d4a2ff24663d82b2392ceb41c5dbaf5d4264a0b17ac size: 1789
