@@ -1,1 +1,1 @@
-docker stop mic-cloture-api
+docker rm $(docker stop $(docker ps -a -q --filter ancestor=mic-cloture-api))
