@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.__kernel__.value.ValueHelper;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
@@ -50,12 +51,18 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 			LikeStringBuilder.getInstance().build("t",ActImpl.FIELD_CODE, Parameters.SEARCH)
 			,LikeStringBuilder.getInstance().build("t", ActImpl.FIELD_NAME,Parameters.SEARCH)
 	));
-	public void populatePredicateAct(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
+	private void populatePredicateAct(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
 		String operationTypeAsString = (String) arguments.getFilterFieldValue(Parameters.ACT_OPERATION_TYPE);
-		ActOperationType operationType = ActOperationType.valueOf(operationTypeAsString);
-		if(operationType != null) {
-			predicate.add(String.format("t.%s = :%s", ActImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
-			filter.addField(Parameters.ACT_OPERATION_TYPE, operationType);
+		if(StringHelper.isNotBlank(operationTypeAsString)) {
+			ActOperationType operationType = ActOperationType.valueOf(operationTypeAsString);
+			if(operationType != null) {
+				predicate.add(String.format("t.%s = :%s", ActImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
+				filter.addField(Parameters.ACT_OPERATION_TYPE, operationType);
+			}
+		}		
+		if(arguments.getFilterFieldValue(Parameters.ACTS_CODES) != null) {
+			predicate.add(String.format("t.%s IN :%s", ActImpl.FIELD_CODE,Parameters.ACTS_CODES));
+			filter.addField(Parameters.ACTS_CODES, arguments.getFilterFieldValue(Parameters.ACTS_CODES));
 		}
 		if(arguments.getFilterFieldValue(Parameters.SEARCH) != null) {
 			predicate.add(ACT_PREDICATE_SEARCH);
