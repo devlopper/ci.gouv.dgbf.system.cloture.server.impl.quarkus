@@ -33,6 +33,18 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	@Inject ActPersistence actPersistence;
 	
 	@Override
+	protected void setTuple(QueryExecutorArguments arguments, Arguments builderArguments) {
+		if(actPersistence.isProcessable(arguments)) {
+			if(arguments.getFilterFieldValue(Parameters.ACT_OPERATION_TYPE) != null) {
+				builderArguments.getTuple(Boolean.TRUE).add(String.format("%s t",ActImpl.ENTITY_NAME));
+				builderArguments.getTuple(Boolean.TRUE).addJoins(String.format("LEFT JOIN %s p ON p.%s = t.%s",ActLatestOperationImpl.ENTITY_NAME
+						,ActLatestOperationImpl.FIELD_ACT_IDENTIFIER,ActImpl.FIELD_IDENTIFIER));
+			}
+		}
+		super.setTuple(arguments, builderArguments);
+	}
+	
+	@Override
 	protected void populatePredicate(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
 		super.populatePredicate(arguments, builderArguments, predicate, filter);
 		if(Boolean.TRUE.equals(actPersistence.isProcessable(arguments)))
@@ -56,7 +68,7 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 		if(StringHelper.isNotBlank(operationTypeAsString)) {
 			ActOperationType operationType = ActOperationType.valueOf(operationTypeAsString);
 			if(operationType != null) {
-				predicate.add(String.format("t.%s = :%s", ActImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
+				predicate.add(String.format("p.%s = :%s", ActLatestOperationImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
 				filter.addField(Parameters.ACT_OPERATION_TYPE, operationType);
 			}
 		}		
