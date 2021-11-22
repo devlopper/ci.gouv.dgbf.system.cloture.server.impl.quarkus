@@ -5,20 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.ActBusiness;
-import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActOperationImpl;
-import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 

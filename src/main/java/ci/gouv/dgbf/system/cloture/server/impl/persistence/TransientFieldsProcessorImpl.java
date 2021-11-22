@@ -43,8 +43,12 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 	
 	public void processActs(Collection<ActImpl> acts,Collection<String> fieldsNames) {
 		for(String fieldName : fieldsNames) {
-			if(ActImpl.FIELD_OPERATION_DATE_STRING.equals(fieldName))
+			if(ActImpl.FIELD_OPERATION_TYPE.equals(fieldName))
+				new ActImplOperationTypeReader().readThenSet(acts, null);
+			else if(ActImpl.FIELD_OPERATION_DATE_STRING.equals(fieldName))
 				new ActImplOperationDateStringReader().readThenSet(acts, null);
+			else if(ActImpl.FIELD_TRIGGER.equals(fieldName))
+				new ActImplOperationTriggerReader().readThenSet(acts, null);
 		}
 	}
 }
