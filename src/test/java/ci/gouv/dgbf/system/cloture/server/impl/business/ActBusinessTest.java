@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.ActBusiness;
@@ -26,7 +27,12 @@ public class ActBusinessTest {
 	@Inject ActBusiness actBusiness;
 	@Inject EntityManager entityManager;
 	
-	@Test
+	@BeforeEach
+	void listenBeforeEach() {
+		ActBusinessImpl.PRODUCTION = Boolean.FALSE;
+	}
+	
+	//@Test
 	void lock() {
 		String identifier = "not_yet_operated_01";
 		Act act = entityManager.find(ActImpl.class, identifier);
@@ -76,15 +82,15 @@ public class ActBusinessTest {
 		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			actBusiness.lock("user01", identifier);
 		});
-		assertThat(exception.getMessage()).isEqualTo("Les actes suivants sont déja verouillés : locked01");
+		assertThat(exception.getMessage()).isEqualTo("La fonctionnalité de verouillage n'est pas encore implémentée");
 	}
 	
 	@Test
-	void lock_alreadyUnlocked() {
+	void unlock_alreadyUnlocked() {
 		String identifier = "unlocked01";
 		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			actBusiness.unlock("user01", identifier);
 		});
-		assertThat(exception.getMessage()).isEqualTo("Les actes suivants sont déja déverouillés : unlocked01");
+		assertThat(exception.getMessage()).isEqualTo("Les actes suivants ne sont pas verouillés : unlocked01 1");
 	}
 }

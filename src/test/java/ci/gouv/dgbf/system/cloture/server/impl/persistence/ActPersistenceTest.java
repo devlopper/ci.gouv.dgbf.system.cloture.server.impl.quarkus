@@ -24,7 +24,7 @@ public class ActPersistenceTest {
 	void lock() {
 		try {
 			userTransaction.begin();
-			actPersistence.lock("lockable");
+			actPersistence.lock("lockable","CHANGEMENT_%","T_ENGAGEMENT");
 			userTransaction.commit();
 			assertThat(Boolean.TRUE).isTrue();
 		} catch (Exception exception) {
@@ -37,7 +37,7 @@ public class ActPersistenceTest {
 	void lock_error() {
 		try {
 			userTransaction.begin();
-			actPersistence.lock("XXX");
+			actPersistence.lock("XXX","CHANGEMENT_%","T_ENGAGEMENT");
 			userTransaction.commit();
 		} catch (Exception exception) {
 			exception.printStackTrace();
@@ -54,7 +54,7 @@ public class ActPersistenceTest {
 	void unlock() {
 		try {
 			userTransaction.begin();
-			actPersistence.unlock("unlockable");
+			actPersistence.unlock("unlockable","CHANGEMENT_%","T_ENGAGEMENT");
 			userTransaction.commit();
 			assertThat(Boolean.TRUE).isTrue();
 		} catch (Exception exception) {
@@ -67,7 +67,7 @@ public class ActPersistenceTest {
 	void unlock_error() {
 		try {
 			userTransaction.begin();
-			actPersistence.unlock("XXX");
+			actPersistence.unlock("XXX","CHANGEMENT_%","T_ENGAGEMENT");
 			userTransaction.commit();
 		} catch (Exception exception) {
 			exception.printStackTrace();

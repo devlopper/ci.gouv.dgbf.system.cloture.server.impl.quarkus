@@ -18,6 +18,7 @@ import org.cyk.utility.persistence.server.query.string.QueryStringBuilder.Argume
 import org.cyk.utility.persistence.server.query.string.RuntimeQueryStringBuilder;
 import org.cyk.utility.persistence.server.query.string.WhereStringBuilder.Predicate;
 
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
@@ -31,6 +32,7 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject OperationPersistence operationPersistence;
 	@Inject ActPersistence actPersistence;
+	@Inject ActLockPersistence actLockPersistence;
 	
 	@Override
 	protected void setTuple(QueryExecutorArguments arguments, Arguments builderArguments) {
@@ -49,6 +51,8 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 		super.populatePredicate(arguments, builderArguments, predicate, filter);
 		if(Boolean.TRUE.equals(actPersistence.isProcessable(arguments)))
 			populatePredicateAct(arguments, builderArguments, predicate, filter);
+		else if(Boolean.TRUE.equals(actLockPersistence.isProcessable(arguments)))
+			populatePredicateActLock(arguments, builderArguments, predicate, filter);
 	}
 	
 	@Override
@@ -80,6 +84,17 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 			predicate.add(ACT_PREDICATE_SEARCH);
 			String search = ValueHelper.defaultToIfBlank((String) arguments.getFilterFieldValue(Parameters.SEARCH),"");
 			filter.addField(Parameters.SEARCH, LikeStringValueBuilder.getInstance().build(search, null, null));
+		}
+	}
+	
+	private void populatePredicateActLock(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
+		if(arguments.getFilterFieldValue(Parameters.ACTS_REFERENCES) != null) {
+			predicate.add(String.format("t.%s IN :%s", ActLockImpl.FIELD_ACT_REFERENCE,Parameters.ACTS_REFERENCES));
+			filter.addField(Parameters.ACTS_REFERENCES, arguments.getFilterFieldValue(Parameters.ACTS_REFERENCES));
+		}
+		if(arguments.getFilterFieldValue(Parameters.ACT_TYPE) != null) {
+			predicate.add(String.format("t.%s = :%s", ActLockImpl.FIELD_ACT_TYPE,Parameters.ACT_TYPE));
+			filter.addField(Parameters.ACT_TYPE, arguments.getFilterFieldValue(Parameters.ACT_TYPE));
 		}
 	}
 }

@@ -19,23 +19,45 @@ import org.cyk.utility.persistence.EntityManagerGetter;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.ActBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
-import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImplCodeOperationTypeReader;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActOperationImpl;
 
 @ApplicationScoped
 public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implements ActBusiness,Serializable {
 
 	@Inject ActPersistence actPersistence;
+	@Inject ActLockPersistence actLockPersistence;
+	
+	private void operate(Collection<String> identifiers,ActOperationType operation, String trigger) {
+		ValidatorImpl.Act.validate(identifiers, operation,trigger);
+		Collection<Object[]> locks = actLockPersistence.readWhereEnabledIsTrueByActIdentifiersForOperation(identifiers);		
+		Collection<Object[]> referenceOrTargetTableIsNullArrays = locks.stream().filter(array -> StringHelper.isBlank((String)array[1]) || array[2] == null || StringHelper.isBlank((String)array[3])).collect(Collectors.toList());
+		if(CollectionHelper.isNotEmpty(referenceOrTargetTableIsNullArrays))
+			throw new RequestException(String.format("La référence , le type de verrou et la table cible des actes suivants sont obligatoire : %s",referenceOrTargetTableIsNullArrays.stream().map(array -> (String)array[0])
+					.collect(Collectors.joining(","))));
+		EntityManager entityManager = EntityManagerGetter.getInstance().get();
+		locks.forEach(lock -> {
+			String reference = (String) lock[1];
+			String targetTable = "T_"+lock[2];
+			String lockType = (String) lock[3];			
+			if(ActOperationType.DEVERROUILLAGE.equals(operation))
+				actPersistence.unlock(reference,lockType,targetTable,entityManager);
+			else
+				actPersistence.lock(reference,lockType,targetTable,entityManager);
+		});
+		
+		//if(Boolean.TRUE.equals(PRODUCTION) && ActOperationType.DEVERROUILLAGE.equals(operation))
+		//	ValidatorImpl.Act.validateNoLockFound(identifiers,entityManager);
+		
+		createOperations(identifiers, operation, trigger,entityManager);
+	}
 	
 	@Override @Transactional
 	public void lock(Collection<String> identifiers, String trigger) {
-		validate(identifiers, trigger, ActOperationType.VERROUILLAGE);
-		identifiers.forEach(identifier -> {
-			actPersistence.lock(identifier);
-		});
-		createOperations(identifiers, ActOperationType.VERROUILLAGE, trigger);
+		throw new RequestException("La fonctionnalité de verouillage n'est pas encore implémentée");
+		//operate(identifiers, ActOperationType.VERROUILLAGE, trigger);
 	}
 	
 	@Override
@@ -45,11 +67,7 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 
 	@Override @Transactional
 	public void unlock(Collection<String> identifiers, String trigger) {
-		validate(identifiers, trigger, ActOperationType.DEVERROUILLAGE);
-		identifiers.forEach(identifier -> {
-			actPersistence.unlock(identifier);
-		});
-		createOperations(identifiers, ActOperationType.DEVERROUILLAGE, trigger);
+		operate(identifiers, ActOperationType.DEVERROUILLAGE, trigger);
 	}
 	
 	@Override
@@ -57,8 +75,7 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 		unlock(CollectionHelper.listOf(Boolean.TRUE, identifiers), trigger);
 	}
 	
-	private void createOperations(Collection<String> identifiers,ActOperationType operation, String trigger) {
-		EntityManager entityManager = EntityManagerGetter.getInstance().get();
+	private void createOperations(Collection<String> identifiers,ActOperationType operation, String trigger,EntityManager entityManager) {
 		LocalDateTime date = LocalDateTime.now();
 		identifiers.forEach(identifier -> {
 			createOperation(entityManager,identifier,operation,date,trigger);
@@ -70,19 +87,5 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 				.setOperationDate(date).setTrigger(trigger));
 	}
 	
-	private static void validate(Collection<String> identifiers, String trigger,ActOperationType operationType) {
-		String prefix = ActOperationType.VERROUILLAGE.equals(operationType) ? "" : "dé";
-		if(CollectionHelper.isEmpty(identifiers))
-			throw new RequestException(String.format("L'identifiant d'un acte à %sverrouiller est obligatoire",prefix));
-		if(StringHelper.isBlank(trigger))
-			throw new RequestException("Le déclencheur de l'acte est obligatoire");
-		
-		Collection<Object[]> arrays = new ActImplCodeOperationTypeReader().readByIdentifiers(identifiers, null);
-		if(CollectionHelper.isNotEmpty(arrays)) {
-			Collection<String> alreadyLockedCodes = arrays.stream().filter(array -> operationType.equals(array[2])).map(array -> (String)array[1])
-					.collect(Collectors.toList());
-			if(CollectionHelper.isNotEmpty(alreadyLockedCodes))
-				throw new RequestException(String.format("Les actes suivants sont déja %sverouillés : %s", prefix,alreadyLockedCodes.stream().collect(Collectors.joining(","))));
-		}
-	}
+	public static Boolean PRODUCTION = Boolean.TRUE;
 }

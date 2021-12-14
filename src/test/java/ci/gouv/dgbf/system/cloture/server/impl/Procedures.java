@@ -11,13 +11,13 @@ public class Procedures {
 		return null;
 	}
 	
-	public static String PA_VERROUILLER_ACTE(String identifier) {
+	public static String PA_VERROUILLER_ACTE(String identifier,String lockType,String targetTable) {
 		if(IDENTIFIER_ERROR.equals(identifier))
 			throw new RuntimeException("Une erreur est survenue");
 		return null;
 	}
 	
-	public static String PA_DEVERROUILLER_ACTE(String identifier) {
+	public static String PA_DEVERROUILLER_ACTE(String identifier,String lockType,String targetTable) {
 		if(IDENTIFIER_ERROR.equals(identifier))
 			throw new RuntimeException("Une erreur est survenue");
 		return null;
