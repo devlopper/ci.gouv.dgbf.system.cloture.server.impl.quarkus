@@ -20,7 +20,7 @@ public class ActImplNumberOfLocksEnabledReader extends AbstractActImplReader imp
 	@Override
 	protected void __set__(ActImpl act, Object[] array) {
 		Integer index = 1;
-		act.setNumberOfLocksEnabled(NumberHelper.getInteger(getAsLong(array, index++)));		
+		act.setNumberOfLocksEnabled(NumberHelper.getInteger(array[index++]));
 	}
 	
 	@Override

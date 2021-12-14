@@ -25,6 +25,8 @@ public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiab
 	@JsonbProperty(value = JSON_OPERATION_TYPE) ActOperationType operationType;
 	@JsonbProperty(value = JSON_TRIGGER) String trigger;
 	@JsonbProperty(value = JSON_OPERATION_DATE_STRING) String operationDateString;
+	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS) Integer numberOfLocks;
+	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS_ENABLED) Integer numberOfLocksEnabled;
 	
 	@Override @JsonbProperty(value = JSON_IDENTIFIER)
 	public ActDtoImpl setIdentifier(String identifier) {
@@ -65,6 +67,8 @@ public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiab
     			,JSON_OPERATION_TYPE,ActImpl.FIELD_OPERATION_TYPE
     			,JSON_TRIGGER,ActImpl.FIELD_TRIGGER
     			,JSON_OPERATION_DATE_STRING,ActImpl.FIELD_OPERATION_DATE_STRING
+    			,JSON_NUMBER_OF_LOCKS,ActImpl.FIELD_NUMBER_OF_LOCKS
+    			,JSON_NUMBER_OF_LOCKS_ENABLED,ActImpl.FIELD_NUMBER_OF_LOCKS_ENABLED
     			));
 		AbstractServiceImpl.setProjections(ActDtoImpl.class, map);
 	}
