@@ -22,8 +22,8 @@ public class ActServiceTest {
 
 	@Test
     public void get_one() {
-		io.restassured.response.Response response = given().param("projections", ActDto.JSON_IDENTIFIER,ActDto.JSON_CODE,ActDto.JSON_NAME,ActDto.JSON_OPERATION_TYPE
-				,ActDto.JSON_TRIGGER,ActDto.JSON_OPERATION_DATE_STRING,ActDto.JSON_NUMBER_OF_LOCKS_ENABLED)
+		io.restassured.response.Response response = given().param("projections", ActDto.JSON_IDENTIFIER,ActDto.JSON_CODE,ActDto.JSON_NAME
+				,ActDto.JSON_TYPE/*,ActDto.JSON_STATUS_STRING,ActDto.JSON_LATEST_OPERATION_STRING,ActDto.JSON_NUMBER_OF_LOCKS_ENABLED*/)
 				//.log().all()
 				.when().get("/api/actes/1");
 		response.then()

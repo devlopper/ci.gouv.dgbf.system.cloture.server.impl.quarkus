@@ -51,6 +51,10 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 				new ActImplOperationTriggerReader().readThenSet(acts, null);
 			else if(ActImpl.FIELD_NUMBER_OF_LOCKS_ENABLED.equals(fieldName))
 				new ActImplNumberOfLocksEnabledReader().readThenSet(acts, null);
+			else if(ActImpl.FIELD_STATUS_STRING.equals(fieldName))
+				new ActImplStatusStringReader().readThenSet(acts, null);
+			else if(ActImpl.FIELD_LATEST_OPERATION_STRING.equals(fieldName))
+				new ActImplLatestOperationStringReader().readThenSet(acts, null);
 		}
 	}
 }

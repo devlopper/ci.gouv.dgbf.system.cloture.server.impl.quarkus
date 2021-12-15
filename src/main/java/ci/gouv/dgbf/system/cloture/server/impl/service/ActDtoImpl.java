@@ -11,6 +11,7 @@ import org.cyk.utility.service.entity.AbstractIdentifiableSystemScalarStringIden
 import org.cyk.utility.service.server.AbstractServiceImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActType;
 import ci.gouv.dgbf.system.cloture.server.api.service.ActDto;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import io.quarkus.arc.Unremovable;
@@ -23,10 +24,13 @@ import lombok.experimental.Accessors;
 public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements ActDto,Serializable {
 
 	@JsonbProperty(value = JSON_OPERATION_TYPE) ActOperationType operationType;
+	@JsonbProperty(value = JSON_TYPE) ActType type;
 	@JsonbProperty(value = JSON_TRIGGER) String trigger;
 	@JsonbProperty(value = JSON_OPERATION_DATE_STRING) String operationDateString;
 	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS) Integer numberOfLocks;
 	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS_ENABLED) Integer numberOfLocksEnabled;
+	@JsonbProperty(value = JSON_STATUS_STRING) String statusString;
+	@JsonbProperty(value = JSON_LATEST_OPERATION_STRING) String latestOperationString;
 	
 	@Override @JsonbProperty(value = JSON_IDENTIFIER)
 	public ActDtoImpl setIdentifier(String identifier) {
@@ -64,11 +68,16 @@ public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiab
 				JSON_IDENTIFIER,ActImpl.FIELD_IDENTIFIER
     			,JSON_CODE,ActImpl.FIELD_CODE
     			,JSON_NAME,ActImpl.FIELD_NAME
+    			,JSON_TYPE,ActImpl.FIELD_TYPE
     			,JSON_OPERATION_TYPE,ActImpl.FIELD_OPERATION_TYPE
     			,JSON_TRIGGER,ActImpl.FIELD_TRIGGER
     			,JSON_OPERATION_DATE_STRING,ActImpl.FIELD_OPERATION_DATE_STRING
     			,JSON_NUMBER_OF_LOCKS,ActImpl.FIELD_NUMBER_OF_LOCKS
     			,JSON_NUMBER_OF_LOCKS_ENABLED,ActImpl.FIELD_NUMBER_OF_LOCKS_ENABLED
+    			,JSON_STATUS_STRING,ActImpl.FIELD_STATUS_STRING
+    			));
+		map.putAll(Map.of(
+				JSON_LATEST_OPERATION_STRING,ActImpl.FIELD_LATEST_OPERATION_STRING
     			));
 		AbstractServiceImpl.setProjections(ActDtoImpl.class, map);
 	}

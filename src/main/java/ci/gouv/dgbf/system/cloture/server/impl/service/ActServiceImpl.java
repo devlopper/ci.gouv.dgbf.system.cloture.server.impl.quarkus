@@ -39,5 +39,4 @@ public class ActServiceImpl extends AbstractSpecificServiceImpl<ActDto,ActDtoImp
 		business.unlock(identifiers, trigger);
 		return Response.ok().build();
 	}
-
 }

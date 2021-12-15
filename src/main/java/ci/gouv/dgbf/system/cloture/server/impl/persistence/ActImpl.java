@@ -58,6 +58,8 @@ public class ActImpl extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	@Transient ActOperationType operationType;
 	@Transient String operationDateString;
 	@Transient String trigger;
+	@Transient String statusString;
+	@Transient String latestOperationString;
 	
 	@Override
 	public ActImpl setIdentifier(String identifier) {
@@ -82,6 +84,8 @@ public class ActImpl extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	public static final String FIELD_TYPE = "type";
 	public static final String FIELD_NUMBER_OF_LOCKS = "numberOfLocks";
 	public static final String FIELD_NUMBER_OF_LOCKS_ENABLED = "numberOfLocksEnabled";
+	public static final String FIELD_STATUS_STRING = "statusString";
+	public static final String FIELD_LATEST_OPERATION_STRING = "latestOperationString";
 	public static final String FIELDS_NUMBER_OF_LOCKS = "numberOfLocks";
 	
 	public static final String ENTITY_NAME = "ActImpl";
