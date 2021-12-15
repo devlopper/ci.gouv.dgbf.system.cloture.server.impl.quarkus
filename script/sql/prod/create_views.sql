@@ -1,18 +1,20 @@
--- Act
-CREATE OR REPLACE VIEW "VA_ACTE" AS
-SELECT a.r_engagement AS "IDENTIFIANT",a.r_engagement AS "CODE",a.l_engagement AS "LIBELLE"
-FROM vx_engagement@dblink_elabo_bidf a
-UNION
-SELECT a.r_liquidation AS "IDENTIFIANT",a.r_liquidation AS "CODE",a.l_liquidation AS "LIBELLE"
-FROM vx_liquidation@dblink_elabo_bidf a
-UNION
-SELECT a.r_mandat AS "IDENTIFIANT",a.r_mandat AS "CODE",a.l_mandat AS "LIBELLE"
-FROM vx_mandat@dblink_elabo_bidf a
-UNION
-SELECT a.r_regie_paiement AS "IDENTIFIANT",a.r_regie_paiement AS "CODE",a.l_regie_paiement AS "LIBELLE"
-FROM vx_ordre_paiement@dblink_elabo_bidf a
+-- Liste des actes et leurs verrous
+CREATE OR REPLACE VIEW VA_ACTE_STATUT AS
+SELECT a.identifiant AS "IDENTIFIANT",COUNT(v.id_workflow_verrou) AS "NOMBRE_VERROU",SUM(CASE WHEN v.date_fin IS NULL THEN 1 ELSE 0 END) AS "NOMBRE_VERROU_ACTIF"
+FROM UT_BIDF_TAMP.VA_ACTE@dblink_elabo_bidf a
+LEFT JOIN UT_BIDF_TAMP.VA_WORKFLOW_VERROU@dblink_elabo_bidf v ON v.id_pk_table_cible = a.reference AND v.id_table_cible = 'T_'||a.type
+WHERE (v.id_workflow_verrou_type LIKE 'CLOTURE_%' OR v.id_workflow_verrou_type LIKE 'CHANGEMENT_%')
+GROUP BY a.identifiant
+ORDER BY a.identifiant;
 
--- Acte : Dernière opération
+-- Liste des verrous - un verrou actif est un verrou où la date de fin est nulle
+CREATE OR REPLACE VIEW VA_VERROU AS
+SELECT TO_CHAR(v.id_workflow_verrou) AS "IDENTIFIANT",a.identifiant AS "ACTE_IDENTIFIANT",TO_CHAR(v.id_pk_table_cible) AS "ACTE_REFERENCE",a.type AS "ACTE_TYPE",v.id_workflow_verrou_type AS "TYPE"
+,v.id_workflow_verrou_type AS "MOTIF",CASE WHEN v.date_fin IS NULL THEN 1 ELSE 0 END AS "ACTIF"
+FROM UT_BIDF_TAMP.va_workflow_verrou@dblink_elabo_bidf v
+JOIN VMA_ACTE a ON a.reference = v.id_pk_table_cible AND 'T_'||a.type = v.id_table_cible;
+
+-- Liste des dernières opérations
 CREATE OR REPLACE VIEW "VA_ACTE_DERNIERE_OPERATION" AS
 SELECT acte
     ,MAX(identifiant) keep (dense_rank last order by operation_date) AS "IDENTIFIANT"
@@ -21,34 +23,3 @@ SELECT acte
     ,MAX(declencheur) keep (dense_rank last order by operation_date) AS "DECLENCHEUR"
 FROM  TA_ACTE_OPERATION
 GROUP BY acte
-
--- Liste des actes clos sur BIDF
-CREATE OR REPLACE VIEW VA_ACTE_CLOS_REFERENCE
-AS SELECT a.r_engagement AS "REFERENCE"
-FROM t_workflow_verrou@dblink_bidf_exe v
-INNER JOIN t_engagement@dblink_bidf_exe a ON (v.id_pk_table_cible = a.id_engagement AND v.id_table_cible = 'T_ENGAGEMENT')
-WHERE v.date_fin IS NOT NULL AND v.id_workflow_verrou_type LIKE 'CLOTURE_%'
-UNION
--- Liste des liquidations ayant un verrou de type cloture
-SELECT a.r_liquidation AS "REFERENCE"
-FROM t_workflow_verrou@dblink_bidf_exe v
-INNER JOIN t_liquidation@dblink_bidf_exe a ON (v.id_pk_table_cible = a.id_liquidation AND v.id_table_cible = 'T_LIQUIDATION')
-WHERE v.date_fin IS NOT NULL AND v.id_workflow_verrou_type LIKE 'CLOTURE_%'
-UNION
--- Liste des mandats ayant un verrou de type cloture
-SELECT a.r_mandat AS "REFERENCE"
-FROM t_workflow_verrou@dblink_bidf_exe v
-INNER JOIN t_mandat@dblink_bidf_exe a ON (v.id_pk_table_cible = a.id_mandat AND v.id_table_cible = 'T_MANDAT')
-WHERE v.date_fin IS NOT NULL AND v.id_workflow_verrou_type LIKE 'CLOTURE_%'
-UNION
--- Liste des liquidations ayant un verrou de type cloture
-SELECT a.r_regie_paiement AS "REFERENCE"
-FROM t_workflow_verrou@dblink_bidf_exe v
-INNER JOIN t_regie_paiement@dblink_bidf_exe a ON (v.id_pk_table_cible = a.id_regie_paiement AND v.id_table_cible = 'T_REGIE_PAIEMENT')
-WHERE v.date_fin IS NOT NULL AND v.id_workflow_verrou_type LIKE 'CLOTURE_%'
-UNION
--- Liste des avances ayant un verrou de type cloture
-SELECT a.r_avance AS "REFERENCE"
-FROM t_workflow_verrou@dblink_bidf_exe v
-INNER JOIN t_avance@dblink_bidf_exe a ON (v.id_pk_table_cible = a.id_avance AND v.id_table_cible = 'T_AVANCE')
-WHERE v.date_fin IS NOT NULL AND v.id_workflow_verrou_type LIKE 'CLOTURE_%';
