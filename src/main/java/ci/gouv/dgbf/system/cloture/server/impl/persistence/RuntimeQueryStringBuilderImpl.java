@@ -88,6 +88,10 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	}
 	
 	private void populatePredicateActLock(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
+		if(arguments.getFilterFieldValue(Parameters.ACT_IDENTIFIER) != null) {
+			predicate.add(String.format("t.%s = :%s", ActLockImpl.FIELD_ACT_IDENTIFIER,Parameters.ACT_IDENTIFIER));
+			filter.addField(Parameters.ACT_IDENTIFIER, arguments.getFilterFieldValue(Parameters.ACT_IDENTIFIER));
+		}
 		if(arguments.getFilterFieldValue(Parameters.ACTS_REFERENCES) != null) {
 			predicate.add(String.format("t.%s IN :%s", ActLockImpl.FIELD_ACT_REFERENCE,Parameters.ACTS_REFERENCES));
 			filter.addField(Parameters.ACTS_REFERENCES, arguments.getFilterFieldValue(Parameters.ACTS_REFERENCES));

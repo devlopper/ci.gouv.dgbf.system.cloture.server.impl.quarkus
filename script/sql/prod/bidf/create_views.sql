@@ -10,7 +10,7 @@ SELECT a.r_mandat AS "IDENTIFIANT",a.r_mandat AS "CODE",a.l_mandat AS "LIBELLE",
 FROM vx_mandat a
 UNION
 SELECT a.r_regie_paiement AS "IDENTIFIANT",a.r_regie_paiement AS "CODE",a.l_regie_paiement AS "LIBELLE",TO_CHAR(a.id_regie_paiement) AS "REFERENCE", 'REGIE_PAIEMENT' AS "TYPE"
-FROM vx_ordre_paiement a
+FROM vx_ordre_paiement a;
 
 -- Liste des verrous
 CREATE OR REPLACE VIEW "VA_WORKFLOW_VERROU" AS

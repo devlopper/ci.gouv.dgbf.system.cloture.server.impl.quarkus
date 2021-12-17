@@ -15,4 +15,5 @@ public class MapperGetterImpl extends AbstractMapperGetterImpl implements Serial
 	@Inject OperationDtoImplMapper operationDtoImplMapper;
 	@Inject OperationGroupDtoImplMapper operationGroupDtoImplMapper;
 	@Inject ActDtoImplMapper actDtoImplMapper;
+	@Inject ActLockDtoImplMapper actLockDtoImplMapper;
 }

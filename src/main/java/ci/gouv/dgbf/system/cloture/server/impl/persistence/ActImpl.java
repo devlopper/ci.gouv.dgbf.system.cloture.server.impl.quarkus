@@ -1,6 +1,8 @@
 package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -15,6 +17,7 @@ import javax.persistence.StoredProcedureParameter;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
@@ -53,11 +56,13 @@ public class ActImpl extends AbstractIdentifiableSystemScalarStringIdentifiableB
 	@Column(name = COLUMN_TYPE) @Enumerated(EnumType.STRING) ActType type;
 	
 	@Transient Boolean locked;
+	@Transient Collection<String> lockedReasons;
 	@Transient Integer numberOfLocks;
 	@Transient Integer numberOfLocksEnabled;
 	@Transient ActOperationType operationType;
 	@Transient String operationDateString;
 	@Transient String trigger;
+	@Transient String typeString;
 	@Transient String statusString;
 	@Transient String latestOperationString;
 	
@@ -76,17 +81,37 @@ public class ActImpl extends AbstractIdentifiableSystemScalarStringIdentifiableB
 		return (ActImpl) super.setName(name);
 	}
 	
+	public Collection<String> getLockedReasons(Boolean instantiateIfNull) {
+		if(lockedReasons == null && Boolean.TRUE.equals(instantiateIfNull))
+			lockedReasons = new ArrayList<String>();
+		return lockedReasons;
+	}
+	
+	public ActImpl addLockedReasons(Collection<String> reasons) {
+		if(CollectionHelper.isEmpty(reasons))
+			return this;
+		getLockedReasons(Boolean.TRUE).addAll(reasons);
+		return this;
+	}
+	
+	public ActImpl addLockedReasons(String...reasons) {
+		return addLockedReasons(CollectionHelper.listOf(Boolean.TRUE,reasons));
+	}
+	
 	public static final String FIELD_OPERATION_TYPE = "operationType";
 	public static final String FIELD_OPERATION_DATE = "operationDate";
 	public static final String FIELD_OPERATION_DATE_STRING = "operationDateString";
 	public static final String FIELD_TRIGGER = "trigger";
 	public static final String FIELD_REFERENCE = "reference";
 	public static final String FIELD_TYPE = "type";
+	public static final String FIELD_TYPE_STRING = "typeString";
 	public static final String FIELD_NUMBER_OF_LOCKS = "numberOfLocks";
 	public static final String FIELD_NUMBER_OF_LOCKS_ENABLED = "numberOfLocksEnabled";
 	public static final String FIELD_STATUS_STRING = "statusString";
 	public static final String FIELD_LATEST_OPERATION_STRING = "latestOperationString";
+	public static final String FIELD_LOCKED_REASONS = "lockedReasons";
 	public static final String FIELDS_NUMBER_OF_LOCKS = "numberOfLocks";
+	public static final String FIELDS_CODE_NAME_TYPE_STRING_NUMBER_OF_LOCKS_ENABLED_STATUS_STRING_LATEST_OPERATION = "codeNameTypeStringNumberOfLocksEnabledStatusStringLatestOperation";
 	
 	public static final String ENTITY_NAME = "ActImpl";
 	public static final String TABLE_NAME = "VMA_ACTE";

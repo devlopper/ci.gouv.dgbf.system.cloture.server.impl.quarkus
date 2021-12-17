@@ -23,7 +23,7 @@ public class ActServiceTest {
 	@Test
     public void get_one() {
 		io.restassured.response.Response response = given().param("projections", ActDto.JSON_IDENTIFIER,ActDto.JSON_CODE,ActDto.JSON_NAME
-				,ActDto.JSON_TYPE/*,ActDto.JSON_STATUS_STRING,ActDto.JSON_LATEST_OPERATION_STRING,ActDto.JSON_NUMBER_OF_LOCKS_ENABLED*/)
+				,ActDto.JSON_TYPE,ActDto.JSON_STATUS_STRING,ActDto.JSON_LATEST_OPERATION_STRING,ActDto.JSON_NUMBER_OF_LOCKS_ENABLED,ActDto.JSON_LOCKED_REASONS)
 				//.log().all()
 				.when().get("/api/actes/1");
 		response.then()

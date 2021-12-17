@@ -1,6 +1,7 @@
 package ci.gouv.dgbf.system.cloture.server.impl.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,9 +26,11 @@ public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiab
 
 	@JsonbProperty(value = JSON_OPERATION_TYPE) ActOperationType operationType;
 	@JsonbProperty(value = JSON_TYPE) ActType type;
+	@JsonbProperty(value = JSON_TYPE_STRING) String typeString;
 	@JsonbProperty(value = JSON_TRIGGER) String trigger;
 	@JsonbProperty(value = JSON_OPERATION_DATE_STRING) String operationDateString;
 	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS) Integer numberOfLocks;
+	@JsonbProperty(value = JSON_LOCKED_REASONS) ArrayList<String> lockedReasons;
 	@JsonbProperty(value = JSON_NUMBER_OF_LOCKS_ENABLED) Integer numberOfLocksEnabled;
 	@JsonbProperty(value = JSON_STATUS_STRING) String statusString;
 	@JsonbProperty(value = JSON_LATEST_OPERATION_STRING) String latestOperationString;
@@ -78,6 +81,9 @@ public class ActDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiab
     			));
 		map.putAll(Map.of(
 				JSON_LATEST_OPERATION_STRING,ActImpl.FIELD_LATEST_OPERATION_STRING
+				,JSON_LOCKED_REASONS,ActImpl.FIELD_LOCKED_REASONS
+				,JSONS_CODE_NAME_TYPE_STRING_NUMBER_OF_LOCKS_ENABLED_STATUS_STRING_LATEST_OPERATION,ActImpl.FIELDS_CODE_NAME_TYPE_STRING_NUMBER_OF_LOCKS_ENABLED_STATUS_STRING_LATEST_OPERATION
+				,JSON_TYPE_STRING,ActImpl.FIELD_TYPE_STRING
     			));
 		AbstractServiceImpl.setProjections(ActDtoImpl.class, map);
 	}

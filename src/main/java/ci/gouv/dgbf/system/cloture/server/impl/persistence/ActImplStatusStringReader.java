@@ -19,6 +19,10 @@ public class ActImplStatusStringReader extends AbstractActImplReader implements 
 	protected void __set__(ActImpl act, Object[] array) {
 		Integer index = 1;
 		Integer numberOfLocksEnabled = NumberHelper.getInteger(array[index++],0);		
-		act.setStatusString(NumberHelper.isEqualToZero(numberOfLocksEnabled) ? "Non verouillé" : String.format("Verouillé(%s)",numberOfLocksEnabled));
+		act.setStatusString(format(numberOfLocksEnabled));
+	}
+	
+	public static String format(Integer numberOfLocksEnabled) {
+		return NumberHelper.isEqualToZero(numberOfLocksEnabled) ? "Non verouillé" : String.format("Verouillé(%s)",numberOfLocksEnabled);
 	}
 }

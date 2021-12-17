@@ -24,10 +24,13 @@ public class ActImplLatestOperationStringReader extends AbstractActImplReader im
 	protected void __set__(ActImpl act, Object[] array) {
 		Integer index = 1;
 		ActOperationType actOperationType = (ActOperationType) array[index++];
+		act.setLatestOperationString(format(actOperationType,(LocalDateTime) array[index++],(String)array[index++]));		
+	}
+	
+	public static String format(ActOperationType actOperationType,LocalDateTime date,String trigger) {
 		if(actOperationType == null)
-			;
-		else
-			act.setLatestOperationString(String.format(FORMAT, actOperationType.getLabel(),TimeHelper.formatLocalDateTime((LocalDateTime) array[index++]),array[index++]));		
+			return null;
+		return String.format(FORMAT, actOperationType.getLabel(),TimeHelper.formatLocalDateTime(date),trigger);
 	}
 	
 	private static final String FORMAT = "%s le %s par %s";

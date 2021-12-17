@@ -8,6 +8,7 @@ import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.persistence.query.Filter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLock;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import io.quarkus.arc.Unremovable;
 
@@ -20,6 +21,8 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 			processOperations(CollectionHelper.cast(OperationImpl.class, objects),fieldsNames);
 		else if(Act.class.equals(klass) || ActImpl.class.equals(klass))
 			processActs(CollectionHelper.cast(ActImpl.class, objects),fieldsNames);
+		else if(ActLock.class.equals(klass) || ActLockImpl.class.equals(klass))
+			processActLocks(CollectionHelper.cast(ActLockImpl.class, objects),fieldsNames);
 		else
 			super.__process__(klass,objects,filter, fieldsNames);
 	}
@@ -55,6 +58,18 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 				new ActImplStatusStringReader().readThenSet(acts, null);
 			else if(ActImpl.FIELD_LATEST_OPERATION_STRING.equals(fieldName))
 				new ActImplLatestOperationStringReader().readThenSet(acts, null);
+			else if(ActImpl.FIELD_LOCKED_REASONS.equals(fieldName))
+				new ActImplLockedReasonsReader().readThenSet(acts, null);
+			
+			else if(ActImpl.FIELDS_CODE_NAME_TYPE_STRING_NUMBER_OF_LOCKS_ENABLED_STATUS_STRING_LATEST_OPERATION.equals(fieldName))
+				new ActImplCodeNameTypeStringNumberOfLocksEnabledStatusStringLatestOperationReader().readThenSet(acts, null);
+		}
+	}
+	
+	public void processActLocks(Collection<ActLockImpl> actLocks,Collection<String> fieldsNames) {
+		for(String fieldName : fieldsNames) {
+			if(ActLockImpl.FIELDS_REASON_ENABLED_ENABLED_AS_STRING_BEGIN_DATE_STRING_END_DATE_STRING_LATEST_OPERATION.equals(fieldName))
+				new ActLockImplReasonEnabledEnabledStringBeginDateStringEndDateStringLatestOperationReader().readThenSet(actLocks, null);
 		}
 	}
 }
