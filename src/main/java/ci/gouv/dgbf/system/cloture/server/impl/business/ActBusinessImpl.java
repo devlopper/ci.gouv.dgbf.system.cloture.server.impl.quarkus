@@ -32,7 +32,9 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 	
 	private void operate(Collection<String> identifiers,ActOperationType operation, String trigger) {
 		ValidatorImpl.Act.validate(identifiers, operation,trigger);
-		Collection<Object[]> locks = actLockPersistence.readWhereEnabledIsTrueByActIdentifiersForOperation(identifiers);		
+		Collection<Object[]> locks = actLockPersistence.readWhereEnabledIsTrueByActIdentifiersForOperation(identifiers);
+		if(CollectionHelper.isEmpty(locks))
+			throw new RequestException(String.format("Aucun verrou trouvé pour les actes suivants : %s",identifiers));
 		Collection<Object[]> referenceOrTargetTableIsNullArrays = locks.stream().filter(array -> StringHelper.isBlank((String)array[1]) || array[2] == null || StringHelper.isBlank((String)array[3])).collect(Collectors.toList());
 		if(CollectionHelper.isNotEmpty(referenceOrTargetTableIsNullArrays))
 			throw new RequestException(String.format("La référence , le type de verrou et la table cible des actes suivants sont obligatoire : %s",referenceOrTargetTableIsNullArrays.stream().map(array -> (String)array[0])

@@ -58,6 +58,30 @@ public class ActBusinessTest {
 		assertThat(actOperation.getOperationType()).as("acte déverrouillé").isEqualTo(ActOperationType.DEVERROUILLAGE);
 	}
 	
+	@Test
+	void unlock_not_yet_operated_g01_() {
+		String identifier1 = "not_yet_operated_g01_01";
+		Act act1 = entityManager.find(ActImpl.class, identifier1);
+		assertThat(act1.getOperationType()).as("acte pas encore déverouillé").isNull();
+		
+		String identifier2 = "not_yet_operated_g01_02";
+		Act act2 = entityManager.find(ActImpl.class, identifier2);
+		assertThat(act2.getOperationType()).as("acte pas encore déverouillé").isNull();
+		
+		actBusiness.unlock("user01",identifier1,identifier2);
+		entityManager.clear();
+		
+		act1 = entityManager.find(ActImpl.class, identifier1);
+		ActOperation actOperation1 = entityManager.createQuery("SELECT t FROM ActOperationImpl t WHERE t.actIdentifier = :actIdentifier", ActOperationImpl.class)
+				.setParameter("actIdentifier", identifier1).getSingleResult();
+		assertThat(actOperation1.getOperationType()).as("acte déverrouillé").isEqualTo(ActOperationType.DEVERROUILLAGE);
+		
+		act2 = entityManager.find(ActImpl.class, identifier2);
+		ActOperation actOperation2 = entityManager.createQuery("SELECT t FROM ActOperationImpl t WHERE t.actIdentifier = :actIdentifier", ActOperationImpl.class)
+				.setParameter("actIdentifier", identifier2).getSingleResult();
+		assertThat(actOperation2.getOperationType()).as("acte déverrouillé").isEqualTo(ActOperationType.DEVERROUILLAGE);
+	}
+	
 	/*
 	@Test
 	void unlock() {
