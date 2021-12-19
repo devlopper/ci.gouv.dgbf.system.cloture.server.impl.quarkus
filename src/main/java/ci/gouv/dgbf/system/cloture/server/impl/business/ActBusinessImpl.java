@@ -30,10 +30,10 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 	@Inject ActPersistence actPersistence;
 	@Inject ActLockPersistence actLockPersistence;
 	
-	private void operate(Collection<String> identifiers,ActOperationType operation, String trigger) {
-		ValidatorImpl.Act.validate(identifiers, operation,trigger);
+	private Integer operate(Collection<String> identifiers,ActOperationType operation, String trigger,Boolean processedIgnorable) {
+		ValidatorImpl.Act.validate(identifiers, operation,trigger,processedIgnorable);
 		Collection<Object[]> locks = actLockPersistence.readWhereEnabledIsTrueByActIdentifiersForOperation(identifiers);
-		if(CollectionHelper.isEmpty(locks))
+		if(CollectionHelper.isEmpty(locks) && !Boolean.TRUE.equals(processedIgnorable))
 			throw new RequestException(String.format("Aucun verrou trouvé pour les actes suivants : %s",identifiers));
 		Collection<Object[]> referenceOrTargetTableIsNullArrays = locks.stream().filter(array -> StringHelper.isBlank((String)array[1]) || array[2] == null || StringHelper.isBlank((String)array[3])).collect(Collectors.toList());
 		if(CollectionHelper.isNotEmpty(referenceOrTargetTableIsNullArrays))
@@ -54,6 +54,7 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 		//	ValidatorImpl.Act.validateNoLockFound(identifiers,entityManager);
 		
 		createOperations(identifiers, operation, trigger,entityManager);
+		return locks.size();
 	}
 	
 	@Override @Transactional
@@ -68,13 +69,13 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 	}
 
 	@Override @Transactional
-	public void unlock(Collection<String> identifiers, String trigger) {
-		operate(identifiers, ActOperationType.DEVERROUILLAGE, trigger);
+	public Integer unlock(Collection<String> identifiers, String trigger,Boolean processedIgnorable) {
+		return operate(identifiers, ActOperationType.DEVERROUILLAGE, trigger,processedIgnorable);
 	}
 	
 	@Override
-	public void unlock(String trigger, String... identifiers) {
-		unlock(CollectionHelper.listOf(Boolean.TRUE, identifiers), trigger);
+	public Integer unlock(String trigger,Boolean processedIgnorable, String... identifiers) {
+		return unlock(CollectionHelper.listOf(Boolean.TRUE, identifiers), trigger,processedIgnorable);
 	}
 	
 	private void createOperations(Collection<String> identifiers,ActOperationType operation, String trigger,EntityManager entityManager) {

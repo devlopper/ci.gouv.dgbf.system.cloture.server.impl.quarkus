@@ -50,7 +50,7 @@ public class ActBusinessTest {
 		String identifier = "not_yet_operated_02";
 		Act act = entityManager.find(ActImpl.class, identifier);
 		assertThat(act.getOperationType()).as("acte pas encore déverouillé").isNull();
-		actBusiness.unlock("user01",identifier);
+		actBusiness.unlock("user01",null,identifier);
 		entityManager.clear();
 		act = entityManager.find(ActImpl.class, identifier);
 		ActOperation actOperation = entityManager.createQuery("SELECT t FROM ActOperationImpl t WHERE t.actIdentifier = :actIdentifier", ActOperationImpl.class)
@@ -68,7 +68,7 @@ public class ActBusinessTest {
 		Act act2 = entityManager.find(ActImpl.class, identifier2);
 		assertThat(act2.getOperationType()).as("acte pas encore déverouillé").isNull();
 		
-		actBusiness.unlock("user01",identifier1,identifier2);
+		actBusiness.unlock("user01",null,identifier1,identifier2);
 		entityManager.clear();
 		
 		act1 = entityManager.find(ActImpl.class, identifier1);
@@ -113,7 +113,7 @@ public class ActBusinessTest {
 	void unlock_alreadyUnlocked() {
 		String identifier = "unlocked01";
 		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
-			actBusiness.unlock("user01", identifier);
+			actBusiness.unlock("user01",null, identifier);
 		});
 		assertThat(exception.getMessage()).isEqualTo("Les actes suivants ne sont pas verouillés : unlocked01 1");
 	}

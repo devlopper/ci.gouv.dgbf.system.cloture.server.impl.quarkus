@@ -231,3 +231,355 @@ f8fdb8666b2a: Pushed
 6e470ceb694d: Pushed
 8e5a0ed67bab: Pushed
 v0.0.0-1220210827: digest: sha256:fbc06f5abe31b3d8944b192debfccd9aaadee1949c000ef528aecb743b85063d size: 1789
+Publishing with time stamp : v0.0.0-1220211845 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+Publishing with time stamp : v0.0.0-1220210725 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+Publishing with time stamp : v0.0.0-1220210735 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+a83ef542f05b: Preparing
+a5be96c263ef: Preparing
+995d6b040135: Preparing
+7117c17199a2: Preparing
+8d3dfd2756c9: Preparing
+1323ffbff4dd: Preparing
+744c86b54390: Preparing
+1323ffbff4dd: Waiting
+a83ef542f05b: Retrying in 5 seconds
+995d6b040135: Pushed
+8d3dfd2756c9: Layer already exists
+1323ffbff4dd: Layer already exists
+744c86b54390: Layer already exists
+a5be96c263ef: Retrying in 5 seconds
+7117c17199a2: Retrying in 5 seconds
+a83ef542f05b: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+7117c17199a2: Retrying in 4 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 1 second
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+a83ef542f05b: Retrying in 10 seconds
+a5be96c263ef: Retrying in 10 seconds
+7117c17199a2: Retrying in 10 seconds
+a83ef542f05b: Retrying in 9 seconds
+7117c17199a2: Retrying in 9 seconds
+a5be96c263ef: Retrying in 9 seconds
+a83ef542f05b: Retrying in 8 seconds
+7117c17199a2: Retrying in 8 seconds
+a5be96c263ef: Retrying in 8 seconds
+a83ef542f05b: Retrying in 7 seconds
+7117c17199a2: Retrying in 7 seconds
+a5be96c263ef: Retrying in 7 seconds
+a83ef542f05b: Retrying in 6 seconds
+7117c17199a2: Retrying in 6 seconds
+a5be96c263ef: Retrying in 6 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 5 seconds
+a5be96c263ef: Retrying in 5 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 1 second
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+a83ef542f05b: Retrying in 15 seconds
+a5be96c263ef: Retrying in 15 seconds
+7117c17199a2: Retrying in 15 seconds
+a83ef542f05b: Retrying in 14 seconds
+a5be96c263ef: Retrying in 14 seconds
+7117c17199a2: Retrying in 14 seconds
+a83ef542f05b: Retrying in 13 seconds
+a5be96c263ef: Retrying in 13 seconds
+7117c17199a2: Retrying in 13 seconds
+a83ef542f05b: Retrying in 12 seconds
+7117c17199a2: Retrying in 12 seconds
+a5be96c263ef: Retrying in 12 seconds
+a83ef542f05b: Retrying in 11 seconds
+a5be96c263ef: Retrying in 11 seconds
+7117c17199a2: Retrying in 11 seconds
+a83ef542f05b: Retrying in 10 seconds
+a5be96c263ef: Retrying in 10 seconds
+7117c17199a2: Retrying in 10 seconds
+a83ef542f05b: Retrying in 9 seconds
+a5be96c263ef: Retrying in 9 seconds
+7117c17199a2: Retrying in 9 seconds
+a83ef542f05b: Retrying in 8 seconds
+7117c17199a2: Retrying in 8 seconds
+a5be96c263ef: Retrying in 8 seconds
+a83ef542f05b: Retrying in 7 seconds
+a5be96c263ef: Retrying in 7 seconds
+7117c17199a2: Retrying in 7 seconds
+a83ef542f05b: Retrying in 6 seconds
+7117c17199a2: Retrying in 6 seconds
+a5be96c263ef: Retrying in 6 seconds
+a83ef542f05b: Retrying in 5 seconds
+a5be96c263ef: Retrying in 5 seconds
+7117c17199a2: Retrying in 5 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+7117c17199a2: Retrying in 3 seconds
+a83ef542f05b: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+7117c17199a2: Retrying in 2 seconds
+a83ef542f05b: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+7117c17199a2: Retrying in 1 second
+7117c17199a2: Retrying in 20 seconds
+a83ef542f05b: Retrying in 20 seconds
+7117c17199a2: Retrying in 19 seconds
+a5be96c263ef: Retrying in 20 seconds
+a83ef542f05b: Retrying in 19 seconds
+7117c17199a2: Retrying in 18 seconds
+a5be96c263ef: Retrying in 19 seconds
+a83ef542f05b: Retrying in 18 seconds
+7117c17199a2: Retrying in 17 seconds
+a5be96c263ef: Retrying in 18 seconds
+a83ef542f05b: Retrying in 17 seconds
+7117c17199a2: Retrying in 16 seconds
+a5be96c263ef: Retrying in 17 seconds
+a83ef542f05b: Retrying in 16 seconds
+7117c17199a2: Retrying in 15 seconds
+a5be96c263ef: Retrying in 16 seconds
+a83ef542f05b: Retrying in 15 seconds
+7117c17199a2: Retrying in 14 seconds
+a5be96c263ef: Retrying in 15 seconds
+a83ef542f05b: Retrying in 14 seconds
+7117c17199a2: Retrying in 13 seconds
+a5be96c263ef: Retrying in 14 seconds
+a83ef542f05b: Retrying in 13 seconds
+7117c17199a2: Retrying in 12 seconds
+a5be96c263ef: Retrying in 13 seconds
+a83ef542f05b: Retrying in 12 seconds
+7117c17199a2: Retrying in 11 seconds
+a5be96c263ef: Retrying in 12 seconds
+a83ef542f05b: Retrying in 11 seconds
+7117c17199a2: Retrying in 10 seconds
+a5be96c263ef: Retrying in 11 seconds
+a83ef542f05b: Retrying in 10 seconds
+7117c17199a2: Retrying in 9 seconds
+a5be96c263ef: Retrying in 10 seconds
+a83ef542f05b: Retrying in 9 seconds
+7117c17199a2: Retrying in 8 seconds
+a5be96c263ef: Retrying in 9 seconds
+a83ef542f05b: Retrying in 8 seconds
+7117c17199a2: Retrying in 7 seconds
+a5be96c263ef: Retrying in 8 seconds
+a83ef542f05b: Retrying in 7 seconds
+7117c17199a2: Retrying in 6 seconds
+a5be96c263ef: Retrying in 7 seconds
+a83ef542f05b: Retrying in 6 seconds
+7117c17199a2: Retrying in 5 seconds
+a5be96c263ef: Retrying in 6 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 5 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+Publishing with time stamp : v0.0.0-1220210738 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+a83ef542f05b: Preparing
+a5be96c263ef: Preparing
+995d6b040135: Preparing
+7117c17199a2: Preparing
+8d3dfd2756c9: Preparing
+1323ffbff4dd: Preparing
+744c86b54390: Preparing
+1323ffbff4dd: Waiting
+744c86b54390: Waiting
+995d6b040135: Layer already exists
+8d3dfd2756c9: Layer already exists
+1323ffbff4dd: Layer already exists
+744c86b54390: Layer already exists
+7117c17199a2: Retrying in 5 seconds
+a5be96c263ef: Retrying in 5 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+a83ef542f05b: Retrying in 1 second
+7117c17199a2: Retrying in 10 seconds
+a5be96c263ef: Retrying in 10 seconds
+a83ef542f05b: Retrying in 10 seconds
+7117c17199a2: Retrying in 9 seconds
+a5be96c263ef: Retrying in 9 seconds
+a83ef542f05b: Retrying in 9 seconds
+7117c17199a2: Retrying in 8 seconds
+a5be96c263ef: Retrying in 8 seconds
+a83ef542f05b: Retrying in 8 seconds
+7117c17199a2: Retrying in 7 seconds
+a5be96c263ef: Retrying in 7 seconds
+a83ef542f05b: Retrying in 7 seconds
+7117c17199a2: Retrying in 6 seconds
+a5be96c263ef: Retrying in 6 seconds
+a83ef542f05b: Retrying in 6 seconds
+7117c17199a2: Retrying in 5 seconds
+a5be96c263ef: Retrying in 5 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+a83ef542f05b: Retrying in 1 second
+a5be96c263ef: Retrying in 15 seconds
+7117c17199a2: Retrying in 15 seconds
+a83ef542f05b: Retrying in 15 seconds
+7117c17199a2: Retrying in 14 seconds
+a5be96c263ef: Retrying in 14 seconds
+a83ef542f05b: Retrying in 14 seconds
+7117c17199a2: Retrying in 13 seconds
+a5be96c263ef: Retrying in 13 seconds
+a83ef542f05b: Retrying in 13 seconds
+a5be96c263ef: Retrying in 12 seconds
+7117c17199a2: Retrying in 12 seconds
+a83ef542f05b: Retrying in 12 seconds
+7117c17199a2: Retrying in 11 seconds
+a5be96c263ef: Retrying in 11 seconds
+a83ef542f05b: Retrying in 11 seconds
+a5be96c263ef: Retrying in 10 seconds
+7117c17199a2: Retrying in 10 seconds
+a83ef542f05b: Retrying in 10 seconds
+7117c17199a2: Retrying in 9 seconds
+a5be96c263ef: Retrying in 9 seconds
+a83ef542f05b: Retrying in 9 seconds
+7117c17199a2: Retrying in 8 seconds
+a5be96c263ef: Retrying in 8 seconds
+a83ef542f05b: Retrying in 8 seconds
+a5be96c263ef: Retrying in 7 seconds
+7117c17199a2: Retrying in 7 seconds
+a83ef542f05b: Retrying in 7 seconds
+7117c17199a2: Retrying in 6 seconds
+a5be96c263ef: Retrying in 6 seconds
+a83ef542f05b: Retrying in 6 seconds
+a5be96c263ef: Retrying in 5 seconds
+7117c17199a2: Retrying in 5 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 4 seconds
+a5be96c263ef: Retrying in 4 seconds
+a83ef542f05b: Retrying in 4 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 2 seconds
+a5be96c263ef: Retrying in 2 seconds
+a83ef542f05b: Retrying in 2 seconds
+7117c17199a2: Retrying in 1 second
+a5be96c263ef: Retrying in 1 second
+a83ef542f05b: Retrying in 1 second
+a5be96c263ef: Retrying in 20 seconds
+7117c17199a2: Retrying in 20 seconds
+a83ef542f05b: Retrying in 20 seconds
+a5be96c263ef: Retrying in 19 seconds
+7117c17199a2: Retrying in 19 seconds
+a83ef542f05b: Retrying in 19 seconds
+a5be96c263ef: Retrying in 18 seconds
+a83ef542f05b: Retrying in 18 seconds
+7117c17199a2: Retrying in 18 seconds
+a5be96c263ef: Retrying in 17 seconds
+7117c17199a2: Retrying in 17 seconds
+a83ef542f05b: Retrying in 17 seconds
+a5be96c263ef: Retrying in 16 seconds
+7117c17199a2: Retrying in 16 seconds
+a83ef542f05b: Retrying in 16 seconds
+a5be96c263ef: Retrying in 15 seconds
+7117c17199a2: Retrying in 15 seconds
+a83ef542f05b: Retrying in 15 seconds
+a5be96c263ef: Retrying in 14 seconds
+7117c17199a2: Retrying in 14 seconds
+a83ef542f05b: Retrying in 14 seconds
+a5be96c263ef: Retrying in 13 seconds
+7117c17199a2: Retrying in 13 seconds
+a83ef542f05b: Retrying in 13 seconds
+a5be96c263ef: Retrying in 12 seconds
+7117c17199a2: Retrying in 12 seconds
+a83ef542f05b: Retrying in 12 seconds
+a5be96c263ef: Retrying in 11 seconds
+7117c17199a2: Retrying in 11 seconds
+a83ef542f05b: Retrying in 11 seconds
+a5be96c263ef: Retrying in 10 seconds
+7117c17199a2: Retrying in 10 seconds
+a83ef542f05b: Retrying in 10 seconds
+a5be96c263ef: Retrying in 9 seconds
+7117c17199a2: Retrying in 9 seconds
+a83ef542f05b: Retrying in 9 seconds
+a5be96c263ef: Retrying in 8 seconds
+7117c17199a2: Retrying in 8 seconds
+a83ef542f05b: Retrying in 8 seconds
+a5be96c263ef: Retrying in 7 seconds
+7117c17199a2: Retrying in 7 seconds
+a83ef542f05b: Retrying in 7 seconds
+a5be96c263ef: Retrying in 6 seconds
+7117c17199a2: Retrying in 6 seconds
+a83ef542f05b: Retrying in 6 seconds
+a5be96c263ef: Retrying in 5 seconds
+a83ef542f05b: Retrying in 5 seconds
+7117c17199a2: Retrying in 5 seconds
+a5be96c263ef: Retrying in 4 seconds
+7117c17199a2: Retrying in 4 seconds
+a83ef542f05b: Retrying in 4 seconds
+a5be96c263ef: Retrying in 3 seconds
+a83ef542f05b: Retrying in 3 seconds
+7117c17199a2: Retrying in 3 seconds
+a5be96c263ef: Retrying in 2 seconds
+7117c17199a2: Retrying in 2 seconds
+a83ef542f05b: Retrying in 2 seconds
+a5be96c263ef: Retrying in 1 second
+7117c17199a2: Retrying in 1 second
+a83ef542f05b: Retrying in 1 second
+Publishing with time stamp : v0.0.0-1220210742 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+a83ef542f05b: Preparing
+a5be96c263ef: Preparing
+995d6b040135: Preparing
+7117c17199a2: Preparing
+8d3dfd2756c9: Preparing
+1323ffbff4dd: Preparing
+744c86b54390: Preparing
+744c86b54390: Waiting
+1323ffbff4dd: Waiting
+995d6b040135: Layer already exists
+8d3dfd2756c9: Layer already exists
+1323ffbff4dd: Layer already exists
+744c86b54390: Layer already exists
+a5be96c263ef: Pushed
+a83ef542f05b: Pushed
+7117c17199a2: Pushed
+v0.0.0-1220210742: digest: sha256:9ebffb92f968f7c184ca71ecd5a72f5c7b85f8f8dbab90d0d22f4b29bfbf6157 size: 1789

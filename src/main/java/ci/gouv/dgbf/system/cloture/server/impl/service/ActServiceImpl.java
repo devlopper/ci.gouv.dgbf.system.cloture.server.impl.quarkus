@@ -35,8 +35,8 @@ public class ActServiceImpl extends AbstractSpecificServiceImpl<ActDto,ActDtoImp
 	}
 
 	@Override
-	public Response unlock(List<String> identifiers, String trigger) {
-		business.unlock(identifiers, trigger);
-		return Response.ok().build();
+	public Response unlock(List<String> identifiers, String trigger,Boolean processedIgnorable) {
+		Integer numberOfLocks = business.unlock(identifiers, trigger,processedIgnorable);
+		return Response.ok(String.format("%1$s verrou%2$s désactivté%2$s", numberOfLocks,numberOfLocks == 1 ? "" : "s")).build();
 	}
 }

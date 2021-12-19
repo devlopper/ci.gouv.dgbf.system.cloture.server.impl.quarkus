@@ -83,7 +83,7 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 	/**/
 	
 	public static interface Act {
-		static void validate(Collection<String> identifiers,ActOperationType operationType, String trigger) {
+		static void validate(Collection<String> identifiers,ActOperationType operationType, String trigger,Boolean processedIgnorable) {
 			String prefix = ActOperationType.VERROUILLAGE.equals(operationType) ? "" : "dé";
 			if(CollectionHelper.isEmpty(identifiers))
 				throw new RequestException(String.format("L'identifiant d'un acte à %sverrouiller est obligatoire",prefix));
@@ -93,17 +93,19 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			if(ActOperationType.VERROUILLAGE.equals(operationType)) {
 				
 			}else if(ActOperationType.DEVERROUILLAGE.equals(operationType)){
-				Collection<Object[]> arrays = new ActImplNumberOfLocksEnabledReader().readByIdentifiers(identifiers, null);
-				if(CollectionHelper.isNotEmpty(arrays)) {
-					Collection<String> identifiersHavingZeroLock = arrays.stream().filter(array -> NumberHelper.isEqualToZero(NumberHelper.getLong(array[1], 0l))).map(array -> (String)array[0])
-							.collect(Collectors.toList());
-					if(CollectionHelper.isNotEmpty(identifiersHavingZeroLock)) {
-						Collection<String> codesNames = new ActImplCodeNameReader().readByIdentifiers(identifiers, null).stream().map(array -> array[1]+" "+array[2]).collect(Collectors.toList());
-						if(CollectionHelper.isEmpty(codesNames))
-							throw new RequestException("Certains actes ne sont pas verouillés");
-						throw new RequestException(String.format("Les actes suivants ne sont pas verouillés : %s", codesNames.stream().collect(Collectors.joining(","))));
-					}
-				}	
+				if(processedIgnorable == null || Boolean.FALSE.equals(processedIgnorable)) {
+					Collection<Object[]> arrays = new ActImplNumberOfLocksEnabledReader().readByIdentifiers(identifiers, null);
+					if(CollectionHelper.isNotEmpty(arrays)) {
+						Collection<String> identifiersHavingZeroLock = arrays.stream().filter(array -> NumberHelper.isEqualToZero(NumberHelper.getLong(array[1], 0l))).map(array -> (String)array[0])
+								.collect(Collectors.toList());
+						if(CollectionHelper.isNotEmpty(identifiersHavingZeroLock)) {
+							Collection<String> codesNames = new ActImplCodeNameReader().readByIdentifiers(identifiers, null).stream().map(array -> array[1]+" "+array[2]).collect(Collectors.toList());
+							if(CollectionHelper.isEmpty(codesNames))
+								throw new RequestException("Certains actes ne sont pas verouillés");
+							throw new RequestException(String.format("Les actes suivants ne sont pas verouillés : %s", codesNames.stream().collect(Collectors.joining(","))));
+						}
+					}	
+				}				
 			}
 		}
 		
