@@ -23,6 +23,8 @@ public class ActImplStatusStringReader extends AbstractActImplReader implements 
 	}
 	
 	public static String format(Integer numberOfLocksEnabled) {
+		if(numberOfLocksEnabled == null)
+			numberOfLocksEnabled = 0;
 		return NumberHelper.isEqualToZero(numberOfLocksEnabled) ? "Non verouillé" : String.format("Verouillé(%s)",numberOfLocksEnabled);
 	}
 }

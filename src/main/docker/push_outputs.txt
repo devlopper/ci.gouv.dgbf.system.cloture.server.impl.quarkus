@@ -583,3 +583,43 @@ a5be96c263ef: Pushed
 a83ef542f05b: Pushed
 7117c17199a2: Pushed
 v0.0.0-1220210742: digest: sha256:9ebffb92f968f7c184ca71ecd5a72f5c7b85f8f8dbab90d0d22f4b29bfbf6157 size: 1789
+Publishing with time stamp : v0.0.0-1220210907 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+Publishing with time stamp : v0.0.0-1220211454 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+4ef50d556f02: Preparing
+1b5d3dd66b08: Preparing
+c258cb8cc82e: Preparing
+822e918d7523: Preparing
+8d3dfd2756c9: Preparing
+1323ffbff4dd: Preparing
+744c86b54390: Preparing
+1323ffbff4dd: Waiting
+744c86b54390: Waiting
+8d3dfd2756c9: Layer already exists
+1323ffbff4dd: Layer already exists
+744c86b54390: Layer already exists
+1b5d3dd66b08: Pushed
+c258cb8cc82e: Pushed
+4ef50d556f02: Pushed
+822e918d7523: Pushed
+v0.0.0-1220211454: digest: sha256:824ccc968ec38ee2ab1e051241084cbf0541c79e8e9ad1fc6f21e80eb870c4a4 size: 1789
+Publishing with time stamp : v0.0.0-1220211509 
+The push refers to repository [10.3.4.18:5000/mic-cloture-api]
+c6bc9eb49e1a: Preparing
+2728d47407d0: Preparing
+4567f0098e57: Preparing
+2e9d5ca87a25: Preparing
+8d3dfd2756c9: Preparing
+1323ffbff4dd: Preparing
+744c86b54390: Preparing
+1323ffbff4dd: Waiting
+744c86b54390: Waiting
+8d3dfd2756c9: Layer already exists
+1323ffbff4dd: Layer already exists
+744c86b54390: Layer already exists
+4567f0098e57: Pushed
+2728d47407d0: Pushed
+c6bc9eb49e1a: Pushed
+2e9d5ca87a25: Pushed
+v0.0.0-1220211509: digest: sha256:b3080755f35b254982fb7d57d46db6ba0896cb31596ae83e71278771910e25d6 size: 1789
