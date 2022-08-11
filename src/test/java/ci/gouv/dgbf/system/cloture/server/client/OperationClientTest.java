@@ -30,7 +30,7 @@ public class OperationClientTest {
 	
 	@Test
     public void get_many() {
-		Response response = DependencyInjection.inject(SpecificServiceGetter.class).get(Operation.class).get(null,null, null, null, null, null, null);
+		Response response = DependencyInjection.inject(SpecificServiceGetter.class).get(Operation.class).get(null,null, null, null, null, null, null,null);
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 		assertThat(response.getHeaderString(ResponseHelper.HEADER_X_TOTAL_COUNT)).isEqualTo("6");
