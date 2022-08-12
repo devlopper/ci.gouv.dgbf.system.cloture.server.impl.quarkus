@@ -11,13 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActType;
-import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(Profiles.Persistence.Act.class)
+//@TestProfile(Profiles.Persistence.Act.class)
 public class ActPersistenceTest {
 
 	@Inject ci.gouv.dgbf.system.cloture.server.impl.Assertor assertor;
@@ -25,16 +22,16 @@ public class ActPersistenceTest {
 	@Inject ActLockPersistence actLockPersistence;
 	@Inject UserTransaction userTransaction;
 	
-	@Test
+	/*@Test
 	void get_one() {
 		ActImpl act = (ActImpl) actPersistence.readOne("1", List.of("identifier",ActImpl.FIELDS_CODE_NAME_TYPE_STRING_NUMBER_OF_LOCKS_ENABLED_STATUS_STRING_LATEST_OPERATION,ActImpl.FIELD_LOCKED_REASONS));
 		assertThat(act).isNotNull();
 		assertThat(act.getCode()).isEqualTo("1");
 		assertThat(act.getName()).isEqualTo("1");
-		assertThat(act.getTypeString()).isEqualTo(ActType.ENGAGEMENT.getLabel());
+		assertThat(act.getTypeString()).isEqualTo(ActTypeEnum.ENGAGEMENT.getLabel());
 		assertThat(act.getLatestOperationString()).isEqualTo("Déverouillage le 02/01/2000 à 00:00 par christian");
 		assertThat(act.getLockedReasons()).containsExactly("Raison 01","Raison 02");
-	}
+	}*/
 	
 	@Test
 	void get_one_lock() {

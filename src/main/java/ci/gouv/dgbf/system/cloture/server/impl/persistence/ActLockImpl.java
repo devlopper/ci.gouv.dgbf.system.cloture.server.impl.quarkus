@@ -15,7 +15,7 @@ import javax.persistence.Transient;
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLock;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActType;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -28,7 +28,7 @@ public class ActLockImpl extends AbstractIdentifiableSystemScalarStringImpl impl
 	@Column(name = COLUMN_LOCK_TYPE) String lockType;
 	@Column(name = COLUMN_ACT_IDENTIFIER) String actIdentifier;
 	@Column(name = COLUMN_ACT_REFERENCE) String actReference;
-	@Column(name = COLUMN_ACT_TYPE) @Enumerated(EnumType.STRING) ActType actType;
+	@Column(name = COLUMN_ACT_TYPE) @Enumerated(EnumType.STRING) ActTypeEnum actType;
 	@Column(name = COLUMN_REASON) String reason;
 	@Column(name = COLUMN_ENABLED) Boolean enabled;
 	@Column(name = COLUMN_BEGIN_DATE) LocalDateTime beginDate;

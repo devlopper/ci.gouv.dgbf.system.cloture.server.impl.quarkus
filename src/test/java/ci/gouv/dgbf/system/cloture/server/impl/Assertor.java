@@ -13,14 +13,14 @@ import org.cyk.utility.__kernel__.field.FieldHelper;
 import org.cyk.utility.service.client.SpecificServiceGetter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ScriptPersistence;
 
 @ApplicationScoped
 public class Assertor {
 
 	@Inject SpecificServiceGetter specificServiceGetter;
 	@Inject OperationGroupPersistence operationGroupPersistence;
-	@Inject OperationPersistence operationPersistence;
+	@Inject ScriptPersistence operationPersistence;
 	
 	public void assertIdentifiers(Collection<?> objects,Collection<String> expectedIdentifiers) {
 		if(CollectionHelper.isEmpty(objects)) {

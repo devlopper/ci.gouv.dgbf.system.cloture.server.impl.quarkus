@@ -12,7 +12,7 @@ import org.cyk.utility.service.server.AbstractServiceImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationExecutionStatus;
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationDto;
-import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ScriptImpl;
 import io.quarkus.arc.Unremovable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -85,21 +85,21 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	static {
 		Map<String,String> map = new HashMap<>();
 		map.putAll(Map.of(
-				JSON_IDENTIFIER,OperationImpl.FIELD_IDENTIFIER
-    			,JSON_CODE,OperationImpl.FIELD_CODE
-    			,JSON_NAME,OperationImpl.FIELD_NAME
-    			,JSON_START_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_START_DATE_NUMBER_OF_MILLISECOND
-    			,JSON_START_DATE_STRING,OperationImpl.FIELD_START_DATE_STRING
-    			,JSON_GROUP_IDENTIFIER,OperationImpl.FIELD_GROUP_IDENTIFIER
-    			,JSON_PROCEDURE_NAME,OperationImpl.FIELD_PROCEDURE_NAME
-    			,JSON_TRIGGER,OperationImpl.FIELD_TRIGGER
-    			,JSON_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND
-    			,JSON_EXECUTION_BEGIN_DATE_STRING,OperationImpl.FIELD_EXECUTION_BEGIN_DATE_STRING
+				JSON_IDENTIFIER,ScriptImpl.FIELD_IDENTIFIER
+    			,JSON_CODE,ScriptImpl.FIELD_CODE
+    			,JSON_NAME,ScriptImpl.FIELD_NAME
+    			,JSON_START_DATE_NUMBER_OF_MILLISECOND,ScriptImpl.FIELD_START_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_START_DATE_STRING,ScriptImpl.FIELD_START_DATE_STRING
+    			,JSON_GROUP_IDENTIFIER,ScriptImpl.FIELD_GROUP_IDENTIFIER
+    			,JSON_PROCEDURE_NAME,ScriptImpl.FIELD_PROCEDURE_NAME
+    			,JSON_TRIGGER,ScriptImpl.FIELD_TRIGGER
+    			,JSON_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND,ScriptImpl.FIELD_EXECUTION_BEGIN_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_EXECUTION_BEGIN_DATE_STRING,ScriptImpl.FIELD_EXECUTION_BEGIN_DATE_STRING
     			));
 		map.putAll(Map.of(
-				JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND,OperationImpl.FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND
-    			,JSON_EXECUTION_END_DATE_STRING,OperationImpl.FIELD_EXECUTION_END_DATE_STRING
-    			,JSON_EXECUTION_STATUS,OperationImpl.FIELD_EXECUTION_STATUS
+				JSON_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND,ScriptImpl.FIELD_EXECUTION_END_DATE_NUMBER_OF_MILLISECOND
+    			,JSON_EXECUTION_END_DATE_STRING,ScriptImpl.FIELD_EXECUTION_END_DATE_STRING
+    			,JSON_EXECUTION_STATUS,ScriptImpl.FIELD_EXECUTION_STATUS
     			));
 		AbstractServiceImpl.setProjections(OperationDtoImpl.class, map);
 	}

@@ -7,7 +7,7 @@ import javax.transaction.UserTransaction;
 
 import org.junit.jupiter.api.Test;
 
-import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ScriptPersistence;
 import ci.gouv.dgbf.system.cloture.server.impl.Procedures;
 import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
 import io.quarkus.test.junit.QuarkusTest;
@@ -18,7 +18,7 @@ import io.quarkus.test.junit.TestProfile;
 public class OperationPersistenceTest {
 
 	@Inject ci.gouv.dgbf.system.cloture.server.impl.Assertor assertor;
-	@Inject OperationPersistence operationPersistence;
+	@Inject ScriptPersistence operationPersistence;
 	@Inject UserTransaction userTransaction;
 	
 	@Test

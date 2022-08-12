@@ -11,12 +11,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import ci.gouv.dgbf.system.cloture.server.api.service.ActDto;
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationDto;
-import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(Profiles.Service.Integration.class)
+//@TestProfile(Profiles.Service.Integration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ActServiceTest {
 

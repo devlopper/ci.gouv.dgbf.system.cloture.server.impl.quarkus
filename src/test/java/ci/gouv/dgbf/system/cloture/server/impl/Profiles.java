@@ -5,9 +5,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.cyk.quarkus.extension.test.Profile;
+
 import io.quarkus.test.junit.QuarkusTestProfile;
 
 public interface Profiles {
+	
+	public class Act implements QuarkusTestProfile{
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			Map<String, String> map = Profile.buildConfig(Act.class);
+			return map;
+		}
+		
+		@Override
+		public Set<String> tags() {
+			return Profile.buildTags(Act.class);
+		}
+	}
+	
+	public class Operation implements QuarkusTestProfile{
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			Map<String, String> map = Profile.buildConfig(Operation.class);
+			return map;
+		}
+		
+		@Override
+		public Set<String> tags() {
+			return Profile.buildTags(Operation.class);
+		}
+	}
 	
 	public interface Persistence {
 		public class Default implements QuarkusTestProfile {

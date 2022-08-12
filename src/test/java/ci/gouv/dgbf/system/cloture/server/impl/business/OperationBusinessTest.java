@@ -9,10 +9,10 @@ import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
+import ci.gouv.dgbf.system.cloture.server.api.business.ScriptBusiness;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Script;
 import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
-import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ScriptImpl;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
@@ -21,34 +21,34 @@ import io.quarkus.test.junit.TestProfile;
 public class OperationBusinessTest {
 
 	@Inject ci.gouv.dgbf.system.cloture.server.impl.Assertor assertor;
-	@Inject OperationBusiness operationBusiness;
+	@Inject ScriptBusiness operationBusiness;
 	@Inject EntityManager entityManager;
 	
 	@Test
 	void execute_startDateIsPassed_blocking() {
 		String identifier = "OPassedBlocking";
-		Operation operation = entityManager.find(OperationImpl.class, identifier);
+		Script operation = entityManager.find(ScriptImpl.class, identifier);
 		assertThat(operation.getExecutionBeginDate()).as("date début exécution est nulle").isNull();
 		operationBusiness.execute(identifier, "user01");
 		entityManager.clear();
-		operation = entityManager.find(OperationImpl.class, identifier);
+		operation = entityManager.find(ScriptImpl.class, identifier);
 		assertThat(operation.getExecutionBeginDate()).as("date début exécution est non nulle").isNotNull();
 	}
 	
 	@Test
 	void execute_startDateIsPassed_nonBlocking() {
 		String identifier = "OPassedNonBlocking";
-		Operation operation = entityManager.find(OperationImpl.class, identifier);
+		Script operation = entityManager.find(ScriptImpl.class, identifier);
 		assertThat(operation.getExecutionBeginDate()).as("date début exécution est nulle").isNull();
 		operationBusiness.execute(identifier, "user01",Boolean.FALSE);
 		entityManager.clear();
-		operation = entityManager.find(OperationImpl.class, identifier);
+		operation = entityManager.find(ScriptImpl.class, identifier);
 		assertThat(operation.getExecutionEndDate()).as("date fin exécution est nulle").isNull();
 		
 		TimeHelper.pause(9 * 1000l);
 		
 		entityManager.clear();
-		operation = entityManager.find(OperationImpl.class, identifier);
+		operation = entityManager.find(ScriptImpl.class, identifier);
 		assertThat(operation.getExecutionEndDate()).as("date fin exécution est non nulle").isNotNull();
 	}
 	

@@ -2,10 +2,10 @@ package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 
 import org.cyk.utility.persistence.server.query.ArraysReaderByIdentifiers;
 
-public abstract class AbstractOperationImplReader extends ArraysReaderByIdentifiers.AbstractImpl.DefaultImpl<OperationImpl> {
+public abstract class AbstractOperationImplReader extends ArraysReaderByIdentifiers.AbstractImpl.DefaultImpl<ScriptImpl> {
 
 	@Override
-	protected Class<OperationImpl> getEntityClass() {
-		return OperationImpl.class;
+	protected Class<ScriptImpl> getEntityClass() {
+		return ScriptImpl.class;
 	}
 }

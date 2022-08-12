@@ -11,12 +11,12 @@ public class OperationImplExecutionBeginDateStringReader extends AbstractOperati
 	@Override
 	protected QueryStringBuilder.Arguments instantiateQueryStringBuilderArguments() {
 		QueryStringBuilder.Arguments arguments =  super.instantiateQueryStringBuilderArguments();
-		arguments.getProjection(Boolean.TRUE).addFromTuple("t",OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_EXECUTION_BEGIN_DATE);
+		arguments.getProjection(Boolean.TRUE).addFromTuple("t",ScriptImpl.FIELD_IDENTIFIER,ScriptImpl.FIELD_EXECUTION_BEGIN_DATE);
 		return arguments;
 	}
 	
 	@Override
-	protected void __set__(OperationImpl operation, Object[] array) {
+	protected void __set__(ScriptImpl operation, Object[] array) {
 		Integer index = 1;
 		operation.setExecutionBeginDateString(TimeHelper.formatLocalDateTime((LocalDateTime) array[index++]));		
 	}
