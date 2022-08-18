@@ -12,9 +12,7 @@ import org.cyk.utility.service.entity.AbstractIdentifiableSystemScalarStringIden
 import org.cyk.utility.service.server.AbstractServiceImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActTypeEnum;
 import ci.gouv.dgbf.system.cloture.server.api.service.ActDto;
-import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import io.quarkus.arc.Unremovable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

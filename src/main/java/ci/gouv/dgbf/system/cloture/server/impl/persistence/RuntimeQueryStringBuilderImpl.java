@@ -1,34 +1,29 @@
 package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 
-import static org.cyk.utility.persistence.query.Language.parenthesis;
-import static org.cyk.utility.persistence.query.Language.Where.or;
-
 import java.io.Serializable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.cyk.utility.__kernel__.string.StringHelper;
-import org.cyk.utility.__kernel__.value.ValueHelper;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
-import org.cyk.utility.persistence.server.query.string.LikeStringBuilder;
-import org.cyk.utility.persistence.server.query.string.LikeStringValueBuilder;
 import org.cyk.utility.persistence.server.query.string.QueryStringBuilder.Arguments;
 import org.cyk.utility.persistence.server.query.string.RuntimeQueryStringBuilder;
 import org.cyk.utility.persistence.server.query.string.WhereStringBuilder.Predicate;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ScriptPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ScriptPersistence;
 import io.quarkus.arc.Unremovable;
 
 @ApplicationScoped @ci.gouv.dgbf.system.cloture.server.api.System @Unremovable
 public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.AbstractImpl implements Serializable {
 
+	@Inject ActQueryStringBuilder actQueryStringBuilder;
+	@Inject OperationActQueryStringBuilder operationActQueryStringBuilder;
+	
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject ScriptPersistence operationPersistence;
 	@Inject ActPersistence actPersistence;
@@ -49,42 +44,22 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	@Override
 	protected void populatePredicate(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
 		super.populatePredicate(arguments, builderArguments, predicate, filter);
-		if(Boolean.TRUE.equals(actPersistence.isProcessable(arguments)))
-			populatePredicateAct(arguments, builderArguments, predicate, filter);
+		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(arguments)))
+			actQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
+		else if(Boolean.TRUE.equals(operationActQueryStringBuilder.isProcessable(arguments)))
+			operationActQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
 		else if(Boolean.TRUE.equals(actLockPersistence.isProcessable(arguments)))
 			populatePredicateActLock(arguments, builderArguments, predicate, filter);
 	}
 	
 	@Override
-	protected void setOrder(QueryExecutorArguments arguments, Arguments builderArguments) {
-		if(actPersistence.getQueryIdentifierReadDynamic().equals(arguments.getQuery().getIdentifier())) {
-			builderArguments.getOrder(Boolean.TRUE).asc("t", ActImpl.FIELD_CODE);
-		}
-		super.setOrder(arguments, builderArguments);
-	}
-	
-	private final String ACT_PREDICATE_SEARCH = parenthesis(or(
-			LikeStringBuilder.getInstance().build("t",ActImpl.FIELD_CODE, Parameters.SEARCH)
-			,LikeStringBuilder.getInstance().build("t", ActImpl.FIELD_NAME,Parameters.SEARCH)
-	));
-	private void populatePredicateAct(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {
-		String operationTypeAsString = (String) arguments.getFilterFieldValue(Parameters.ACT_OPERATION_TYPE);
-		if(StringHelper.isNotBlank(operationTypeAsString)) {
-			ActOperationType operationType = ActOperationType.valueOf(operationTypeAsString);
-			if(operationType != null) {
-				predicate.add(String.format("p.%s = :%s", ActLatestOperationImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
-				filter.addField(Parameters.ACT_OPERATION_TYPE, operationType);
-			}
-		}		
-		if(arguments.getFilterFieldValue(Parameters.ACTS_CODES) != null) {
-			predicate.add(String.format("t.%s IN :%s", ActImpl.FIELD_CODE,Parameters.ACTS_CODES));
-			filter.addField(Parameters.ACTS_CODES, arguments.getFilterFieldValue(Parameters.ACTS_CODES));
-		}
-		if(arguments.getFilterFieldValue(Parameters.SEARCH) != null) {
-			predicate.add(ACT_PREDICATE_SEARCH);
-			String search = ValueHelper.defaultToIfBlank((String) arguments.getFilterFieldValue(Parameters.SEARCH),"");
-			filter.addField(Parameters.SEARCH, LikeStringValueBuilder.getInstance().build(search, null, null));
-		}
+	protected void setOrder(QueryExecutorArguments queryExecutorArguments, Arguments builderArguments) {
+		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(queryExecutorArguments)))
+			actQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
+		else if(Boolean.TRUE.equals(operationActQueryStringBuilder.isProcessable(queryExecutorArguments)))
+			operationActQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
+		else 
+			super.setOrder(queryExecutorArguments, builderArguments);
 	}
 	
 	private void populatePredicateActLock(QueryExecutorArguments arguments, Arguments builderArguments, Predicate predicate,Filter filter) {

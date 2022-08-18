@@ -1,12 +1,15 @@
 package ci.gouv.dgbf.system.cloture.server.impl.business;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.klass.ClassHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -124,6 +127,31 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			throwablesMessages.addIfTrue("Le motif est requis", StringHelper.isBlank(reason));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
 			return new Object[] {type};
+		}
+		
+		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+			throwablesMessages.addIfTrue(String.format("L'identifiant de %s est requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME), StringHelper.isBlank(identifier));
+			if(!Boolean.TRUE.equals(comprehensively))
+				throwablesMessages.addIfTrue(String.format("Les identifiants des %s sont requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL), CollectionHelper.isEmpty(actsIdentifiers));
+			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+		}
+		
+		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers, String auditWho,ThrowablesMessages throwablesMessages) {
+			validateAddOrRemoveToOperationInputs(identifier,actsIdentifiers,  Boolean.FALSE, auditWho, throwablesMessages);
+		}
+		
+		static void validateSetAsIncludedOrExcludedInputs(String identifier,Collection<String> actsIdentifiers, String auditWho,ThrowablesMessages throwablesMessages) {
+			validateAddOrRemoveToOperationInputs(identifier,actsIdentifiers,  Boolean.TRUE, auditWho, throwablesMessages);
+		}
+		
+		static void validateAddOrRemoveToOperation(Collection<Object[]> arrays,Collection<String> actsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+			if(CollectionHelper.isEmpty(arrays) || Boolean.TRUE.equals(existingIgnorable))
+				return;
+			Collection<Object[]> existingArrays = arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] != null : array[2] == null).collect(Collectors.toList());
+			if(CollectionHelper.isEmpty(existingArrays))
+				return;
+			throwablesMessages.add(String.format("Les %s suivants ont déja été %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ajoutés" : "retirés"
+				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
 		}
 	}
 }

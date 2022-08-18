@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.business.RequestException;
+import org.cyk.utility.business.Result;
 import org.cyk.utility.business.server.AbstractSpecificBusinessImpl;
 import org.cyk.utility.persistence.EntityManagerGetter;
 
@@ -29,6 +30,31 @@ public class ActBusinessImpl extends AbstractSpecificBusinessImpl<Act> implement
 
 	@Inject ActPersistence actPersistence;
 	@Inject ActLockPersistence actLockPersistence;
+	
+	@Override
+	public Result addToOperation(Collection<String> identifiers, String operationIdentifier,Boolean existingIgnorable, String auditWho) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Result addToOperation(String operationIdentifier,Boolean existingIgnorable, String auditWho, String... identifiers) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/* Add Comprehensively */
+	
+	@Override
+	public Result addComprehensivelyToOperation(Collection<String> identifiers, String operationIdentifier, String auditWho) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Result addComprehensivelyToOperation(String operationIdentifier, String auditWho, String... identifiers) {
+		return addComprehensivelyToOperation(CollectionHelper.listOf(Boolean.TRUE, identifiers),operationIdentifier,auditWho);
+	}
 	
 	private Integer operate(Collection<String> identifiers,ActOperationType operation, String trigger,Boolean processedIgnorable) {
 		ValidatorImpl.Act.validate(identifiers, operation,trigger,processedIgnorable);
