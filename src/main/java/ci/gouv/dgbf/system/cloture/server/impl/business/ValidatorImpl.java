@@ -1,7 +1,6 @@
 package ci.gouv.dgbf.system.cloture.server.impl.business;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.klass.ClassHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -150,7 +148,7 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			Collection<Object[]> existingArrays = arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] != null : array[2] == null).collect(Collectors.toList());
 			if(CollectionHelper.isEmpty(existingArrays))
 				return;
-			throwablesMessages.add(String.format("Les %s suivants ont déja été %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ajoutés" : "retirés"
+			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déja été ajoutés" : "ne sont pas ajoutés"
 				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
 		}
 	}

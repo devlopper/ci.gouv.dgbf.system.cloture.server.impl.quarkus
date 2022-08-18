@@ -10,6 +10,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +23,7 @@ import org.hibernate.envers.AuditTable;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationAct;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -39,6 +42,12 @@ import lombok.experimental.Accessors;
 	@AuditOverride(forClass = AbstractIdentifiableSystemScalarStringAuditedImpl.class)
 })
 @AuditTable(value = OperationActImpl.AUDIT_TABLE_NAME)
+@NamedQueries(value = {
+		@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_NOT_ACTS_IDENTIFIERS,query = 
+				"SELECT t FROM "+OperationActImpl.ENTITY_NAME+" t WHERE t.operation.identifier = :"+Parameters.OPERATION_IDENTIFIER+" AND t.act.identifier NOT IN :"+Parameters.ACTS_IDENTIFIERS)
+		,@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER,query = 
+				"SELECT t FROM "+OperationActImpl.ENTITY_NAME+" t WHERE t.operation.identifier = :"+Parameters.OPERATION_IDENTIFIER)
+})
 public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAuditedImpl implements OperationAct,Serializable {
 
 	@NotNull @ManyToOne @JoinColumn(name = FIELD_OPERATION,nullable = false) OperationImpl operation;
@@ -81,4 +90,7 @@ public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAudi
 	public static final String COLUMN___AUDIT_WHAT__ = "AUDIT_ACTION";
 	public static final String COLUMN___AUDIT_FUNCTIONALITY__ = "AUDIT_FONCTIONNALITE";
 	public static final String COLUMN___AUDIT_WHEN__ = "AUDIT_DATE";
+	
+	public static final String QUERY_READ_BY_OPERATION_IDENTIFIER = "OperationActImpl.readByOperationIdentifier";
+	public static final String QUERY_READ_BY_OPERATION_IDENTIFIER_BY_NOT_ACTS_IDENTIFIERS = "OperationActImpl.readByOperationIdentifierByNotActsIdentifiers";
 }

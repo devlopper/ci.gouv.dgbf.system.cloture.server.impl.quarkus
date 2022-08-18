@@ -97,8 +97,30 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 
 	@Override @Transactional
 	public Result addActComprehensively(String identifier, Collection<String> actsIdentifiers, String auditWho) {
-		// TODO Auto-generated method stub
-		return null;
+		Object[] array = validate(identifier, actsIdentifiers, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, auditWho);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Act> acts = (Collection<Act>) array[2];
+		Result result = (Result) array[3];
+		
+		String auditIdentifier = generateAuditIdentifier();
+		LocalDateTime auditDate = LocalDateTime.now();
+		
+		// deletions
+		Collection<OperationActImpl> deletableOperationActs = CollectionHelper.cast(OperationActImpl.class, CollectionHelper.isEmpty(actsIdentifiers) 
+				? operationActPersistence.readByOperationIdentifier(identifier) : operationActPersistence.readByOperationIdentifierByNotActsIdentifiers(identifier, actsIdentifiers));
+		if(CollectionHelper.isNotEmpty(deletableOperationActs))
+			((OperationActBusinessImpl)operationActBusiness).delete(deletableOperationActs.stream().map(operationAct -> entityManager.merge(operationAct)).collect(Collectors.toList())
+					, auditIdentifier, REMOVE_ACT_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
+		
+		// creations
+		if(CollectionHelper.isNotEmpty(acts))
+			((OperationActBusinessImpl)operationActBusiness).create(operation, acts, auditIdentifier, ADD_ACT_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
+		
+		// Return of message
+		String actsLabel = String.format("%s %s dans %s",CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation.getName());
+		result.close().setName(String.format("Ajout exhaustif de %s par %s",actsLabel,auditWho)).log(getClass());
+		result.addMessages(String.format("%s ajouté(s) exhaustivement", actsLabel));
+		return result;
 	}
 
 	@Override @Transactional
@@ -137,6 +159,8 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	/* Validation */
 	
 	private Object[] validate(String identifier,Collection<String> actsIdentifiers,Boolean existingIgnorable,Boolean add,Boolean comprehensively,String auditWho) {
+		if(Boolean.TRUE.equals(comprehensively))
+			existingIgnorable = Boolean.TRUE;
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
 		ValidatorImpl.Operation.validateAddOrRemoveToOperationInputs(identifier, actsIdentifiers,comprehensively, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
@@ -151,8 +175,8 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		throwablesMessages.throwIfNotEmpty();
 		
 		Result result = new Result().setName(String.format("%s",Boolean.TRUE.equals(add) ? ADD_ACT_LABEL : REMOVE_ACT_LABEL)).open();
-		Collection<String> processableIdentifiers = arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] == null : array[2] != null).map(array -> (String)array[0]).collect(Collectors.toList());
-		acts = acts.stream().filter(act -> processableIdentifiers.contains(act.getIdentifier())).collect(Collectors.toList());
+		Collection<String> processableIdentifiers = arrays == null ? null : arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] == null : array[2] != null).map(array -> (String)array[0]).collect(Collectors.toList());
+		acts = processableIdentifiers == null ? null : acts.stream().filter(act -> processableIdentifiers.contains(act.getIdentifier())).collect(Collectors.toList());
 		return new Object[] {arrays,operation,acts,result};
 	}
 }
