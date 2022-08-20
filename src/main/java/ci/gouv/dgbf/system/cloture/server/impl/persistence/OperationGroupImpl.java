@@ -15,8 +15,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) 
-@Entity(name = OperationGroupImpl.ENTITY_NAME) @Access(AccessType.FIELD)
+/*@Entity(name = OperationGroupImpl.ENTITY_NAME) @Access(AccessType.FIELD)
 @Table(name=OperationGroupImpl.TABLE_NAME)
+*/
 public class OperationGroupImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements OperationGroup,Serializable {
 
 	@Override

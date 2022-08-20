@@ -28,7 +28,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) 
-@Entity(name = ScriptImpl.ENTITY_NAME) @Access(AccessType.FIELD)
+/*@Entity(name = ScriptImpl.ENTITY_NAME) @Access(AccessType.FIELD)
 @Table(name=ScriptImpl.TABLE_NAME)
 @NamedStoredProcedureQueries(value = {
 	@NamedStoredProcedureQuery(
@@ -38,7 +38,7 @@ import lombok.experimental.Accessors;
 			@StoredProcedureParameter(name = ScriptImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_PROCEDURE_NAME , mode = ParameterMode.IN,type = String.class)
 		}
 	)
-})
+})*/
 public class ScriptImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements Script,Serializable {
 
 	@NotNull @JoinColumn(name = COLUMN_GROUP,nullable = false) @ManyToOne OperationGroupImpl group;

@@ -23,8 +23,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) 
-@Entity(name = ActOperationImpl.ENTITY_NAME) @Access(AccessType.FIELD)
+/*@Entity(name = ActOperationImpl.ENTITY_NAME) @Access(AccessType.FIELD)
 @Table(name=ActOperationImpl.TABLE_NAME)
+*/
 public class ActOperationImpl extends AbstractIdentifiableSystemScalarStringImpl implements ActOperation,Serializable {
 
 	@NotNull @Column(name = COLUMN_ACT_IDENTIFIER,nullable = false) String actIdentifier;

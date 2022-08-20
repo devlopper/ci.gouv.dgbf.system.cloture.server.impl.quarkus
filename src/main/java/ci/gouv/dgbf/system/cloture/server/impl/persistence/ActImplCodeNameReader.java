@@ -18,5 +18,10 @@ public class ActImplCodeNameReader extends AbstractActImplReader implements Seri
 		Integer index = 1;
 		act.setCode(getAsString(array, index++));
 		act.setName(getAsString(array, index++));
+		__set__(act, array, index++);
+	}
+	
+	protected void __set__(ActImpl act, Object[] array,Integer index) {
+		
 	}
 }
