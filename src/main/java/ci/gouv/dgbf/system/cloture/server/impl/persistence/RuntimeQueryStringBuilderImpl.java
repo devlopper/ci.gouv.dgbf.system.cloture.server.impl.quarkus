@@ -23,6 +23,7 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 
 	@Inject ActQueryStringBuilder actQueryStringBuilder;
 	@Inject OperationActQueryStringBuilder operationActQueryStringBuilder;
+	@Inject OperationTypeQueryStringBuilder operationTypeQueryStringBuilder;
 	
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject ScriptPersistence operationPersistence;
@@ -46,6 +47,8 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 		super.populatePredicate(arguments, builderArguments, predicate, filter);
 		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(arguments)))
 			actQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
+		else if(Boolean.TRUE.equals(operationTypeQueryStringBuilder.isProcessable(arguments)))
+			operationTypeQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
 		else if(Boolean.TRUE.equals(operationActQueryStringBuilder.isProcessable(arguments)))
 			operationActQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
 		else if(Boolean.TRUE.equals(actLockPersistence.isProcessable(arguments)))
@@ -56,6 +59,8 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	protected void setOrder(QueryExecutorArguments queryExecutorArguments, Arguments builderArguments) {
 		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(queryExecutorArguments)))
 			actQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
+		else if(Boolean.TRUE.equals(operationTypeQueryStringBuilder.isProcessable(queryExecutorArguments)))
+			operationTypeQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
 		else if(Boolean.TRUE.equals(operationActQueryStringBuilder.isProcessable(queryExecutorArguments)))
 			operationActQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
 		else 

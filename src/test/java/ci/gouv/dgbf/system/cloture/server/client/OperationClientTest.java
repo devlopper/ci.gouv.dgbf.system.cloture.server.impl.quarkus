@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationService;
-import ci.gouv.dgbf.system.cloture.server.client.rest.Operation;
+import ci.gouv.dgbf.system.cloture.server.client.rest.Script;
 import ci.gouv.dgbf.system.cloture.server.impl.Assertor;
 import ci.gouv.dgbf.system.cloture.server.impl.Profiles;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,20 +30,20 @@ public class OperationClientTest {
 	
 	@Test
     public void get_many() {
-		Response response = DependencyInjection.inject(SpecificServiceGetter.class).get(Operation.class).get(null,null, null, null, null, null, null,null);
+		Response response = DependencyInjection.inject(SpecificServiceGetter.class).get(Script.class).get(null,null, null, null, null, null, null,null);
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 		assertThat(response.getHeaderString(ResponseHelper.HEADER_X_TOTAL_COUNT)).isEqualTo("6");
 		assertThat(response.getHeaders().entrySet().stream().map(entry -> entry.getKey()).collect(Collectors.toList()))
 		.contains(ResponseHelper.HEADER_PROCESSING_START_TIME,ResponseHelper.HEADER_PROCESSING_END_TIME,ResponseHelper.HEADER_PROCESSING_DURATION);
 		
-		List<Operation> operations = ResponseHelper.getEntityAsListFromJson(Operation.class,response);
+		List<Script> operations = ResponseHelper.getEntityAsListFromJson(Script.class,response);
 		assertThat(operations).hasSize(6);
     }
 	
 	@Test
     public void execute() {
-		OperationService operationService = (OperationService) DependencyInjection.inject(SpecificServiceGetter.class).get(Operation.class);
+		OperationService operationService = (OperationService) DependencyInjection.inject(SpecificServiceGetter.class).get(Script.class);
 		WebApplicationException exception = Assertions.assertThrows(WebApplicationException.class, () -> {
 			operationService.execute("OFuture", "test", Boolean.TRUE);
 		});	

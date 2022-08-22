@@ -14,10 +14,15 @@ import org.cyk.utility.persistence.server.query.string.RuntimeQueryStringBuilder
 import org.cyk.utility.service.server.PersistenceEntityClassGetterImpl;
 
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActTypeDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationTypeDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.OperationTypeDtoImplMapper;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.runtime.StartupEvent;
@@ -33,24 +38,21 @@ public class ApplicationLifeCycleListener {
     			, EntityReader.class,EntityCounter.class, RuntimeQueryStringBuilder.class,TransientFieldsProcessor.class/*, Initializer.class*/,Validator.class
     			);
     	VariableHelper.write(VariableName.SYSTEM_LOGGING_THROWABLE_PRINT_STACK_TRACE, Boolean.TRUE);
-    	/*
-    	MapperClassGetter.MAP.put(OperationGroupDtoImpl.class, OperationGroupDtoImplMapper.class);
-    	PersistenceEntityClassGetterImpl.MAP.put(OperationGroupDtoImpl.class,OperationGroupImpl.class);
+    	
+    	ActTypeDtoImpl.setProjections();
+    	
+    	MapperClassGetter.MAP.put(OperationTypeDtoImpl.class, OperationTypeDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(OperationTypeDtoImpl.class,OperationTypeImpl.class);
+    	OperationTypeDtoImpl.setProjections();
     	
     	MapperClassGetter.MAP.put(OperationDtoImpl.class, OperationDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationDtoImpl.class,OperationImpl.class);
-    	*/
-    	ActTypeDtoImpl.setProjections();
+    	OperationDtoImpl.setProjections();
     	
-    	OperationTypeDtoImpl.setProjections();
-    	
-    	ActDtoImpl.setProjections();
     	MapperClassGetter.MAP.put(ActDtoImpl.class, ActDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(ActDtoImpl.class,ActImpl.class);
-    	/*
-    	MapperClassGetter.MAP.put(ActLockDtoImpl.class, ActLockDtoImplMapper.class);
-    	PersistenceEntityClassGetterImpl.MAP.put(ActLockDtoImpl.class,ActLockImpl.class);
-    	*/
+    	ActDtoImpl.setProjections();
+    	
     	/**/
     	
     }

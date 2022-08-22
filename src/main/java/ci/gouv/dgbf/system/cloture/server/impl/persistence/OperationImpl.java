@@ -15,6 +15,8 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableAuditedImpl;
+import org.cyk.utility.persistence.entity.audit.AuditedAction;
+import org.cyk.utility.persistence.server.audit.AuditedActionImpl;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.AuditTable;
@@ -45,6 +47,9 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
   	@Transient String typeAsString;
   	@NotNull @Column(name = COLUMN_REASON,nullable = false) String reason;
 	
+  	@Transient AuditedActionImpl creation;
+  	@Transient AuditedActionImpl execution;
+  	
 	@Override
 	public OperationImpl setIdentifier(String identifier) {
 		return (OperationImpl) super.setIdentifier(identifier);
@@ -66,9 +71,23 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 		return this;
 	}
 	
+	@Override
+	public Operation setCreation(AuditedAction creation) {
+		this.creation = (AuditedActionImpl) creation;
+		return this;
+	}
+	
+	@Override
+	public Operation setExecution(AuditedAction execution) {
+		this.execution = (AuditedActionImpl) execution;
+		return this;
+	}
+	
 	public static final String FIELD_TYPE = "type";
 	public static final String FIELD_TYPE_AS_STRING = "typeAsString";
 	public static final String FIELD_REASON = "reason";
+	public static final String FIELD_CREATION = "creation";
+	public static final String FIELD_EXECUTION = "execution";
 	
 	public static final String ENTITY_NAME = "OperationImpl";
 	public static final String TABLE_NAME = "TA_OPERATION";

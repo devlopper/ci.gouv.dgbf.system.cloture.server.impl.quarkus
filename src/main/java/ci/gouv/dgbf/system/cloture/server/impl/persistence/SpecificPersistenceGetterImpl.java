@@ -10,14 +10,16 @@ import org.cyk.quarkus.extension.hibernate.orm.AbstractSpecificPersistenceGetter
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ScriptPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
 import io.quarkus.arc.Unremovable;
 
 @ApplicationScoped @Unremovable
 public class SpecificPersistenceGetterImpl extends AbstractSpecificPersistenceGetterImpl implements Serializable {
 
 	@Inject OperationGroupPersistence operationGroupPersistence;
-	@Inject ScriptPersistence operationPersistence;
+	@Inject OperationPersistence operationPersistence;
+	@Inject OperationTypePersistence operationTypePersistence;
 	@Inject ActPersistence actPersistence;
 	@Inject ActLockPersistence actLockPersistence;
 	

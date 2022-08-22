@@ -13,6 +13,7 @@ import io.quarkus.arc.Unremovable;
 public class MapperGetterImpl extends AbstractMapperGetterImpl implements Serializable {
 
 	@Inject OperationDtoImplMapper operationDtoImplMapper;
+	@Inject OperationTypeDtoImplMapper operationTypeDtoImplMapper;
 	@Inject OperationGroupDtoImplMapper operationGroupDtoImplMapper;
 	@Inject ActDtoImplMapper actDtoImplMapper;
 	@Inject ActLockDtoImplMapper actLockDtoImplMapper;

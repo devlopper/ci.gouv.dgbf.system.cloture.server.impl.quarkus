@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
+import org.cyk.utility.service.client.Controller;
+import org.cyk.utility.service.client.SpecificServiceGetter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +19,9 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
+import ci.gouv.dgbf.system.cloture.server.api.service.OperationTypeDto;
+import ci.gouv.dgbf.system.cloture.server.client.rest.OperationController;
+import ci.gouv.dgbf.system.cloture.server.client.rest.OperationTypeController;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
@@ -26,14 +31,33 @@ public class OperationTest {
 
 	@Inject Assertor assertor;
 	@Inject OperationTypePersistence typePersistence;
+	@Inject OperationTypeController typeController;
+	
 	@Inject OperationPersistence persistence;
 	@Inject OperationBusiness business;
+	@Inject OperationController controller;
+	
+	@Inject SpecificServiceGetter s;
 	
 	@Test
 	void persistence_type_readMany() {
 		Collection<OperationType> types = typePersistence.readMany(new QueryExecutorArguments());
 		assertThat(types).isNotNull();
 		assertThat(types.stream().map(x -> x.getIdentifier()).collect(Collectors.toList())).containsExactly("DEVERROUILLAGE","VERROUILLAGE");
+	}
+	
+	@Test
+	void persistence_type_readDefault() {
+		OperationType type = typePersistence.readDefault();
+		assertThat(type).isNotNull();
+		assertThat(type.getCode()).isEqualTo(OperationType.CODE_DEVERROUILLAGE);
+	}
+	
+	@Test
+	void controller_type_getByIdentifierOrDefaultIfIdentifierIsBlank() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.OperationType type = typeController.getByIdentifierOrDefaultIfIdentifierIsBlank(null,new Controller.GetArguments().projections(OperationTypeDto.JSON_IDENTIFIER,OperationTypeDto.JSON_CODE));
+		assertThat(type).isNotNull();
+		assertThat(type.getCode()).isEqualTo(OperationType.CODE_DEVERROUILLAGE);
 	}
 	
 	@Test
@@ -55,6 +79,13 @@ public class OperationTest {
 	void business_create() {
 		Long count = persistence.count();
 		business.create(OperationType.CODE_DEVERROUILLAGE,"D001", null, "Instruction 001", "christian");
+		assertThat(persistence.count()).isEqualTo(count+1l);
+	}
+	
+	@Test
+	void controller_create() {
+		Long count = persistence.count();
+		controller.create(OperationType.CODE_DEVERROUILLAGE,"D002", null, "Instruction 002", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
 	}
 	
