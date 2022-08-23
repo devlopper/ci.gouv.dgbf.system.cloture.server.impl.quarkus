@@ -89,6 +89,8 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_CREATION = "creation";
 	public static final String FIELD_EXECUTION = "execution";
 	
+	public static final String FIELDS_STRINGS = "strings";
+	
 	public static final String ENTITY_NAME = "OperationImpl";
 	public static final String TABLE_NAME = "TA_OPERATION";
 	public static final String AUDIT_TABLE_NAME = "TA_OPERATION_AUD";

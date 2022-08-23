@@ -21,6 +21,9 @@ import lombok.experimental.Accessors;
 @Getter @Setter @Accessors(chain=true) @NoArgsConstructor @RequestScoped @Unremovable
 public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl implements OperationDto,Serializable {
 
+	//@JsonbProperty(value = JSON_TYPE)
+	//OperationTypeDtoImpl type;
+	
 	@JsonbProperty(value = JSON_TYPE_AS_STRING)
 	String typeAsString;
 	
@@ -63,8 +66,11 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 				JSON_IDENTIFIER,OperationImpl.FIELD_IDENTIFIER
     			,JSON_CODE,OperationImpl.FIELD_CODE
     			,JSON_NAME,OperationImpl.FIELD_NAME
+    			,JSON_TYPE,OperationImpl.FIELD_TYPE
     			,JSON_TYPE_AS_STRING,OperationImpl.FIELD_TYPE_AS_STRING
     			,JSON_REASON,OperationImpl.FIELD_REASON
+    			
+    			,JSONS_STRINGS,OperationImpl.FIELDS_STRINGS
     			));
 		AbstractServiceImpl.setProjections(OperationDtoImpl.class, map);
 	}

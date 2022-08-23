@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.cyk.utility.persistence.server.query.string.QueryStringBuilder;
 
-public class OperationImplExecutionBeginDateStringReader extends AbstractOperationImplReader implements Serializable {
+public class OperationImplExecutionBeginDateStringReader extends AbstractScriptImplReader implements Serializable {
 
 	@Override
 	protected QueryStringBuilder.Arguments instantiateQueryStringBuilderArguments() {
