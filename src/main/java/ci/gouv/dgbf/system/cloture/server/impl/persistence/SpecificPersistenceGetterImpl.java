@@ -9,6 +9,7 @@ import org.cyk.quarkus.extension.hibernate.orm.AbstractSpecificPersistenceGetter
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActLockPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActTypePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
@@ -21,6 +22,7 @@ public class SpecificPersistenceGetterImpl extends AbstractSpecificPersistenceGe
 	@Inject OperationPersistence operationPersistence;
 	@Inject OperationTypePersistence operationTypePersistence;
 	@Inject ActPersistence actPersistence;
+	@Inject ActTypePersistence actTypePersistence;
 	@Inject ActLockPersistence actLockPersistence;
 	
 }

@@ -27,6 +27,11 @@ public class OperationQueryStringBuilder extends AbstractSpecificQueryStringBuil
 		return Operation.class;
 	}
 	
+	/*@Override
+	protected String buildDefaultValuePredicate() {
+		return String.format("t.%s = '%s'",OperationImpl.FIELD_CODE,ActType.CODE_ENGAGEMENT);
+	}*/
+	
 	@Override
 	public void populatePredicates(QueryExecutorArguments queryExecutorArguments, Arguments arguments,Predicate predicate, Filter filter) {
 		super.populatePredicates(queryExecutorArguments, arguments, predicate, filter);

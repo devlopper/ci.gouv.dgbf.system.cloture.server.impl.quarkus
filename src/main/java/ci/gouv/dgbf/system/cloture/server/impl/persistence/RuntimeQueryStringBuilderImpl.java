@@ -22,6 +22,8 @@ import io.quarkus.arc.Unremovable;
 public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.AbstractImpl implements Serializable {
 
 	@Inject ActQueryStringBuilder actQueryStringBuilder;
+	@Inject ActTypeQueryStringBuilder actTypeQueryStringBuilder;
+	
 	@Inject OperationActQueryStringBuilder operationActQueryStringBuilder;
 	@Inject OperationQueryStringBuilder operationQueryStringBuilder;
 	@Inject OperationTypeQueryStringBuilder operationTypeQueryStringBuilder;
@@ -48,6 +50,8 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 		super.populatePredicate(arguments, builderArguments, predicate, filter);
 		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(arguments)))
 			actQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
+		else if(Boolean.TRUE.equals(actTypeQueryStringBuilder.isProcessable(arguments)))
+			actTypeQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
 		else if(Boolean.TRUE.equals(operationTypeQueryStringBuilder.isProcessable(arguments)))
 			operationTypeQueryStringBuilder.populatePredicates(arguments, builderArguments, predicate, filter);
 		else if(Boolean.TRUE.equals(operationQueryStringBuilder.isProcessable(arguments)))
@@ -62,6 +66,8 @@ public class RuntimeQueryStringBuilderImpl extends RuntimeQueryStringBuilder.Abs
 	protected void setOrder(QueryExecutorArguments queryExecutorArguments, Arguments builderArguments) {
 		if(Boolean.TRUE.equals(actQueryStringBuilder.isProcessable(queryExecutorArguments)))
 			actQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
+		else if(Boolean.TRUE.equals(actTypeQueryStringBuilder.isProcessable(queryExecutorArguments)))
+			actTypeQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
 		else if(Boolean.TRUE.equals(operationTypeQueryStringBuilder.isProcessable(queryExecutorArguments)))
 			operationTypeQueryStringBuilder.setOrder(queryExecutorArguments, builderArguments);
 		else if(Boolean.TRUE.equals(operationQueryStringBuilder.isProcessable(queryExecutorArguments)))

@@ -2,11 +2,6 @@ package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 
 import java.io.Serializable;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroup;

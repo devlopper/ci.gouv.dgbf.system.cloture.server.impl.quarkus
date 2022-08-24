@@ -3,21 +3,17 @@ package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperation;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;

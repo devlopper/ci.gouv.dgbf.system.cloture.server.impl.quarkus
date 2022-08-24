@@ -13,7 +13,6 @@ import org.cyk.utility.persistence.server.query.string.QueryStringBuilder.Argume
 import org.cyk.utility.persistence.server.query.string.WhereStringBuilder.Predicate;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
-import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import lombok.Getter;
@@ -31,25 +30,19 @@ public class ActQueryStringBuilder extends AbstractSpecificQueryStringBuilder<Ac
 	@Override
 	public void populatePredicates(QueryExecutorArguments queryExecutorArguments, Arguments arguments,Predicate predicate, Filter filter) {
 		super.populatePredicates(queryExecutorArguments, arguments, predicate, filter);
-		String operationTypeAsString = (String) queryExecutorArguments.getFilterFieldValue(Parameters.ACT_OPERATION_TYPE);
-		if(StringHelper.isNotBlank(operationTypeAsString)) {
-			ActOperationType operationType = ActOperationType.valueOf(operationTypeAsString);
-			if(operationType != null) {
-				predicate.add(String.format("p.%s = :%s", ActLatestOperationImpl.FIELD_OPERATION_TYPE,Parameters.ACT_OPERATION_TYPE));
-				filter.addField(Parameters.ACT_OPERATION_TYPE, operationType);
-			}
-		}
+		Boolean addedToSpecifiedOperation = queryExecutorArguments.getFilterFieldValueAsBoolean(Boolean.TRUE,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION);
 		populatePredicatesExists(queryExecutorArguments, arguments, predicate, filter, Parameters.OPERATION_IDENTIFIER
-				,String.format("SELECT oa FROM %s oa WHERE oa.%s.identifier = :%s AND oa.%s = t"
-				,OperationActImpl.ENTITY_NAME,OperationActImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationActImpl.FIELD_ACT));
-		/*
-		if(queryExecutorArguments.getFilterFieldValue(Parameters.OPERATION_IDENTIFIER) != null) {
-			predicate.add(String.format("t.%s IN :%s", ActImpl.FIELD_CODE,Parameters.OPERATION_IDENTIFIER));
-			filter.addField(Parameters.OPERATION_IDENTIFIER, queryExecutorArguments.getFilterFieldValue(Parameters.OPERATION_IDENTIFIER));
-		}*/
+				,String.format("SELECT oa FROM %s oa WHERE oa.%s.identifier = :%s AND oa.%s = t",OperationActImpl.ENTITY_NAME,OperationActImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationActImpl.FIELD_ACT)
+				,!Boolean.TRUE.equals(addedToSpecifiedOperation));
+		
 		if(queryExecutorArguments.getFilterFieldValue(Parameters.ACTS_CODES) != null) {
 			predicate.add(String.format("t.%s IN :%s", ActImpl.FIELD_CODE,Parameters.ACTS_CODES));
 			filter.addField(Parameters.ACTS_CODES, queryExecutorArguments.getFilterFieldValue(Parameters.ACTS_CODES));
+		}
+		
+		if(StringHelper.isNotBlank((String) queryExecutorArguments.getFilterFieldValue(Parameters.ACT_TYPE_IDENTIFIER))) {
+			predicate.add(String.format("t.%s.identifier = :%s", ActImpl.FIELD_TYPE,Parameters.ACT_TYPE_IDENTIFIER));
+			filter.addField(Parameters.ACT_TYPE_IDENTIFIER, queryExecutorArguments.getFilterFieldValue(Parameters.ACT_TYPE_IDENTIFIER));
 		}
 	}
 	

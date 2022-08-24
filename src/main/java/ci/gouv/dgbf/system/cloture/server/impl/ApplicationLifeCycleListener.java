@@ -14,11 +14,13 @@ import org.cyk.utility.persistence.server.query.string.RuntimeQueryStringBuilder
 import org.cyk.utility.service.server.PersistenceEntityClassGetterImpl;
 
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActTypeDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.ActTypeDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationTypeDtoImpl;
@@ -39,6 +41,8 @@ public class ApplicationLifeCycleListener {
     			);
     	VariableHelper.write(VariableName.SYSTEM_LOGGING_THROWABLE_PRINT_STACK_TRACE, Boolean.TRUE);
     	
+    	MapperClassGetter.MAP.put(ActTypeDtoImpl.class, ActTypeDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(ActTypeDtoImpl.class,ActTypeImpl.class);
     	ActTypeDtoImpl.setProjections();
     	
     	MapperClassGetter.MAP.put(OperationTypeDtoImpl.class, OperationTypeDtoImplMapper.class);
