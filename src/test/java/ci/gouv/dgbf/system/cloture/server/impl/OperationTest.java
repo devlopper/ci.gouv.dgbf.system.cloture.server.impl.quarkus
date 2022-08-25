@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.service.client.Controller;
 import org.cyk.utility.service.client.SpecificServiceGetter;
@@ -19,6 +20,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationTypeDto;
 import ci.gouv.dgbf.system.cloture.server.client.rest.OperationController;
 import ci.gouv.dgbf.system.cloture.server.client.rest.OperationTypeController;
@@ -149,5 +151,49 @@ public class OperationTest {
 		assertor.assertOperationActs("add_comprehensively_notempty","add_comprehensively_notempty_4");
 		business.addActComprehensively("add_comprehensively_notempty", null, "meliane");
 		assertor.assertOperationActs("add_comprehensively_notempty",(String[]) null);
+	}
+	
+	@Test
+	void business_addActByFilter_exception_null() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.addActByFilter(null, null, null, null);
+	    });
+		assertThat(exception.getMessage()).isEqualTo("L'identifiant de Opération est requis\r\nLe filtre est requis\r\nLe nom d'utilisateur est requis");
+	}
+	
+	@Test
+	void business_addActByFilter_code_add_byfilter_1() {
+		assertor.assertOperationActs("add_byfilter1",(String[]) null);
+		business.addActByFilter("add_byfilter1", new Filter().addField(Parameters.ACTS_CODES, List.of("add_byfilter1_1")),null, "meliane");
+		assertor.assertOperationActs("add_byfilter1", "add_byfilter1_1");
+	}
+	
+	@Test
+	void business_addActByFilter_type_ADDBYFILTER() {
+		assertor.assertOperationActs("add_byfilter2",(String[]) null);
+		business.addActByFilter("add_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "ADDBYFILTER"),null, "meliane");
+		assertor.assertOperationActs("add_byfilter2", "add_byfilter2_2","add_byfilter2_3");
+	}
+	
+	@Test
+	void business_removeActByFilter_exception_null() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.removeActByFilter(null, null, null, null);
+	    });
+		assertThat(exception.getMessage()).isEqualTo("L'identifiant de Opération est requis\r\nLe filtre est requis\r\nLe nom d'utilisateur est requis");
+	}
+	
+	@Test
+	void business_removeActByFilter_code_remove_byfilter_1() {
+		assertor.assertOperationActs("remove_byfilter1", "remove_byfilter1_1");
+		business.removeActByFilter("remove_byfilter1", new Filter().addField(Parameters.ACTS_CODES, List.of("remove_byfilter1_1")),null, "meliane");
+		assertor.assertOperationActs("remove_byfilter1",(String[]) null);
+	}
+	
+	@Test
+	void business_removeActByFilter_type_ADDBYFILTER() {
+		assertor.assertOperationActs("remove_byfilter2", "remove_byfilter2_2","remove_byfilter2_3");
+		business.removeActByFilter("remove_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "REMOVEBYFILTER"),null, "meliane");
+		assertor.assertOperationActs("remove_byfilter2",(String[]) null);
 	}
 }

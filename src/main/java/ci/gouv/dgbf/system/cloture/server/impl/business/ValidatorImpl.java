@@ -15,6 +15,7 @@ import org.cyk.utility.__kernel__.throwable.ThrowablesMessages;
 import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.cyk.utility.business.RequestException;
 import org.cyk.utility.business.Validator;
+import org.cyk.utility.persistence.query.Filter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
@@ -127,20 +128,20 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			return new Object[] {type};
 		}
 		
-		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
 			throwablesMessages.addIfTrue(String.format("L'identifiant de %s est requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME), StringHelper.isBlank(identifier));
-			if(!Boolean.TRUE.equals(comprehensively))
+			if((areActsIdentifiersRequired == null || areActsIdentifiersRequired) && !Boolean.TRUE.equals(comprehensively))
 				throwablesMessages.addIfTrue(String.format("Les identifiants des %s sont requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL), CollectionHelper.isEmpty(actsIdentifiers));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
 		}
-		
+		/*
 		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers, String auditWho,ThrowablesMessages throwablesMessages) {
 			validateAddOrRemoveToOperationInputs(identifier,actsIdentifiers,  Boolean.FALSE, auditWho, throwablesMessages);
 		}
 		
 		static void validateSetAsIncludedOrExcludedInputs(String identifier,Collection<String> actsIdentifiers, String auditWho,ThrowablesMessages throwablesMessages) {
 			validateAddOrRemoveToOperationInputs(identifier,actsIdentifiers,  Boolean.TRUE, auditWho, throwablesMessages);
-		}
+		}*/
 		
 		static void validateAddOrRemoveToOperation(Collection<Object[]> arrays,Collection<String> actsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
 			if(CollectionHelper.isEmpty(arrays) || Boolean.TRUE.equals(existingIgnorable))
@@ -150,6 +151,12 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 				return;
 			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déja été ajoutés" : "ne sont pas ajoutés"
 				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
+		}
+		
+		static void validateAddOrRemoveToOperationByFilterInputs(String identifier,Filter filter, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+			validateIdentifier(identifier, ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME, throwablesMessages);
+			throwablesMessages.addIfTrue("Le filtre est requis", Filter.isEmpty(filter));
+			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
 		}
 	}
 }
