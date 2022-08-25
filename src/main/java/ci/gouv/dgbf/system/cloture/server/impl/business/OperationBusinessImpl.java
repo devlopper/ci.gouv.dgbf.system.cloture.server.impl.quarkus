@@ -2,6 +2,7 @@ package ci.gouv.dgbf.system.cloture.server.impl.business;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -164,8 +165,17 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Object[] array = validate(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.FALSE, Boolean.FALSE, auditWho);
 		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
-		Collection<OperationActImpl> operationActs = CollectionHelper.isEmpty(acts) ? null : CollectionHelper.cast(OperationActImpl.class, operationActPersistence.readMany(new QueryExecutorArguments()
-				.addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER,identifier,Parameters.ACTS_IDENTIFIERS,FieldHelper.readSystemIdentifiersAsStrings(acts))));
+		Collection<OperationActImpl> operationActs = null;
+		if(CollectionHelper.isNotEmpty(acts))
+			for(List<Act> batch : CollectionHelper.getBatches((List<Act>)acts, 999)) {
+				Collection<OperationActImpl> result = CollectionHelper.cast(OperationActImpl.class, operationActPersistence.readMany(new QueryExecutorArguments()
+						.addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER,identifier,Parameters.ACTS_IDENTIFIERS,FieldHelper.readSystemIdentifiersAsStrings(batch))));
+				if(CollectionHelper.isEmpty(result))
+					continue;
+				if(operationActs == null)
+					operationActs = new ArrayList<>();
+				operationActs.addAll(result);
+			}
 		Result result = (Result) array[3];
 		if(CollectionHelper.isNotEmpty(operationActs))
 			((OperationActBusinessImpl)operationActBusiness).delete(operationActs.stream().map(operationAct -> entityManager.merge(operationAct)).collect(Collectors.toList())
@@ -211,7 +221,16 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Collection<Object[]> arrays = new ActImplIdentifierCodeOperationIdentifierReader().readByIdentifiers(actsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
 		Operation operation = persistence.readOne(identifier,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_CODE,OperationImpl.FIELD_NAME));
 		ValidatorImpl.Operation.validateAddOrRemoveToOperation(arrays,actsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
-		Collection<Act> acts = actPersistence.readManyByIdentifiers(actsIdentifiers ,List.of(ActImpl.FIELD_IDENTIFIER));
+		Collection<Act> acts = null;
+		if(CollectionHelper.isNotEmpty(actsIdentifiers))
+			for(List<String> batch : CollectionHelper.getBatches((List<String>)actsIdentifiers, 999)) {
+				Collection<Act> result = actPersistence.readManyByIdentifiers(batch ,List.of(ActImpl.FIELD_IDENTIFIER));
+				if(CollectionHelper.isEmpty(result))
+					continue;
+				if(acts == null)
+					acts = new ArrayList<>();
+				acts.addAll(result);
+			}
 		
 		ValidatorImpl.validateIdentifiers(List.of(identifier),operation == null ? null : List.of(operation.getIdentifier()), throwablesMessages);
 		ValidatorImpl.validateIdentifiers(actsIdentifiers, FieldHelper.readSystemIdentifiersAsStrings(acts), throwablesMessages);

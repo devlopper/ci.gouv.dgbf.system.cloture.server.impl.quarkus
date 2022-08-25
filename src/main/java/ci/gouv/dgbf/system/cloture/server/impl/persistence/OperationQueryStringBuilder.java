@@ -37,7 +37,7 @@ public class OperationQueryStringBuilder extends AbstractSpecificQueryStringBuil
 		super.populatePredicates(queryExecutorArguments, arguments, predicate, filter);
 		String operationTypeIdentifier = (String) queryExecutorArguments.getFilterFieldValue(Parameters.OPERATION_TYPE_IDENTIFIER);
 		if(StringHelper.isNotBlank(operationTypeIdentifier)) {
-			predicate.add(String.format("t.%s = :%s", OperationImpl.FIELD_TYPE,Parameters.OPERATION_TYPE_IDENTIFIER));
+			predicate.add(String.format("t.%s.identifier = :%s", OperationImpl.FIELD_TYPE,Parameters.OPERATION_TYPE_IDENTIFIER));
 			filter.addField(Parameters.OPERATION_TYPE_IDENTIFIER, operationTypeIdentifier);
 		}
 	}
