@@ -76,24 +76,23 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	/* add */
 
 	@Transactional
-	Result addActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired,Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate
-			,String resultActsLabelFormat,String resultNameFormat,String resultMessageFormat,EntityManager entityManager) {
+	Object[] addActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired,Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager) {
 		Object[] array = validate(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.TRUE, Boolean.FALSE, auditWho);
 		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
-		Result result = (Result) array[3];
 		if(CollectionHelper.isNotEmpty(acts))
 			((OperationActBusinessImpl)operationActBusiness).create(operation, acts, auditIdentifier, auditFunctionality, auditWho, auditDate, entityManager);
-		// Return of message
-		String actsLabel = String.format(resultActsLabelFormat,CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation.getName());
-		result.close().setName(String.format(resultNameFormat,actsLabel,auditWho)).log(getClass());
-		result.addMessages(String.format(resultMessageFormat, actsLabel));
-		return result;
+		return array;
 	}
 	
 	@Override
 	public Result addAct(String identifier, Collection<String> actsIdentifiers,Boolean existingIgnorable, String auditWho) {
-		return addActInTransaction(identifier, actsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), ADD_ACT_AUDIT_IDENTIFIER, LocalDateTime.now(),"%s %s dans %s","Ajout de %s par %s","%s ajouté(s)", entityManager);
+		Result result = openAddOrRemoveActResult(Boolean.TRUE);
+		Object[] array = addActInTransaction(identifier, actsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), ADD_ACT_AUDIT_IDENTIFIER, LocalDateTime.now(), entityManager);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Act> acts = (Collection<Act>) array[2];
+		closeAddOrRemoveActResult(result, "%s %s dans %s","Ajout de %s par %s","%s ajouté(s)", operation, acts, auditWho);
+		return result;
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Object[] array = validate(identifier, actsIdentifiers,Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, auditWho);
 		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
-		Result result = (Result) array[3];
+		Result result = openAddOrRemoveActResult(Boolean.TRUE);
 		
 		String auditIdentifier = generateAuditIdentifier();
 		LocalDateTime auditDate = LocalDateTime.now();
@@ -142,8 +141,14 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		normalizeFilterForAddOrRemoveActByFilter(filter, Boolean.TRUE);
 		String auditIdentifier = generateAuditIdentifier();
 		LocalDateTime auditDate = LocalDateTime.now();
-		return addActInTransaction(identifier, actPersistence.readIdentifiersAsStringsByFilter(filter),Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, ADD_ACT_BY_FILTER_AUDIT_IDENTIFIER
-				, auditDate,"%s %s dans %s","Ajout par filtre de %s par %s","%s ajouté(s) par filtre", entityManager);
+		String auditFunctionality = ADD_ACT_BY_FILTER_AUDIT_IDENTIFIER;
+		Result result = openAddOrRemoveActResult(Boolean.TRUE);
+		List<String> actsIdentifiers = (List<String>) actPersistence.readIdentifiersAsStringsByFilter(filter);
+		Object[] array = addOrRemoveActInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, actsIdentifiers, Boolean.TRUE);
+		Operation operation = (Operation) array[0];
+		Collection<Act> acts = (Collection<Act>) array[1];
+		closeAddOrRemoveActResult(result, "%s %s dans %s","Ajout par filtre de %s par %s","%s ajouté(s) par filtre", operation, acts, auditWho);
+		return result;
 	}
 	
 	void normalizeFilterForAddOrRemoveActByFilter(Filter filter,Boolean add) {
@@ -157,39 +162,68 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 			field.setValue(add);
 	}
 	
+	Object[] addOrRemoveActInBatch(String identifier, Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager,Result result,List<String> actsIdentifiers,Boolean add) {
+		List<List<String>> batches = CollectionHelper.getBatches(actsIdentifiers, 10000);
+		if(CollectionHelper.isEmpty(batches)) {
+			if(batches == null)
+				batches = new ArrayList<>();
+			batches.add(List.of());
+		}
+		Operation[] operation = {null};
+		Collection<Act> acts = new ArrayList<>();
+		batches.parallelStream().forEach(batch -> {
+			Object[] array;
+			try {
+				if(Boolean.TRUE.equals(add))
+					array = addActInTransaction(identifier,batch ,Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager);
+				else
+					array = removeActInTransaction(identifier,batch ,Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager);
+			} catch (Exception exception) {
+				result.addMessages(exception.getMessage());
+				return;
+			}
+			if(array == null)
+				return;
+			if(operation[0] == null)
+				operation[0] = (Operation) array[1];
+			if(CollectionHelper.isNotEmpty((Collection<Act>) array[2]))
+				acts.addAll((Collection<Act>) array[2]);
+		});
+		return new Object[]{operation[0],acts};
+	}
+	
 	/* remove */
 	
 	@Transactional
-	Result removeActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean existingIgnorable,String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate
-			,String resultOperationActsLabelFormat,String resultNameFormat,String resultMessageFormat,EntityManager entityManager) {
+	Object[] removeActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean existingIgnorable,String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate
+			,EntityManager entityManager) {
 		Object[] array = validate(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.FALSE, Boolean.FALSE, auditWho);
-		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
 		Collection<OperationActImpl> operationActs = null;
 		if(CollectionHelper.isNotEmpty(acts))
 			for(List<Act> batch : CollectionHelper.getBatches((List<Act>)acts, 999)) {
-				Collection<OperationActImpl> result = CollectionHelper.cast(OperationActImpl.class, operationActPersistence.readMany(new QueryExecutorArguments()
+				Collection<OperationActImpl> r = CollectionHelper.cast(OperationActImpl.class, operationActPersistence.readMany(new QueryExecutorArguments()
 						.addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER,identifier,Parameters.ACTS_IDENTIFIERS,FieldHelper.readSystemIdentifiersAsStrings(batch))));
-				if(CollectionHelper.isEmpty(result))
+				if(CollectionHelper.isEmpty(r))
 					continue;
 				if(operationActs == null)
 					operationActs = new ArrayList<>();
-				operationActs.addAll(result);
+				operationActs.addAll(r);
 			}
-		Result result = (Result) array[3];
 		if(CollectionHelper.isNotEmpty(operationActs))
 			((OperationActBusinessImpl)operationActBusiness).delete(operationActs.stream().map(operationAct -> entityManager.merge(operationAct)).collect(Collectors.toList())
 					, auditIdentifier, REMOVE_ACT_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
-		// Return of message
-		String operationActsLabel = String.format(resultOperationActsLabelFormat,CollectionHelper.getSize(operationActs),Act.NAME_PLURAL,operation.getName());
-		result.close().setName(String.format(resultNameFormat,operationActsLabel,auditWho)).log(getClass());
-		result.addMessages(String.format(resultMessageFormat, operationActsLabel));
-		return result;
+		return array;
 	}
 	
 	@Override
 	public Result removeAct(String identifier, Collection<String> actsIdentifiers, Boolean existingIgnorable,String auditWho) {
-		return removeActInTransaction(identifier, actsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), REMOVE_ACT_AUDIT_IDENTIFIER, LocalDateTime.now(), "%s %s dans %s", "Retrait de %s par %s", "%s retiré(s)", entityManager);
+		Result result = openAddOrRemoveActResult(Boolean.FALSE);
+		Object[] array = removeActInTransaction(identifier, actsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), REMOVE_ACT_AUDIT_IDENTIFIER, LocalDateTime.now(), entityManager);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Act> acts = (Collection<Act>) array[2];
+		closeAddOrRemoveActResult(result, "%s %s dans %s", "Retrait de %s par %s", "%s retiré(s)", operation, acts, auditWho);
+		return result;
 	}
 	
 	@Override
@@ -205,8 +239,14 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		normalizeFilterForAddOrRemoveActByFilter(filter, Boolean.FALSE);
 		String auditIdentifier = generateAuditIdentifier();
 		LocalDateTime auditDate = LocalDateTime.now();
-		return removeActInTransaction(identifier, actPersistence.readIdentifiersAsStringsByFilter(filter),Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, REMOVE_ACT_BY_FILTER_AUDIT_IDENTIFIER
-				, auditDate,"%s %s dans %s","Retrait par filtre de %s par %s","%s retiré(s) par filtre", entityManager);
+		String auditFunctionality = REMOVE_ACT_BY_FILTER_AUDIT_IDENTIFIER;
+		Result result = openAddOrRemoveActResult(Boolean.TRUE);
+		List<String> actsIdentifiers = (List<String>) actPersistence.readIdentifiersAsStringsByFilter(filter);
+		Object[] array = addOrRemoveActInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, actsIdentifiers, Boolean.FALSE);
+		Operation operation = (Operation) array[0];
+		Collection<Act> acts = (Collection<Act>) array[1];
+		closeAddOrRemoveActResult(result, "%s %s dans %s","Retrait par filtre de %s par %s","%s retiré(s) par filtre", operation, acts, auditWho);
+		return result;
 	}
 	
 	/* Validation */
@@ -224,21 +264,30 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Collection<Act> acts = null;
 		if(CollectionHelper.isNotEmpty(actsIdentifiers))
 			for(List<String> batch : CollectionHelper.getBatches((List<String>)actsIdentifiers, 999)) {
-				Collection<Act> result = actPersistence.readManyByIdentifiers(batch ,List.of(ActImpl.FIELD_IDENTIFIER));
-				if(CollectionHelper.isEmpty(result))
+				Collection<Act> r = actPersistence.readManyByIdentifiers(batch ,List.of(ActImpl.FIELD_IDENTIFIER));
+				if(CollectionHelper.isEmpty(r))
 					continue;
 				if(acts == null)
 					acts = new ArrayList<>();
-				acts.addAll(result);
+				acts.addAll(r);
 			}
 		
 		ValidatorImpl.validateIdentifiers(List.of(identifier),operation == null ? null : List.of(operation.getIdentifier()), throwablesMessages);
 		ValidatorImpl.validateIdentifiers(actsIdentifiers, FieldHelper.readSystemIdentifiersAsStrings(acts), throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		
-		Result result = new Result().setName(String.format("%s",Boolean.TRUE.equals(add) ? ADD_ACT_LABEL : REMOVE_ACT_LABEL)).open();
 		Collection<String> processableIdentifiers = arrays == null ? null : arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] == null : array[2] != null).map(array -> (String)array[0]).collect(Collectors.toList());
 		acts = processableIdentifiers == null ? null : acts.stream().filter(act -> processableIdentifiers.contains(act.getIdentifier())).collect(Collectors.toList());
-		return new Object[] {arrays,operation,acts,result};
+		return new Object[] {arrays,operation,acts};
+	}
+	
+	Result openAddOrRemoveActResult(Boolean add) {
+		return new Result().setName(String.format("%s",Boolean.TRUE.equals(add) ? ADD_ACT_LABEL : REMOVE_ACT_LABEL)).open();
+	}
+	
+	void closeAddOrRemoveActResult(Result result,String labelFormat,String nameFormat,String messageFormat,Operation operation,Collection<Act> acts,String auditWho) {
+		String actsLabel = String.format(labelFormat,CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation.getName());
+		result.close().setName(String.format(nameFormat,actsLabel,auditWho)).log(getClass());
+		result.addMessages(String.format(messageFormat, actsLabel));
 	}
 }
