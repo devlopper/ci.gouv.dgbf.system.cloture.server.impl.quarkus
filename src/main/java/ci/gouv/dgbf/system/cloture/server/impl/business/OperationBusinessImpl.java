@@ -70,6 +70,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		String operationLabel = String.format("%s de type %s",Operation.NAME,operation.getType().getName());
 		result.close().setName(String.format("Création %s par %s",operationLabel,auditWho)).log(getClass());
 		result.addMessages(String.format("%s créée", operationLabel));
+		result.getMap(Boolean.TRUE).put(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier());
 		return result;
 	}
 	
@@ -163,7 +164,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	}
 	
 	Object[] addOrRemoveActInBatch(String identifier, Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager,Result result,List<String> actsIdentifiers,Boolean add) {
-		List<List<String>> batches = CollectionHelper.getBatches(actsIdentifiers, 10000);
+		List<List<String>> batches = CollectionHelper.getBatches(actsIdentifiers, 1000);
 		if(CollectionHelper.isEmpty(batches)) {
 			if(batches == null)
 				batches = new ArrayList<>();
