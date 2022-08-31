@@ -31,8 +31,11 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
+import ci.gouv.dgbf.system.cloture.server.impl.Configuration;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImplIdentifierCodeOperationIdentifierReader;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationActImpl;
@@ -42,28 +45,35 @@ import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operation> implements OperationBusiness,Serializable {
 
 	@Inject OperationPersistence persistence;
+	@Inject OperationStatusPersistence statusPersistence;
 	@Inject ActPersistence actPersistence;
 	@Inject OperationActPersistence operationActPersistence;
 	@Inject OperationActBusiness operationActBusiness;
 	@Inject EntityManager entityManager;
+	@Inject Configuration configuration;
 	
 	/* create */
 	
 	@Override @Transactional
-	public Result create(String typeIdentifier,String code,String name, String reason,String auditWho) {
+	public Result create(String typeIdentifier,String code,String name, String reason,String auditWho,Boolean sequentialExecution) {
 		Result result = new Result().open();
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
 		// Validation of inputs
 		Object[] array = ValidatorImpl.Operation.validateCreateInputs(typeIdentifier,name, reason, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
+		OperationType type = (OperationType) array[0];
+		OperationStatus status = ValidatorImpl.Operation.validateCreate(type,sequentialExecution, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
 		OperationImpl operation = new OperationImpl();
-		operation.setType((OperationType) array[0]).setCode(code).setName(name).setReason(reason);
+		operation.setType(type).setCode(code).setName(name).setReason(reason);
 		if(StringHelper.isBlank(operation.getIdentifier()))
 			operation.setIdentifier(operation.getCode());
 		if(StringHelper.isBlank(operation.getIdentifier()))
 			operation.setIdentifier(IdentifiableSystem.generateRandomly());
 		if(StringHelper.isBlank(operation.getName()))
 			operation.setName(operation.getCode());
+		operation.setStatus(status);
+		
 		audit(operation, generateAuditIdentifier(), CREATE_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
 		entityManager.persist(operation);
 		// Return of message
@@ -72,6 +82,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		result.addMessages(String.format("%s créée", operationLabel));
 		result.getMap(Boolean.TRUE).put(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier());
 		return result;
+	}
+	
+	@Override
+	public Result create(String typeIdentifier, String code, String name, String reason, String auditWho) {
+		return create(typeIdentifier, code, name, reason, auditWho, null);
 	}
 	
 	/* add */
@@ -247,6 +262,28 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Operation operation = (Operation) array[0];
 		Collection<Act> acts = (Collection<Act>) array[1];
 		closeAddOrRemoveActResult(result, "%s %s dans %s","Retrait par filtre de %s par %s","%s retiré(s) par filtre", operation, acts, auditWho);
+		return result;
+	}
+	
+	/* Start */
+	
+	@Override
+	public Result start(String identifier, String auditWho) {
+		Result result = new Result().open();
+		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
+		// Validation of inputs
+		Object[] array = ValidatorImpl.Operation.validateStartInputs(identifier, auditWho, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		OperationImpl operation = (OperationImpl) array[0];
+		ValidatorImpl.Operation.validateStart(operation, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		operation.setStatus(statusPersistence.readOne(new QueryExecutorArguments().addFilterField(Parameters.CODE, configuration.operation().status().startedCode())));
+		audit(operation, generateAuditIdentifier(), START_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
+		entityManager.merge(operation);
+		// Return of message
+		String operationLabel = String.format("%s",Operation.NAME,operation.getName());
+		result.close().setName(String.format("Démarrage %s par %s",operationLabel,auditWho)).log(getClass());
+		result.addMessages(String.format("%s démarrée", operationLabel));
 		return result;
 	}
 	

@@ -10,17 +10,27 @@ import javax.persistence.EntityManager;
 
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.klass.ClassHelper;
+import org.cyk.utility.__kernel__.number.NumberHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.__kernel__.throwable.ThrowablesMessages;
 import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.cyk.utility.business.RequestException;
 import org.cyk.utility.business.Validator;
 import org.cyk.utility.persistence.query.Filter;
+import org.cyk.utility.persistence.query.QueryExecutorArguments;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Script;
+import ci.gouv.dgbf.system.cloture.server.impl.Configuration;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationStatusImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationTypeImpl;
 import io.quarkus.arc.Unremovable;
 
@@ -128,6 +138,22 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			return new Object[] {type};
 		}
 		
+		static OperationStatus validateCreate(OperationType type,Boolean sequentialExecution,ThrowablesMessages throwablesMessages) {
+			if(sequentialExecution == null)
+				sequentialExecution = Boolean.TRUE.equals(__inject__(Configuration.class).operation().execution().sequential());
+			if(sequentialExecution) {
+				Collection<ci.gouv.dgbf.system.cloture.server.api.persistence.Operation> operations = __inject__(OperationPersistence.class).readMany(new QueryExecutorArguments()
+						.addProjectionsFromStrings(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_CODE,OperationImpl.FIELD_NAME).addFilterField(Parameters.OPERATION_EXECUTED, Boolean.FALSE));
+				if(CollectionHelper.getSize(operations) > 0)
+					throwablesMessages.add("Des opérations non encore exécutées ont été trouvées : "+operations.stream().map(o -> o.toString()).collect(Collectors.joining(",")));
+			}
+			Configuration configuration = __inject__(Configuration.class);
+			OperationStatus status = __inject__(OperationStatusPersistence.class).readOne(new QueryExecutorArguments().addProjectionsFromStrings(OperationStatusImpl.FIELD_IDENTIFIER)
+					.addFilterField(Parameters.CODE, configuration.operation().status().createdCode()));
+			throwablesMessages.addIfTrue(String.format("Le statut %s est introuvable.",configuration.operation().status().createdCode()), status == null);
+			return status;
+		}
+		
 		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
 			throwablesMessages.addIfTrue(String.format("L'identifiant de %s est requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME), StringHelper.isBlank(identifier));
 			if((areActsIdentifiersRequired == null || areActsIdentifiersRequired) && !Boolean.TRUE.equals(comprehensively))
@@ -157,6 +183,28 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			validateIdentifier(identifier, ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME, throwablesMessages);
 			throwablesMessages.addIfTrue("Le filtre est requis", Filter.isEmpty(filter));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+		}
+		
+		static Object[] validateStartInputs(String identifier,String auditWho,ThrowablesMessages throwablesMessages) {
+			validateIdentifier(identifier,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME, throwablesMessages);
+			OperationImpl operation = StringHelper.isBlank(identifier) ? null : (OperationImpl) validateExistenceAndReturn(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.class, identifier
+					,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_STATUS,OperationTypeImpl.FIELD_NAME)
+					, __inject__(OperationPersistence.class), throwablesMessages);
+			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+			return new Object[] {operation};
+		}
+		
+		static void validateStart(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+			Configuration configuration = __inject__(Configuration.class);
+			OperationStatus startedStatus = __inject__(OperationStatusPersistence.class).readOne(new QueryExecutorArguments().addProjectionsFromStrings(OperationStatusImpl.FIELD_IDENTIFIER,OperationStatusImpl.FIELD_ORDER_NUMBER)
+					.addFilterField(Parameters.CODE, configuration.operation().status().startedCode()));
+			throwablesMessages.addIfTrue(String.format("Le statut démarrage ayant pour code <<%s>> est introuvable.",configuration.operation().status().startedCode()),startedStatus == null);
+			if(startedStatus != null && operation.getStatus().getOrderNumber() >= startedStatus.getOrderNumber()) {
+				throwablesMessages.add(String.format("L'opération <<%s>> à déja été démarrée",operation.getName()));
+			}else {
+				throwablesMessages.addIfTrue(String.format("L'opération <<%s>> doit contenir au moins un acte",operation.getName())
+						, NumberHelper.isLessThanOrEqualZero(__inject__(OperationActPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()))));
+			}
 		}
 	}
 }

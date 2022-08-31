@@ -45,6 +45,10 @@ public class ApplicationLifeCycleListener {
     	PersistenceEntityClassGetterImpl.MAP.put(ActTypeDtoImpl.class,ActTypeImpl.class);
     	ActTypeDtoImpl.setProjections();
     	
+    	MapperClassGetter.MAP.put(ActDtoImpl.class, ActDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(ActDtoImpl.class,ActImpl.class);
+    	ActDtoImpl.setProjections();
+    	
     	MapperClassGetter.MAP.put(OperationTypeDtoImpl.class, OperationTypeDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationTypeDtoImpl.class,OperationTypeImpl.class);
     	OperationTypeDtoImpl.setProjections();
@@ -52,10 +56,6 @@ public class ApplicationLifeCycleListener {
     	MapperClassGetter.MAP.put(OperationDtoImpl.class, OperationDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationDtoImpl.class,OperationImpl.class);
     	OperationDtoImpl.setProjections();
-    	
-    	MapperClassGetter.MAP.put(ActDtoImpl.class, ActDtoImplMapper.class);
-    	PersistenceEntityClassGetterImpl.MAP.put(ActDtoImpl.class,ActImpl.class);
-    	ActDtoImpl.setProjections();
     	
     	/**/
     	

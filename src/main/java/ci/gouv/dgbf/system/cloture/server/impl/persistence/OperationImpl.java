@@ -22,6 +22,7 @@ import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.AuditTable;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +47,10 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
  	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TYPE,nullable = false) OperationTypeImpl type;
   	@Transient String typeAsString;
   	@NotNull @Column(name = COLUMN_REASON,nullable = false) String reason;
-	
+  	@NotNull @ManyToOne @JoinColumn(name = COLUMN_STATUS,nullable = false) OperationStatusImpl status;
+  	
+  	@Transient Boolean executed;
+  	
   	@Transient AuditedActionImpl creation;
   	@Transient AuditedActionImpl execution;
   	
@@ -72,6 +76,12 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	}
 	
 	@Override
+	public Operation setStatus(OperationStatus status) {
+		this.status = (OperationStatusImpl) status;
+		return this;
+	}
+	
+	@Override
 	public Operation setCreation(AuditedAction creation) {
 		this.creation = (AuditedActionImpl) creation;
 		return this;
@@ -86,6 +96,9 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_TYPE = "type";
 	public static final String FIELD_TYPE_AS_STRING = "typeAsString";
 	public static final String FIELD_REASON = "reason";
+	public static final String FIELD_STATUS = "status";
+	public static final String FIELD_EXECUTED = "executed";
+	public static final String FIELD_SUCCEEDED = "succeeded";
 	public static final String FIELD_CREATION = "creation";
 	public static final String FIELD_EXECUTION = "execution";
 	
@@ -97,6 +110,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	
 	public static final String COLUMN_TYPE = "type";
 	public static final String COLUMN_REASON = "motif";
+	public static final String COLUMN_STATUS = "statut";
 	public static final String COLUMN___AUDIT_IDENTIFIER__ = "AUDIT_IDENTIFIANT";
 	public static final String COLUMN___AUDIT_WHO__ = "AUDIT_ACTEUR";
 	public static final String COLUMN___AUDIT_WHAT__ = "AUDIT_ACTION";

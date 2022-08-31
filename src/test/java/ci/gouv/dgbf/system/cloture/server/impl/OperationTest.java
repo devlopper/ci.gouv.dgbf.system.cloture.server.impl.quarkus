@@ -11,13 +11,14 @@ import javax.inject.Inject;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.service.client.Controller;
-import org.cyk.utility.service.client.SpecificServiceGetter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
@@ -33,13 +34,12 @@ public class OperationTest {
 
 	@Inject Assertor assertor;
 	@Inject OperationTypePersistence typePersistence;
+	@Inject OperationStatusPersistence statusPersistence;
 	@Inject OperationTypeController typeController;
 	
 	@Inject OperationPersistence persistence;
 	@Inject OperationBusiness business;
 	@Inject OperationController controller;
-	
-	@Inject SpecificServiceGetter s;
 	
 	@Test
 	void persistence_type_readMany() {
@@ -49,17 +49,24 @@ public class OperationTest {
 	}
 	
 	@Test
+	void persistence_status_readMany() {
+		Collection<OperationStatus> status = statusPersistence.readMany(new QueryExecutorArguments());
+		assertThat(status).isNotNull();
+		assertThat(status.stream().map(x -> x.getIdentifier()).collect(Collectors.toList())).containsExactly("CREEE","DEMARREE","EXECUTEE");
+	}
+	
+	@Test
 	void persistence_type_readDefault() {
 		OperationType type = typePersistence.readDefault();
 		assertThat(type).isNotNull();
-		assertThat(type.getCode()).isEqualTo(OperationType.CODE_DEVERROUILLAGE);
+		assertThat(type.getCode()).isEqualTo(Configuration.Operation.Type.CODE_DEVERROUILLAGE);
 	}
 	
 	@Test
 	void controller_type_getByIdentifierOrDefaultIfIdentifierIsBlank() {
 		ci.gouv.dgbf.system.cloture.server.client.rest.OperationType type = typeController.getByIdentifierOrDefaultIfIdentifierIsBlank(null,new Controller.GetArguments().projections(OperationTypeDto.JSON_IDENTIFIER,OperationTypeDto.JSON_CODE));
 		assertThat(type).isNotNull();
-		assertThat(type.getCode()).isEqualTo(OperationType.CODE_DEVERROUILLAGE);
+		assertThat(type.getCode()).isEqualTo(Configuration.Operation.Type.CODE_DEVERROUILLAGE);
 	}
 	
 	@Test
@@ -80,14 +87,22 @@ public class OperationTest {
 	@Test
 	void business_create() {
 		Long count = persistence.count();
-		business.create(OperationType.CODE_DEVERROUILLAGE,"D001", null, "Instruction 001", "christian");
+		business.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,"D001", null, "Instruction 001", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
+	}
+	
+	@Test
+	void business_create_execution_is_sequential() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,"D001", null, "Instruction 001", "christian",Boolean.TRUE);
+	    });
+		assertThat(exception.getMessage()).startsWith("Des opérations non encore exécutées ont été trouvées : ");
 	}
 	
 	@Test
 	void controller_create() {
 		Long count = persistence.count();
-		controller.create(OperationType.CODE_DEVERROUILLAGE,"D002", null, "Instruction 002", "christian");
+		controller.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,"D002", null, "Instruction 002", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
 	}
 	
@@ -195,5 +210,29 @@ public class OperationTest {
 		assertor.assertOperationActs("remove_byfilter2", "remove_byfilter2_2","remove_byfilter2_3");
 		business.removeActByFilter("remove_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "REMOVEBYFILTER"),null, "meliane");
 		assertor.assertOperationActs("remove_byfilter2",(String[]) null);
+	}
+	
+	@Test
+	void business_start_actsCountIsZero() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.start("start_actscountiszero", "christian");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> doit contenir au moins un acte");
+	}
+	
+	@Test
+	void business_start_statusIsEqual() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.start("start_statusisequal", "christian");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> à déja été démarrée");
+	}
+	
+	@Test
+	void business_start_statusIsGreater() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.start("start_statusisgreater", "christian");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> à déja été démarrée");
 	}
 }

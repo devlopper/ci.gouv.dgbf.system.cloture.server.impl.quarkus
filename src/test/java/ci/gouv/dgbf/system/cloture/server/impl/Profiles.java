@@ -28,6 +28,7 @@ public interface Profiles {
 		@Override
 		public Map<String, String> getConfigOverrides() {
 			Map<String, String> map = Profile.buildConfig(Operation.class);
+			map.put("cloture.operation.execution.sequential", "false");
 			return map;
 		}
 		

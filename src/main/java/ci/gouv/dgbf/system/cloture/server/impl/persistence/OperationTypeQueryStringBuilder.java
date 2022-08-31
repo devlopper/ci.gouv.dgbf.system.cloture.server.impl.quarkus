@@ -11,12 +11,14 @@ import org.cyk.utility.persistence.server.query.string.QueryStringBuilder.Argume
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
+import ci.gouv.dgbf.system.cloture.server.impl.Configuration;
 import lombok.Getter;
 
 @ApplicationScoped
 public class OperationTypeQueryStringBuilder extends AbstractSpecificQueryStringBuilder<OperationType> implements Serializable {
 
 	@Getter @Inject OperationTypePersistence persistence;
+	@Inject Configuration configuration;
 	
 	@Override
 	protected Class<OperationType> getPeristenceClass() {
@@ -25,7 +27,7 @@ public class OperationTypeQueryStringBuilder extends AbstractSpecificQueryString
 	
 	@Override
 	protected String buildDefaultValuePredicate() {
-		return String.format("t.%s = '%s'",OperationTypeImpl.FIELD_CODE,OperationType.CODE_DEVERROUILLAGE);
+		return String.format("t.%s = '%s'",OperationTypeImpl.FIELD_CODE,configuration.operation().type().defaultCode());
 	}
 	
 	@Override
