@@ -10,6 +10,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedStoredProcedureQueries;
+import javax.persistence.NamedStoredProcedureQuery;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureParameter;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -38,6 +42,15 @@ import lombok.experimental.Accessors;
 		,@AttributeOverride(name = OperationImpl.FIELD___AUDIT_WHEN__,column = @Column(name=OperationImpl.COLUMN___AUDIT_WHEN__,nullable = false))
 		,@AttributeOverride(name = OperationImpl.FIELD___AUDIT_FUNCTIONALITY__,column = @Column(name=OperationImpl.COLUMN___AUDIT_FUNCTIONALITY__,nullable = false))
 })
+@NamedStoredProcedureQueries(value = {
+		@NamedStoredProcedureQuery(
+			name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK
+			,parameters = {@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS , mode = ParameterMode.IN,type = String.class)}
+		),@NamedStoredProcedureQuery(
+			name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK
+			,parameters = {@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS , mode = ParameterMode.IN,type = String.class)}
+		)
+	})
 @AuditOverrides({
 	@AuditOverride(forClass = AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableAuditedImpl.class)
 })
@@ -116,4 +129,8 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String COLUMN___AUDIT_WHAT__ = "AUDIT_ACTION";
 	public static final String COLUMN___AUDIT_FUNCTIONALITY__ = "AUDIT_FONCTIONNALITE";
 	public static final String COLUMN___AUDIT_WHEN__ = "AUDIT_DATE";
+	
+	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK = "PA_VERROUILLER";
+	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK = "PA_DEVERROUILLER";
+	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS = "IDENTIFIANTS";
 }

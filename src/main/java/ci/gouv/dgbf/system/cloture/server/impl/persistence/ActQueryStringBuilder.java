@@ -30,9 +30,12 @@ public class ActQueryStringBuilder extends AbstractSpecificQueryStringBuilder<Ac
 	@Override
 	public void populatePredicates(QueryExecutorArguments queryExecutorArguments, Arguments arguments,Predicate predicate, Filter filter) {
 		super.populatePredicates(queryExecutorArguments, arguments, predicate, filter);
+		Boolean processed = queryExecutorArguments.getFilterFieldValueAsBoolean(null,Parameters.PROCESSED);
 		Boolean addedToSpecifiedOperation = queryExecutorArguments.getFilterFieldValueAsBoolean(Boolean.TRUE,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION);
+		
 		populatePredicatesExists(queryExecutorArguments, arguments, predicate, filter, Parameters.OPERATION_IDENTIFIER
-				,String.format("SELECT oa FROM %s oa WHERE oa.%s.identifier = :%s AND oa.%s = t",OperationActImpl.ENTITY_NAME,OperationActImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationActImpl.FIELD_ACT)
+				,String.format("SELECT oa FROM %s oa WHERE oa.%s.identifier = :%s AND oa.%s = t%s",OperationActImpl.ENTITY_NAME,OperationActImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationActImpl.FIELD_ACT
+						,processed == null ? "" : (processed ? String.format(" AND oa.%s = %s", OperationActImpl.FIELD_PROCESSED,Boolean.TRUE.toString()) : String.format(" AND (oa.%1$s IS NULL OR oa.%1$s = %2$s)", OperationActImpl.FIELD_PROCESSED,Boolean.FALSE.toString())))
 				,!Boolean.TRUE.equals(addedToSpecifiedOperation));
 		
 		if(queryExecutorArguments.getFilterFieldValue(Parameters.ACTS_CODES) != null) {

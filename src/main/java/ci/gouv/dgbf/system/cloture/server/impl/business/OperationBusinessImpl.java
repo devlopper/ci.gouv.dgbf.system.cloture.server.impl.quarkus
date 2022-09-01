@@ -23,6 +23,7 @@ import org.cyk.utility.business.server.AbstractSpecificBusinessImpl;
 import org.cyk.utility.persistence.query.Field;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
+import org.cyk.utility.persistence.server.procedure.ProcedureExecutorGetter;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationActBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
@@ -40,6 +41,8 @@ import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImplIdentifierCodeOperationIdentifierReader;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import io.quarkus.vertx.ConsumeEvent;
+import io.vertx.core.eventbus.EventBus;
 
 @ApplicationScoped
 public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operation> implements OperationBusiness,Serializable {
@@ -51,6 +54,10 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Inject OperationActBusiness operationActBusiness;
 	@Inject EntityManager entityManager;
 	@Inject Configuration configuration;
+	
+	@Inject ProcedureExecutorGetter procedureExecutorGetter;
+	
+	@Inject EventBus eventBus;
 	
 	/* create */
 	
@@ -267,16 +274,9 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	
 	/* Start */
 	
-	@Override
-	public Result start(String identifier, String auditWho) {
+	@Transactional
+	Result startInTransaction(OperationImpl operation, String auditWho) {
 		Result result = new Result().open();
-		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
-		// Validation of inputs
-		Object[] array = ValidatorImpl.Operation.validateStartInputs(identifier, auditWho, throwablesMessages);
-		throwablesMessages.throwIfNotEmpty();
-		OperationImpl operation = (OperationImpl) array[0];
-		ValidatorImpl.Operation.validateStart(operation, throwablesMessages);
-		throwablesMessages.throwIfNotEmpty();
 		operation.setStatus(statusPersistence.readOne(new QueryExecutorArguments().addFilterField(Parameters.CODE, configuration.operation().status().startedCode())));
 		audit(operation, generateAuditIdentifier(), START_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
 		entityManager.merge(operation);
@@ -285,6 +285,36 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		result.close().setName(String.format("Démarrage %s par %s",operationLabel,auditWho)).log(getClass());
 		result.addMessages(String.format("%s démarrée", operationLabel));
 		return result;
+	}
+	
+	@Override
+	public Result start(String identifier, String auditWho) {
+		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
+		// Validation of inputs
+		Object[] array = ValidatorImpl.Operation.validateStartInputs(identifier, auditWho, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		OperationImpl operation = (OperationImpl) array[0];
+		operation = entityManager.find(OperationImpl.class, operation.getIdentifier());
+		ValidatorImpl.Operation.validateStart(operation, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		Result result = startInTransaction(operation, auditWho);
+		eventBus.request(EVENT_CHANNEL_START, identifier);
+		return result;
+	}
+	
+	public static final String EVENT_CHANNEL_START = "event_channel_start_operation";
+	@ConsumeEvent(EVENT_CHANNEL_START)
+    public void listenStart(String identifier) {
+		execute(identifier);
+    }
+	
+	void execute(String identifier) {
+		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
+				,Parameters.PROCESSED, Boolean.FALSE));
+		if(CollectionHelper.isEmpty(acts))
+			return;
+		procedureExecutorGetter.getProcedureExecutor().execute(OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK
+				,OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS,acts.stream().map(act -> act.getReference()).collect(Collectors.joining(",")));
 	}
 	
 	/* Validation */

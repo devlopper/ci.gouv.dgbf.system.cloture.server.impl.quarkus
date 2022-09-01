@@ -52,6 +52,7 @@ public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAudi
 
 	@NotNull @ManyToOne @JoinColumn(name = FIELD_OPERATION,nullable = false) OperationImpl operation;
 	@NotNull @ManyToOne @JoinColumn(name = COLUMN_ACT,nullable = false) ActImpl act;
+	@Column(name = COLUMN_PROCESSED) Boolean processed;
 	
 	@Override
 	public OperationActImpl setIdentifier(String identifier) {
@@ -72,6 +73,7 @@ public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAudi
 	
 	public static final String FIELD_OPERATION = "operation";
 	public static final String FIELD_ACT = "act";
+	public static final String FIELD_PROCESSED = "processed";
 	
 	public static final String FIELD_ACT_IDENTIFIER = "actIdentifier";
 	public static final String FIELD_OPERATION_TYPE = "operationType";
@@ -85,6 +87,7 @@ public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAudi
 	
 	public static final String COLUMN_OPERATION = "operation";
 	public static final String COLUMN_ACT = "acte";
+	public static final String COLUMN_PROCESSED = "traite";
 	public static final String COLUMN___AUDIT_IDENTIFIER__ = "AUDIT_IDENTIFIANT";
 	public static final String COLUMN___AUDIT_WHO__ = "AUDIT_ACTEUR";
 	public static final String COLUMN___AUDIT_WHAT__ = "AUDIT_ACTION";

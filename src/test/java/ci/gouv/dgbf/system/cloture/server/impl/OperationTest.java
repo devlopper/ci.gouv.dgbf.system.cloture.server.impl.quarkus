@@ -41,6 +41,8 @@ public class OperationTest {
 	@Inject OperationBusiness business;
 	@Inject OperationController controller;
 	
+	@Inject Configuration configuration;
+	
 	@Test
 	void persistence_type_readMany() {
 		Collection<OperationType> types = typePersistence.readMany(new QueryExecutorArguments());
@@ -234,5 +236,27 @@ public class OperationTest {
 			business.start("start_statusisgreater", "christian");
 	    });
 		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> à déja été démarrée");
+	}
+	
+	@Test
+	void business_start_01() {
+		assertor.assertOperationStatusCode("start_01",configuration.operation().status().createdCode());
+		business.start("start_01", "christian");
+		assertor.assertOperationStatusCode("start_01",configuration.operation().status().startedCode());
+	}
+	
+	@Test
+	void business_start_01_processedIsTrue() {
+		assertor.assertOperationStatusCode("start_01_processedIsTrue",configuration.operation().status().createdCode());
+		business.start("start_01_processedIsTrue", "christian");
+		assertor.assertOperationStatusCode("start_01_processedIsTrue",configuration.operation().status().startedCode());
+	}
+	
+	public static String PA_VERROUILLER(String identifiers) {
+		return null;
+	}
+	
+	public static String PA_DEVERROUILLER(String identifiers) {
+		return null;
 	}
 }
