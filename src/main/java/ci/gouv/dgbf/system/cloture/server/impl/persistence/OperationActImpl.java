@@ -43,7 +43,9 @@ import lombok.experimental.Accessors;
 })
 @AuditTable(value = OperationActImpl.AUDIT_TABLE_NAME)
 @NamedQueries(value = {
-		@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_NOT_ACTS_IDENTIFIERS,query = 
+		@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_ACTS_IDENTIFIERS,query = 
+				"SELECT t FROM "+OperationActImpl.ENTITY_NAME+" t WHERE t.operation.identifier = :"+Parameters.OPERATION_IDENTIFIER+" AND t.act.identifier IN :"+Parameters.ACTS_IDENTIFIERS)
+		,@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_NOT_ACTS_IDENTIFIERS,query = 
 				"SELECT t FROM "+OperationActImpl.ENTITY_NAME+" t WHERE t.operation.identifier = :"+Parameters.OPERATION_IDENTIFIER+" AND t.act.identifier NOT IN :"+Parameters.ACTS_IDENTIFIERS)
 		,@NamedQuery(name = OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER,query = 
 				"SELECT t FROM "+OperationActImpl.ENTITY_NAME+" t WHERE t.operation.identifier = :"+Parameters.OPERATION_IDENTIFIER)
@@ -95,5 +97,6 @@ public class OperationActImpl extends AbstractIdentifiableSystemScalarStringAudi
 	public static final String COLUMN___AUDIT_WHEN__ = "AUDIT_DATE";
 	
 	public static final String QUERY_READ_BY_OPERATION_IDENTIFIER = "OperationActImpl.readByOperationIdentifier";
+	public static final String QUERY_READ_BY_OPERATION_IDENTIFIER_BY_ACTS_IDENTIFIERS = "OperationActImpl.readByOperationIdentifierByActsIdentifiers";
 	public static final String QUERY_READ_BY_OPERATION_IDENTIFIER_BY_NOT_ACTS_IDENTIFIERS = "OperationActImpl.readByOperationIdentifierByNotActsIdentifiers";
 }

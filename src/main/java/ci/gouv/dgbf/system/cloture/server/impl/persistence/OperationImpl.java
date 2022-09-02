@@ -61,6 +61,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
   	@Transient String typeAsString;
   	@NotNull @Column(name = COLUMN_REASON,nullable = false) String reason;
   	@NotNull @ManyToOne @JoinColumn(name = COLUMN_STATUS,nullable = false) OperationStatusImpl status;
+  	@Transient String statusAsString;
   	
   	@Transient Boolean executed;
   	
@@ -110,6 +111,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_TYPE_AS_STRING = "typeAsString";
 	public static final String FIELD_REASON = "reason";
 	public static final String FIELD_STATUS = "status";
+	public static final String FIELD_STATUS_AS_STRING = "statusAsString";
 	public static final String FIELD_EXECUTED = "executed";
 	public static final String FIELD_SUCCEEDED = "succeeded";
 	public static final String FIELD_CREATION = "creation";

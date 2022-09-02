@@ -15,11 +15,13 @@ import javax.transaction.Transactional;
 
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.field.FieldHelper;
+import org.cyk.utility.__kernel__.log.LogHelper;
 import org.cyk.utility.__kernel__.object.marker.IdentifiableSystem;
 import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.__kernel__.throwable.ThrowablesMessages;
 import org.cyk.utility.business.Result;
 import org.cyk.utility.business.server.AbstractSpecificBusinessImpl;
+import org.cyk.utility.persistence.EntityManagerGetter;
 import org.cyk.utility.persistence.query.Field;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
@@ -43,6 +45,8 @@ import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @ApplicationScoped
 public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operation> implements OperationBusiness,Serializable {
@@ -278,7 +282,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	Result startInTransaction(OperationImpl operation, String auditWho) {
 		Result result = new Result().open();
 		operation.setStatus(statusPersistence.readOne(new QueryExecutorArguments().addFilterField(Parameters.CODE, configuration.operation().status().startedCode())));
-		audit(operation, generateAuditIdentifier(), START_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
+		audit(operation, generateAuditIdentifier(), START_EXECUTION_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
 		entityManager.merge(operation);
 		// Return of message
 		String operationLabel = String.format("%s",Operation.NAME,operation.getName());
@@ -288,7 +292,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	}
 	
 	@Override
-	public Result start(String identifier, String auditWho) {
+	public Result startExecution(String identifier, String auditWho) {
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
 		// Validation of inputs
 		Object[] array = ValidatorImpl.Operation.validateStartInputs(identifier, auditWho, throwablesMessages);
@@ -298,23 +302,62 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		ValidatorImpl.Operation.validateStart(operation, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		Result result = startInTransaction(operation, auditWho);
-		eventBus.request(EVENT_CHANNEL_START, identifier);
+		eventBus.request(EVENT_CHANNEL_START, new EventMessage(identifier, auditWho));
 		return result;
 	}
 	
 	public static final String EVENT_CHANNEL_START = "event_channel_start_operation";
 	@ConsumeEvent(EVENT_CHANNEL_START)
-    public void listenStart(String identifier) {
-		execute(identifier);
+    public void listenStart(EventMessage message) {
+		execute(message.identifier,message.auditWho);	
     }
 	
-	void execute(String identifier) {
-		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
-				,Parameters.PROCESSED, Boolean.FALSE));
-		if(CollectionHelper.isEmpty(acts))
+	void execute(String identifier, String auditWho) {
+		if(StringHelper.isBlank(identifier))
 			return;
-		procedureExecutorGetter.getProcedureExecutor().execute(OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK
-				,OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS,acts.stream().map(act -> act.getReference()).collect(Collectors.joining(",")));
+		EntityManager vEntityManager = EntityManagerGetter.getInstance().get();
+		OperationImpl operation = vEntityManager.find(OperationImpl.class, identifier);
+		if(operation == null) {
+			LogHelper.logWarning(String.format("Aucune %s trouvée avec l'identifiant %s",Operation.NAME, identifier), getClass());
+			return;
+		}
+		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_IDENTIFIER,ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
+				,Parameters.PROCESSED, Boolean.FALSE));
+		if(CollectionHelper.isEmpty(acts)) {
+			LogHelper.logWarning(String.format("Aucun %s trouvé dans %s avec l'identifiant %s",Act.NAME,Operation.NAME, identifier), getClass());
+			return;
+		}
+		String procedureName = null;
+		if(operation.getType().getCode().equals(configuration.operation().type().lockingCode()))
+			procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK;
+		else if(operation.getType().getCode().equals(configuration.operation().type().unlockingCode()))
+			procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK;
+		if(StringHelper.isBlank(procedureName)) {
+			LogHelper.logWarning(String.format("Impossible de déduire le nom de la procédure stockée à exécuter. %s(%s)",Operation.NAME, identifier), getClass());
+			return;
+		}
+		String auditIdentifier = generateAuditIdentifier();
+		String auditFunctionnality = EXECUTION_AUDIT_IDENTIFIER;
+		LocalDateTime auditWhen = LocalDateTime.now();
+		procedureExecutorGetter.getProcedureExecutor().execute(procedureName,OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS,acts.stream().map(act -> act.getReference()).collect(Collectors.joining(",")));
+		
+		Collection<OperationActImpl> operationActs = vEntityManager.createNamedQuery(OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_ACTS_IDENTIFIERS, OperationActImpl.class).setParameter(Parameters.OPERATION_IDENTIFIER, identifier)
+				.setParameter(Parameters.ACTS_IDENTIFIERS, acts.stream().map(act -> act.getIdentifier()).collect(Collectors.toSet())).getResultList();	
+		vEntityManager = EntityManagerGetter.getInstance().get();
+		vEntityManager.getTransaction().begin();
+		for(OperationActImpl operationAct : operationActs) {
+			operationAct.setProcessed(Boolean.TRUE);
+			audit(operationAct, auditIdentifier, auditFunctionnality, auditWho, auditWhen);
+			vEntityManager.merge(operationAct);
+		}
+		vEntityManager.getTransaction().commit();
+		
+		operation.setStatus(statusPersistence.readOne(new QueryExecutorArguments().addFilterField(Parameters.CODE, configuration.operation().status().executedCode())));
+		audit(operation, auditIdentifier, auditFunctionnality, auditWho, auditWhen);
+		vEntityManager = EntityManagerGetter.getInstance().get();
+		vEntityManager.getTransaction().begin();
+		vEntityManager.merge(operation);
+		vEntityManager.getTransaction().commit();
 	}
 	
 	/* Validation */
@@ -357,5 +400,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		String actsLabel = String.format(labelFormat,CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation.getName());
 		result.close().setName(String.format(nameFormat,actsLabel,auditWho)).log(getClass());
 		result.addMessages(String.format(messageFormat, actsLabel));
+	}
+	
+	@AllArgsConstructor @NoArgsConstructor
+	public static class EventMessage {
+		String identifier;
+		String auditWho;
 	}
 }

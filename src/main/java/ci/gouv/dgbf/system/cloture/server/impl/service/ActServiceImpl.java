@@ -1,11 +1,9 @@
 package ci.gouv.dgbf.system.cloture.server.impl.service;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 
 import org.cyk.utility.service.server.AbstractSpecificServiceImpl;
 
@@ -26,17 +24,5 @@ public class ActServiceImpl extends AbstractSpecificServiceImpl<ActDto,ActDtoImp
 		this.serviceEntityImplClass = ActDtoImpl.class;
 		this.persistenceEntityClass = Act.class;
 		this.persistenceEntityImplClass = ActImpl.class;
-	}
-
-	@Override
-	public Response lock(List<String> identifiers, String trigger) {
-		business.lock(identifiers, trigger);
-		return Response.ok().build();
-	}
-
-	@Override
-	public Response unlock(List<String> identifiers, String trigger,Boolean processedIgnorable) {
-		Integer numberOfLocks = business.unlock(identifiers, trigger,processedIgnorable);
-		return Response.ok(String.format("%1$s verrou%2$s désactivté%2$s", numberOfLocks,numberOfLocks == 1 ? "" : "s")).build();
 	}
 }

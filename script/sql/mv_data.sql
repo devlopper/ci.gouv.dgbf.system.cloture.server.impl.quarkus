@@ -40,3 +40,21 @@ BEGIN
     DBMS_SCHEDULER.enable(name => '"AJ_ACTUALIZE_MV"');
 END;
 /
+
+CREATE OR REPLACE PROCEDURE PA_VERROUILLER(identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
+BEGIN
+    FOR t IN (SELECT REGEXP_SUBSTR(identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(identifiants, '[^,]+', 1, level) IS NOT NULL)
+    	LOOP
+    	    DBMS_OUTPUT.PUT_LINE('VERROUILLER '||t.parts);
+    	END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PA_DEVERROUILLER(identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
+BEGIN
+    FOR t IN (SELECT REGEXP_SUBSTR(identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(identifiants, '[^,]+', 1, level) IS NOT NULL)
+    	LOOP
+    	    DBMS_OUTPUT.PUT_LINE('DEVERROUILLER '||t.parts);
+    	END LOOP;
+END;
+/

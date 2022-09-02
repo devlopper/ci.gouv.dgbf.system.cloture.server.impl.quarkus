@@ -67,10 +67,7 @@ public class OperationServiceImpl extends AbstractSpecificServiceImpl<OperationD
 	}
 	
 	@Override
-	public Response execute(String identifier,String trigger,Boolean blocking) {
-		if(blocking == null)
-			blocking = Boolean.TRUE;
-		//operationBusiness.execute(identifier, trigger,blocking);
-		return Response.ok().build();
+	public Response startExecution(String identifier,String auditWho) {
+		return buildResponseOk(business.startExecution(identifier, auditWho));
 	}
 }

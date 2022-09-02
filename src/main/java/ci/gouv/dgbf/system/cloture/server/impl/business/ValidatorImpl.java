@@ -198,11 +198,11 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			Configuration configuration = __inject__(Configuration.class);
 			OperationStatus startedStatus = __inject__(OperationStatusPersistence.class).readOne(new QueryExecutorArguments().addProjectionsFromStrings(OperationStatusImpl.FIELD_IDENTIFIER,OperationStatusImpl.FIELD_ORDER_NUMBER)
 					.addFilterField(Parameters.CODE, configuration.operation().status().startedCode()));
-			throwablesMessages.addIfTrue(String.format("Le statut démarrage ayant pour code <<%s>> est introuvable.",configuration.operation().status().startedCode()),startedStatus == null);
+			throwablesMessages.addIfTrue(String.format("Le statut démarrage ayant pour code %s est introuvable.",configuration.operation().status().startedCode()),startedStatus == null);
 			if(startedStatus != null && operation.getStatus().getOrderNumber() >= startedStatus.getOrderNumber()) {
-				throwablesMessages.add(String.format("L'opération <<%s>> à déja été démarrée",operation.getName()));
+				throwablesMessages.add(String.format("%s %s à déja été démarrée",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName()));
 			}else {
-				throwablesMessages.addIfTrue(String.format("L'opération <<%s>> doit contenir au moins un acte",operation.getName())
+				throwablesMessages.addIfTrue(String.format("%s %s doit contenir au moins un acte",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName())
 						, NumberHelper.isLessThanOrEqualZero(__inject__(OperationActPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()))));
 			}
 		}

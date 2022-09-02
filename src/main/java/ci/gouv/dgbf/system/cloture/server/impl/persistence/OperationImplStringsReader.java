@@ -11,7 +11,7 @@ public class OperationImplStringsReader extends AbstractOperationImplReader impl
 	protected QueryStringBuilder.Arguments instantiateQueryStringBuilderArguments() {
 		QueryStringBuilder.Arguments arguments =  super.instantiateQueryStringBuilderArguments();
 		arguments.getProjection(Boolean.TRUE).addFromTuple("t",OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_CODE,OperationImpl.FIELD_NAME,OperationImpl.FIELD_REASON
-				,FieldHelper.join(OperationImpl.FIELD_TYPE,OperationTypeImpl.FIELD_NAME));
+				,FieldHelper.join(OperationImpl.FIELD_TYPE,OperationTypeImpl.FIELD_NAME),FieldHelper.join(OperationImpl.FIELD_STATUS,OperationStatusImpl.FIELD_NAME));
 		return arguments;
 	}
 	
@@ -23,5 +23,6 @@ public class OperationImplStringsReader extends AbstractOperationImplReader impl
 		operation.setName(getAsString(array, index++));
 		operation.setReason(getAsString(array, index++));
 		operation.setTypeAsString(getAsString(array, index++));
+		operation.setStatusAsString(getAsString(array, index++));
 	}
 }

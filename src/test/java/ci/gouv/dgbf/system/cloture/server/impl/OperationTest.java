@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.service.client.Controller;
@@ -217,46 +218,52 @@ public class OperationTest {
 	@Test
 	void business_start_actsCountIsZero() {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
-			business.start("start_actscountiszero", "christian");
+			business.startExecution("start_actscountiszero", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> doit contenir au moins un acte");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 doit contenir au moins un acte");
 	}
 	
 	@Test
 	void business_start_statusIsEqual() {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
-			business.start("start_statusisequal", "christian");
+			business.startExecution("start_statusisequal", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> à déja été démarrée");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 à déja été démarrée");
 	}
 	
 	@Test
 	void business_start_statusIsGreater() {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
-			business.start("start_statusisgreater", "christian");
+			business.startExecution("start_statusisgreater", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("L'opération <<1>> à déja été démarrée");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 à déja été démarrée");
 	}
 	
 	@Test
 	void business_start_01() {
 		assertor.assertOperationStatusCode("start_01",configuration.operation().status().createdCode());
-		business.start("start_01", "christian");
+		business.startExecution("start_01", "christian");
 		assertor.assertOperationStatusCode("start_01",configuration.operation().status().startedCode());
+		TimeHelper.pause(1000l * 1);
+		assertor.assertOperationStatusCode("start_01",configuration.operation().status().startedCode());
+		TimeHelper.pause(1000l * 3);
+		assertor.assertOperationStatusCode("start_01",configuration.operation().status().executedCode());
 	}
 	
 	@Test
 	void business_start_01_processedIsTrue() {
 		assertor.assertOperationStatusCode("start_01_processedIsTrue",configuration.operation().status().createdCode());
-		business.start("start_01_processedIsTrue", "christian");
+		business.startExecution("start_01_processedIsTrue", "christian");
 		assertor.assertOperationStatusCode("start_01_processedIsTrue",configuration.operation().status().startedCode());
 	}
 	
 	public static String PA_VERROUILLER(String identifiers) {
+		TimeHelper.pause(1000l * 5);
 		return null;
 	}
 	
 	public static String PA_DEVERROUILLER(String identifiers) {
+		TimeHelper.pause(1000l * 5);
 		return null;
 	}
 }
