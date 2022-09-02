@@ -129,9 +129,10 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 	}
 	
 	public static interface Operation {
-		static Object[] validateCreateInputs(String typeIdentifier,String name,String reason,String auditWho,ThrowablesMessages throwablesMessages) {
+		static Object[] validateCreateInputs(String typeIdentifier,String code,String name,String reason,String auditWho,ThrowablesMessages throwablesMessages) {
 			validateIdentifier(typeIdentifier,ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType.NAME, throwablesMessages);
-			OperationTypeImpl type = StringHelper.isBlank(typeIdentifier) ? null : (OperationTypeImpl) validateExistenceAndReturn(OperationType.class, typeIdentifier,List.of(OperationTypeImpl.FIELD_IDENTIFIER,OperationTypeImpl.FIELD_NAME)
+			OperationTypeImpl type = StringHelper.isBlank(typeIdentifier) ? null : (OperationTypeImpl) validateExistenceAndReturn(OperationType.class, typeIdentifier,List.of(OperationTypeImpl.FIELD_IDENTIFIER,OperationTypeImpl.FIELD_CODE
+					,OperationTypeImpl.FIELD_NAME)
 					, __inject__(OperationTypePersistence.class), throwablesMessages);
 			throwablesMessages.addIfTrue("Le motif est requis", StringHelper.isBlank(reason));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);

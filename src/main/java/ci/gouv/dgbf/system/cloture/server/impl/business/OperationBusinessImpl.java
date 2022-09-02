@@ -26,6 +26,7 @@ import org.cyk.utility.persistence.query.Field;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.persistence.server.procedure.ProcedureExecutorGetter;
+import org.cyk.utility.persistence.server.query.executor.field.CodeExecutor;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationActBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
@@ -59,6 +60,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Inject EntityManager entityManager;
 	@Inject Configuration configuration;
 	
+	@Inject CodeExecutor codeExecutor;
 	@Inject ProcedureExecutorGetter procedureExecutorGetter;
 	
 	@Inject EventBus eventBus;
@@ -70,13 +72,15 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Result result = new Result().open();
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
 		// Validation of inputs
-		Object[] array = ValidatorImpl.Operation.validateCreateInputs(typeIdentifier,name, reason, auditWho, throwablesMessages);
+		Object[] array = ValidatorImpl.Operation.validateCreateInputs(typeIdentifier,code,name, reason, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		OperationType type = (OperationType) array[0];
 		OperationStatus status = ValidatorImpl.Operation.validateCreate(type,sequentialExecution, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		OperationImpl operation = new OperationImpl();
 		operation.setType(type).setCode(code).setName(name).setReason(reason);
+		if(StringHelper.isBlank(operation.getCode()))
+			operation.setCode(buildCode(operation.getType()));
 		if(StringHelper.isBlank(operation.getIdentifier()))
 			operation.setIdentifier(operation.getCode());
 		if(StringHelper.isBlank(operation.getIdentifier()))
@@ -93,6 +97,16 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		result.addMessages(String.format("%s créée", operationLabel));
 		result.getMap(Boolean.TRUE).put(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier());
 		return result;
+	}
+	
+	String buildCode(OperationType type) {
+		Collection<String> codes = codeExecutor.getValues(OperationImpl.class);
+		String code = null;
+		Integer index = CollectionHelper.getSize(codes)+1;
+		do {
+			code = String.format(configuration.operation().code().format(),type.getCode().substring(0, 1),index++);
+		}while(codes != null && codes.contains(code));
+		return code;
 	}
 	
 	@Override

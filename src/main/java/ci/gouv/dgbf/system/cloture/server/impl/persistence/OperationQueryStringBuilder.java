@@ -43,6 +43,12 @@ public class OperationQueryStringBuilder extends AbstractSpecificQueryStringBuil
 			filter.addField(Parameters.OPERATION_TYPE_IDENTIFIER, typeIdentifier);
 		}
 		
+		String statusIdentifier = (String) queryExecutorArguments.getFilterFieldValue(Parameters.OPERATION_STATUS_IDENTIFIER);
+		if(StringHelper.isNotBlank(statusIdentifier)) {
+			predicate.add(String.format("t.%s.identifier = :%s", OperationImpl.FIELD_STATUS,Parameters.OPERATION_STATUS_IDENTIFIER));
+			filter.addField(Parameters.OPERATION_STATUS_IDENTIFIER, statusIdentifier);
+		}
+		
 		String statusCode = (String) queryExecutorArguments.getFilterFieldValue(Parameters.OPERATION_HAS_STATUS_CODE_AT_LEAST);
 		if(StringHelper.isNotBlank(statusCode))
 			predicate.add(buildPredicateStatusCodeIsAtLeast(statusCode));

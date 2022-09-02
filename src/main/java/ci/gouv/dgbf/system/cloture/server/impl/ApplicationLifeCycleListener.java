@@ -16,6 +16,7 @@ import org.cyk.utility.service.server.PersistenceEntityClassGetterImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationStatusImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActDtoImplMapper;
@@ -23,6 +24,8 @@ import ci.gouv.dgbf.system.cloture.server.impl.service.ActTypeDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActTypeDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImplMapper;
+import ci.gouv.dgbf.system.cloture.server.impl.service.OperationStatusDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.OperationStatusDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationTypeDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationTypeDtoImplMapper;
 import io.quarkus.runtime.ShutdownEvent;
@@ -52,6 +55,10 @@ public class ApplicationLifeCycleListener {
     	MapperClassGetter.MAP.put(OperationTypeDtoImpl.class, OperationTypeDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationTypeDtoImpl.class,OperationTypeImpl.class);
     	OperationTypeDtoImpl.setProjections();
+    	
+    	MapperClassGetter.MAP.put(OperationStatusDtoImpl.class, OperationStatusDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(OperationStatusDtoImpl.class,OperationStatusImpl.class);
+    	OperationStatusDtoImpl.setProjections();
     	
     	MapperClassGetter.MAP.put(OperationDtoImpl.class, OperationDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(OperationDtoImpl.class,OperationImpl.class);

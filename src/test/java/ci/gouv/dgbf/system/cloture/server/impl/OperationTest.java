@@ -90,7 +90,7 @@ public class OperationTest {
 	@Test
 	void business_create() {
 		Long count = persistence.count();
-		business.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,"D001", null, "Instruction 001", "christian");
+		business.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,null, null, "Instruction 001", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
 	}
 	

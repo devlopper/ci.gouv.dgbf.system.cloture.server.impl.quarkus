@@ -19,6 +19,13 @@ public interface Configuration extends org.cyk.quarkus.extension.core_.configura
 	/**/
 	
 	public static interface Operation {
+		Code code();
+		
+		public static interface Code {
+			@WithDefault("%s%03d")
+			String format();
+		}
+		
 		Execution execution();
 		
 		public static interface Execution {
