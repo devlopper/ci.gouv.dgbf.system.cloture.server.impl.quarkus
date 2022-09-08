@@ -1,5 +1,7 @@
 package ci.gouv.dgbf.system.cloture.server.impl;
 
+import org.cyk.utility.__kernel__.configuration.Color;
+
 import io.quarkus.runtime.annotations.StaticInitSafe;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithConverter;
@@ -24,6 +26,13 @@ public interface Configuration extends org.cyk.quarkus.extension.core_.configura
 		public static interface Code {
 			@WithDefault("%s%03d")
 			String format();
+		}
+		
+		Name name();
+		
+		public static interface Name {
+			@WithDefault("255")
+			Short numberOfCharactersExtractedFromReason();
 		}
 		
 		Execution execution();
@@ -84,6 +93,18 @@ public interface Configuration extends org.cyk.quarkus.extension.core_.configura
 				@WithConverter(StringConverter.class)
 				Integer limit();
 			}*/
+		}
+		
+		Colors colors();
+		
+		public static interface Colors {
+			String CREATED = "#FF0000";
+			String STARTED = "#FFFF00";
+			String EXECUTED = "#90EE90";
+			
+			Color created();
+			Color started();
+			Color executed();
 		}
 	}
 }

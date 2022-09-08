@@ -21,6 +21,7 @@ import javax.validation.constraints.NotNull;
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableAuditedImpl;
 import org.cyk.utility.persistence.entity.audit.AuditedAction;
 import org.cyk.utility.persistence.server.audit.AuditedActionImpl;
+import org.cyk.utility.persistence.server.model.Color;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.AuditTable;
@@ -68,6 +69,8 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
   	@Transient AuditedActionImpl creation;
   	@Transient AuditedActionImpl execution;
   	
+  	@Transient Color color;
+  	
 	@Override
 	public OperationImpl setIdentifier(String identifier) {
 		return (OperationImpl) super.setIdentifier(identifier);
@@ -107,6 +110,12 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 		return this;
 	}
 	
+	Color getColor(Boolean instantiateIfNull) {
+		if(color == null && Boolean.TRUE.equals(instantiateIfNull))
+			color = new Color();
+		return color;
+	}
+	
 	public static final String FIELD_TYPE = "type";
 	public static final String FIELD_TYPE_AS_STRING = "typeAsString";
 	public static final String FIELD_REASON = "reason";
@@ -116,8 +125,10 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_SUCCEEDED = "succeeded";
 	public static final String FIELD_CREATION = "creation";
 	public static final String FIELD_EXECUTION = "execution";
+	public static final String FIELD_COLOR = "color";
 	
 	public static final String FIELDS_STRINGS = "strings";
+	public static final String FIELDS_STATUSES = "statuses";
 	
 	public static final String ENTITY_NAME = "OperationImpl";
 	public static final String TABLE_NAME = "TA_OPERATION";

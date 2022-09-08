@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.__kernel__.field.FieldHelper;
 import org.cyk.utility.__kernel__.log.LogHelper;
@@ -86,7 +87,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		if(StringHelper.isBlank(operation.getIdentifier()))
 			operation.setIdentifier(IdentifiableSystem.generateRandomly());
 		if(StringHelper.isBlank(operation.getName()))
-			operation.setName(operation.getCode());
+			operation.setName(buildName(operation.getCode(),operation.getReason()));
 		operation.setStatus(status);
 		
 		audit(operation, generateAuditIdentifier(), CREATE_AUDIT_IDENTIFIER, auditWho, LocalDateTime.now());
@@ -107,6 +108,15 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 			code = String.format(configuration.operation().code().format(),type.getCode().substring(0, 1),index++);
 		}while(codes != null && codes.contains(code));
 		return code;
+	}
+	
+	String buildName(String code,String reason) {
+		String name = null;
+		if(StringHelper.isBlank(reason))
+			name = code;
+		else
+			name = StringUtils.substring(reason, 0, configuration.operation().name().numberOfCharactersExtractedFromReason());
+		return name;
 	}
 	
 	@Override

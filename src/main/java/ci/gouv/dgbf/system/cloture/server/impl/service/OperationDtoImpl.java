@@ -9,6 +9,7 @@ import javax.json.bind.annotation.JsonbProperty;
 
 import org.cyk.utility.service.entity.AbstractIdentifiableSystemScalarStringIdentifiableBusinessStringNamableAuditedImpl;
 import org.cyk.utility.service.server.AbstractServiceImpl;
+import org.cyk.utility.service.server.entity.ColorDtoImpl;
 
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationDto;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
@@ -24,14 +25,13 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	//@JsonbProperty(value = JSON_TYPE)
 	//OperationTypeDtoImpl type;
 	
-	@JsonbProperty(value = JSON_TYPE_AS_STRING)
-	String typeAsString;
-	
-	@JsonbProperty(value = JSON_REASON)
-	String reason;
-	
-	@JsonbProperty(value = JSON_STATUS_AS_STRING)
-	String statusAsString;
+	@JsonbProperty(value = JSON_TYPE_AS_STRING) String typeAsString;
+	@JsonbProperty(value = JSON_REASON) String reason;
+	@JsonbProperty(value = JSON_STATUS_CODE) String statusCode;	
+	@JsonbProperty(value = JSON_STATUS_AS_STRING) String statusAsString;
+	@JsonbProperty(value = JSON_STARTED) Boolean started;
+	@JsonbProperty(value = JSON_EXECUTED) Boolean executed;
+	@JsonbProperty(value = JSON_COLOR) ColorDtoImpl color;
 	
 	@Override @JsonbProperty(value = JSON_IDENTIFIER)
 	public OperationDtoImpl setIdentifier(String identifier) {
@@ -83,12 +83,20 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
     			,JSON_TYPE_AS_STRING,OperationImpl.FIELD_TYPE_AS_STRING
     			,JSON_REASON,OperationImpl.FIELD_REASON
     			,JSON_STATUS,OperationImpl.FIELD_STATUS
+    			//,JSON_STATUS_CODE,OperationImpl.FIELD_STATUS_CODE
     			,JSON_STATUS_AS_STRING,OperationImpl.FIELD_STATUS_AS_STRING
     			
     			,JSON___AUDIT__,OperationImpl.FIELD___AUDIT__
     			
     			,JSONS_STRINGS,OperationImpl.FIELDS_STRINGS
     			));
+		
+		map.putAll(Map.of(
+				JSON_COLOR,OperationImpl.FIELD_COLOR
+    			
+    			
+    			));
+		
 		AbstractServiceImpl.setProjections(OperationDtoImpl.class, map);
 	}
 }

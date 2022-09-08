@@ -23,6 +23,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersist
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
+import ci.gouv.dgbf.system.cloture.server.api.service.OperationDto;
 import ci.gouv.dgbf.system.cloture.server.api.service.OperationTypeDto;
 import ci.gouv.dgbf.system.cloture.server.client.rest.OperationController;
 import ci.gouv.dgbf.system.cloture.server.client.rest.OperationTypeController;
@@ -70,6 +71,30 @@ public class OperationTest {
 		ci.gouv.dgbf.system.cloture.server.client.rest.OperationType type = typeController.getByIdentifierOrDefaultIfIdentifierIsBlank(null,new Controller.GetArguments().projections(OperationTypeDto.JSON_IDENTIFIER,OperationTypeDto.JSON_CODE));
 		assertThat(type).isNotNull();
 		assertThat(type.getCode()).isEqualTo(Configuration.Operation.Type.CODE_DEVERROUILLAGE);
+	}
+	
+	@Test
+	void controller_readOne_color_created() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_created",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSON_COLOR));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getColor()).isNotNull();
+		assertThat(operation.getColor().getHexadecimal()).isEqualTo(Configuration.Operation.Colors.CREATED);
+	}
+	
+	@Test
+	void controller_readOne_color_started() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_started",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSON_COLOR));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getColor()).isNotNull();
+		assertThat(operation.getColor().getHexadecimal()).isEqualTo(Configuration.Operation.Colors.STARTED);
+	}
+	
+	@Test
+	void controller_readOne_color_executed() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_executed",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSON_COLOR));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getColor()).isNotNull();
+		assertThat(operation.getColor().getHexadecimal()).isEqualTo(Configuration.Operation.Colors.EXECUTED);
 	}
 	
 	@Test
@@ -228,7 +253,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.startExecution("start_statusisequal", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Opération 1 à déja été démarrée");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déja DEMARREE");
 	}
 	
 	@Test
@@ -236,7 +261,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.startExecution("start_statusisgreater", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Opération 1 à déja été démarrée");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déja EXECUTEE");
 	}
 	
 	@Test
