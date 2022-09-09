@@ -98,6 +98,33 @@ public class OperationTest {
 	}
 	
 	@Test
+	void controller_readOne_statuses_created() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_created",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSONS_STATUSES));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getCreated()).isTrue();
+		assertThat(operation.getStarted()).isNull();
+		assertThat(operation.getExecuted()).isNull();
+	}
+	
+	@Test
+	void controller_readOne_statues_started() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_started",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSONS_STATUSES));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getCreated()).isNull();
+		assertThat(operation.getStarted()).isTrue();
+		assertThat(operation.getExecuted()).isNull();
+	}
+	
+	@Test
+	void controller_readOne_statues_executed() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("color_executed",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSONS_STATUSES));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getCreated()).isNull();
+		assertThat(operation.getStarted()).isNull();
+		assertThat(operation.getExecuted()).isTrue();
+	}
+	
+	@Test
 	void persistence_readMany() {
 		Collection<Operation> operations = persistence.readMany(new QueryExecutorArguments());
 		assertThat(operations).isNotNull();

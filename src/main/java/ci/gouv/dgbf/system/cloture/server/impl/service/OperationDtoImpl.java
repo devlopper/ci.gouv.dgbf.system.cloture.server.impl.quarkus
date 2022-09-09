@@ -29,6 +29,7 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	@JsonbProperty(value = JSON_REASON) String reason;
 	@JsonbProperty(value = JSON_STATUS_CODE) String statusCode;	
 	@JsonbProperty(value = JSON_STATUS_AS_STRING) String statusAsString;
+	@JsonbProperty(value = JSON_CREATED) Boolean created;
 	@JsonbProperty(value = JSON_STARTED) Boolean started;
 	@JsonbProperty(value = JSON_EXECUTED) Boolean executed;
 	@JsonbProperty(value = JSON_COLOR) ColorDtoImpl color;
@@ -94,7 +95,7 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 		map.putAll(Map.of(
 				JSON_COLOR,OperationImpl.FIELD_COLOR
     			
-    			
+				,JSONS_STATUSES,OperationImpl.FIELDS_STATUSES
     			));
 		
 		AbstractServiceImpl.setProjections(OperationDtoImpl.class, map);

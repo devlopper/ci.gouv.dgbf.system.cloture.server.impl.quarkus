@@ -64,7 +64,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
   	@NotNull @ManyToOne @JoinColumn(name = COLUMN_STATUS,nullable = false) OperationStatusImpl status;
   	@Transient String statusAsString;
   	
-  	@Transient Boolean executed;
+  	@Transient Boolean created, started,executed;
   	
   	@Transient AuditedActionImpl creation;
   	@Transient AuditedActionImpl execution;
