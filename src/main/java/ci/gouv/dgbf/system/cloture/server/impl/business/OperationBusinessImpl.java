@@ -187,8 +187,12 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Override
 	public Result addActByFilter(String identifier, Filter filter, Boolean existingIgnorable, String auditWho) {
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
-		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
+		Operation operation = (Operation) objects[0];
+		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilter(operation,throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
 		normalizeFilterForAddOrRemoveActByFilter(filter, Boolean.TRUE);
 		String auditIdentifier = generateAuditIdentifier();
 		LocalDateTime auditDate = LocalDateTime.now();
@@ -196,7 +200,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Result result = openAddOrRemoveActResult(Boolean.TRUE);
 		List<String> actsIdentifiers = (List<String>) actPersistence.readIdentifiersAsStringsByFilter(filter);
 		Object[] array = addOrRemoveActInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, actsIdentifiers, Boolean.TRUE);
-		Operation operation = (Operation) array[0];
+		
 		Collection<Act> acts = (Collection<Act>) array[1];
 		closeAddOrRemoveActResult(result, "%s %s dans %s","Ajout par filtre de %s par %s","%s ajouté(s) par filtre", operation, acts, auditWho);
 		return result;
@@ -285,8 +289,12 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Override
 	public Result removeActByFilter(String identifier, Filter filter, Boolean existingIgnorable, String auditWho) {
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
-		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
+		Operation operation = (Operation) objects[0];
+		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilter(operation,throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
 		normalizeFilterForAddOrRemoveActByFilter(filter, Boolean.FALSE);
 		String auditIdentifier = generateAuditIdentifier();
 		LocalDateTime auditDate = LocalDateTime.now();
@@ -294,7 +302,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Result result = openAddOrRemoveActResult(Boolean.TRUE);
 		List<String> actsIdentifiers = (List<String>) actPersistence.readIdentifiersAsStringsByFilter(filter);
 		Object[] array = addOrRemoveActInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, actsIdentifiers, Boolean.FALSE);
-		Operation operation = (Operation) array[0];
+		
 		Collection<Act> acts = (Collection<Act>) array[1];
 		closeAddOrRemoveActResult(result, "%s %s dans %s","Retrait par filtre de %s par %s","%s retiré(s) par filtre", operation, acts, auditWho);
 		return result;
@@ -390,11 +398,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		if(Boolean.TRUE.equals(comprehensively))
 			existingIgnorable = Boolean.TRUE;
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
-		ValidatorImpl.Operation.validateAddOrRemoveToOperationInputs(identifier, actsIdentifiers,areActsIdentifiersRequired,comprehensively, auditWho, throwablesMessages);
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationInputs(identifier, actsIdentifiers,areActsIdentifiersRequired,comprehensively, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		
 		Collection<Object[]> arrays = new ActImplIdentifierCodeOperationIdentifierReader().readByIdentifiers(actsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
-		Operation operation = persistence.readOne(identifier,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_CODE,OperationImpl.FIELD_NAME));
+		Operation operation = (Operation) objects[0];
 		ValidatorImpl.Operation.validateAddOrRemoveToOperation(arrays,actsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
 		Collection<Act> acts = null;
 		if(CollectionHelper.isNotEmpty(actsIdentifiers))
@@ -421,7 +429,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	}
 	
 	void closeAddOrRemoveActResult(Result result,String labelFormat,String nameFormat,String messageFormat,Operation operation,Collection<Act> acts,String auditWho) {
-		String actsLabel = String.format(labelFormat,CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation.getName());
+		String actsLabel = String.format(labelFormat,CollectionHelper.getSize(acts),Act.NAME_PLURAL,operation == null ? "???" : operation.getName());
 		result.close().setName(String.format(nameFormat,actsLabel,auditWho)).log(getClass());
 		result.addMessages(String.format(messageFormat, actsLabel));
 	}

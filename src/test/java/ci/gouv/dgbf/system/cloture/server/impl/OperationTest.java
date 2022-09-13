@@ -125,6 +125,13 @@ public class OperationTest {
 	}
 	
 	@Test
+	void controller_readOne_numberOfActs() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("has_3_acts",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSON_NUMBER_OF_ACTS));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getNumberOfActs()).isEqualTo(3l);
+	}
+	
+	@Test
 	void persistence_readMany() {
 		Collection<Operation> operations = persistence.readMany(new QueryExecutorArguments());
 		assertThat(operations).isNotNull();
@@ -174,7 +181,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.addAct("add_notempty_exception", List.of("add_notempty_exception_1"), null, "meliane");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ont déja été ajoutés : add_notempty_exception_1");
+		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ont déjà été ajoutés : add_notempty_exception_1");
 		assertor.assertOperationActs("add_notempty_exception", "add_notempty_exception_1");
 	}
 	
@@ -184,7 +191,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.addAct("add_notempty_exception", List.of("add_notempty_exception_1","add_notempty_exception_2"), null, "meliane");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ont déja été ajoutés : add_notempty_exception_1");
+		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ont déjà été ajoutés : add_notempty_exception_1");
 		assertor.assertOperationActs("add_notempty_exception", "add_notempty_exception_1");
 	}
 	
@@ -193,6 +200,26 @@ public class OperationTest {
 		assertor.assertOperationActs("add_notempty", "add_notempty_1");
 		business.addAct("add_notempty", List.of("add_notempty_1","add_notempty_2"), Boolean.TRUE, "meliane");
 		assertor.assertOperationActs("add_notempty", "add_notempty_1","add_notempty_2");
+	}
+	
+	@Test
+	void business_addAct___whenStarted_exception() {
+		assertor.assertOperationActs("add_whenStarted", (String[]) null);
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.addAct("add_whenStarted", List.of("add_whenNotCreated"), null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà DEMARREE");
+		assertor.assertOperationActs("add_whenStarted", (String[]) null);
+	}
+	
+	@Test
+	void business_addAct___whenCreated_exception() {
+		assertor.assertOperationActs("add_whenExecuted", (String[]) null);
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.addAct("add_whenExecuted", List.of("add_whenNotCreated"), null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà EXECUTEE");
+		assertor.assertOperationActs("add_whenExecuted", (String[]) null);
 	}
 	
 	@Test
@@ -232,6 +259,14 @@ public class OperationTest {
 	}
 	
 	@Test
+	void business_addActByFilter_exception_started() {
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.addActByFilter("add_byfilter_whenStarted", new Filter().addField(Parameters.ACTS_CODES, List.of("add_whenNotCreated")),null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà DEMARREE");
+	}
+	
+	@Test
 	void business_addActByFilter_code_add_byfilter_1() {
 		assertor.assertOperationActs("add_byfilter1",(String[]) null);
 		business.addActByFilter("add_byfilter1", new Filter().addField(Parameters.ACTS_CODES, List.of("add_byfilter1_1")),null, "meliane");
@@ -243,6 +278,26 @@ public class OperationTest {
 		assertor.assertOperationActs("add_byfilter2",(String[]) null);
 		business.addActByFilter("add_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "ADDBYFILTER"),null, "meliane");
 		assertor.assertOperationActs("add_byfilter2", "add_byfilter2_2","add_byfilter2_3");
+	}
+	
+	@Test
+	void business_removeAct___whenStarted_exception() {
+		assertor.assertOperationActs("remove_whenStarted", (String[]) null);
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.removeAct("remove_whenStarted", List.of("remove_whenNotCreated"), null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà DEMARREE\r\nLes Actes suivants ne sont pas ajoutés : remove_whenNotCreated");
+		assertor.assertOperationActs("remove_whenStarted", (String[]) null);
+	}
+	
+	@Test
+	void business_removeAct___whenExecuted_exception() {
+		assertor.assertOperationActs("remove_whenExecuted", (String[]) null);
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.addAct("remove_whenExecuted", List.of("remove_whenNotCreated"), null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà EXECUTEE");
+		assertor.assertOperationActs("remove_whenExecuted", (String[]) null);
 	}
 	
 	@Test
@@ -280,7 +335,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.startExecution("start_statusisequal", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déja DEMARREE");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà DEMARREE");
 	}
 	
 	@Test
@@ -288,7 +343,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.startExecution("start_statusisgreater", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déja EXECUTEE");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 est déjà EXECUTEE");
 	}
 	
 	@Test

@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
+import org.cyk.utility.__kernel__.computation.ComparisonOperator;
 import org.cyk.utility.__kernel__.klass.ClassHelper;
 import org.cyk.utility.__kernel__.number.NumberHelper;
 import org.cyk.utility.__kernel__.string.StringHelper;
@@ -70,7 +71,7 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 	
 	public static void validateOperationBeginExecutionEndDate(Script operation,ThrowablesMessages throwablesMessages) {
 		if(operation.getExecutionEndDate() != null && operation.getExecutionBeginDate() != null)
-			throwablesMessages.add(String.format("L'opération [%s] à déja été exécutée le %s par [%s] et s'est terminée le %s",operation.getName()
+			throwablesMessages.add(String.format("L'opération [%s] à déjà été exécutée le %s par [%s] et s'est terminée le %s",operation.getName()
 					,TimeHelper.formatLocalDateTime(operation.getExecutionBeginDate()),operation.getTrigger(),TimeHelper.formatLocalDateTime(operation.getExecutionEndDate())));
 	}
 	
@@ -155,11 +156,14 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			return status;
 		}
 		
-		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
-			throwablesMessages.addIfTrue(String.format("L'identifiant de %s est requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME), StringHelper.isBlank(identifier));
+		static Object[] validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+			OperationImpl operation = StringHelper.isBlank(identifier) ? null : (OperationImpl) validateExistenceAndReturn(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.class, identifier
+					,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_STATUS,OperationTypeImpl.FIELD_NAME)
+					, __inject__(OperationPersistence.class), throwablesMessages);
 			if((areActsIdentifiersRequired == null || areActsIdentifiersRequired) && !Boolean.TRUE.equals(comprehensively))
 				throwablesMessages.addIfTrue(String.format("Les identifiants des %s sont requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL), CollectionHelper.isEmpty(actsIdentifiers));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+			return new Object[] {operation};
 		}
 		/*
 		static void validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers, String auditWho,ThrowablesMessages throwablesMessages) {
@@ -171,19 +175,34 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 		}*/
 		
 		static void validateAddOrRemoveToOperation(Collection<Object[]> arrays,Collection<String> actsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+			Configuration configuration = __inject__(Configuration.class);
+			OperationStatus createdStatus = readOneOperationStatus(configuration.operation().status().createdCode(),operation,ComparisonOperator.GT,throwablesMessages);
+			if(createdStatus != null) {
+				
+			}
+			
 			if(CollectionHelper.isEmpty(arrays) || Boolean.TRUE.equals(existingIgnorable))
 				return;
 			Collection<Object[]> existingArrays = arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[2] != null : array[2] == null).collect(Collectors.toList());
 			if(CollectionHelper.isEmpty(existingArrays))
 				return;
-			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déja été ajoutés" : "ne sont pas ajoutés"
+			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déjà été ajoutés" : "ne sont pas ajoutés"
 				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
 		}
 		
-		static void validateAddOrRemoveToOperationByFilterInputs(String identifier,Filter filter, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+		static Object[] validateAddOrRemoveToOperationByFilterInputs(String identifier,Filter filter, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
 			validateIdentifier(identifier, ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME, throwablesMessages);
+			OperationImpl operation = StringHelper.isBlank(identifier) ? null : (OperationImpl) validateExistenceAndReturn(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.class, identifier
+					,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_STATUS,OperationTypeImpl.FIELD_NAME)
+					, __inject__(OperationPersistence.class), throwablesMessages);
 			throwablesMessages.addIfTrue("Le filtre est requis", Filter.isEmpty(filter));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+			return new Object[] {operation};
+		}
+		
+		static void validateAddOrRemoveToOperationByFilter(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+			Configuration configuration = __inject__(Configuration.class);
+			readOneOperationStatus(configuration.operation().status().createdCode(),operation,ComparisonOperator.GT,throwablesMessages);
 		}
 		
 		static Object[] validateStartInputs(String identifier,String auditWho,ThrowablesMessages throwablesMessages) {
@@ -197,15 +216,21 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 		
 		static void validateStart(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
 			Configuration configuration = __inject__(Configuration.class);
-			OperationStatus startedStatus = __inject__(OperationStatusPersistence.class).readOne(new QueryExecutorArguments().addProjectionsFromStrings(OperationStatusImpl.FIELD_IDENTIFIER,OperationStatusImpl.FIELD_ORDER_NUMBER)
-					.addFilterField(Parameters.CODE, configuration.operation().status().startedCode()));
-			throwablesMessages.addIfTrue(String.format("Le statut démarrage ayant pour code %s est introuvable.",configuration.operation().status().startedCode()),startedStatus == null);
-			if(startedStatus != null && operation.getStatus().getOrderNumber() >= startedStatus.getOrderNumber()) {
-				throwablesMessages.add(String.format("%s %s est déja %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName(),operation.getStatus().getName()));
-			}else {
+			OperationStatus startedStatus = readOneOperationStatus(configuration.operation().status().startedCode(),operation,ComparisonOperator.GTE,throwablesMessages);
+			if(startedStatus != null && operation.getStatus().getOrderNumber() < startedStatus.getOrderNumber()) {
 				throwablesMessages.addIfTrue(String.format("%s %s doit contenir au moins un acte",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName())
 						, NumberHelper.isLessThanOrEqualZero(__inject__(OperationActPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()))));
 			}
+		}
+		
+		static OperationStatus readOneOperationStatus(String code,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ComparisonOperator operator,ThrowablesMessages throwablesMessages) {
+			OperationStatus status =  __inject__(OperationStatusPersistence.class).readOne(new QueryExecutorArguments().addProjectionsFromStrings(OperationStatusImpl.FIELD_IDENTIFIER,OperationStatusImpl.FIELD_ORDER_NUMBER)
+					.addFilterField(Parameters.CODE, code));
+			throwablesMessages.addIfTrue(String.format("Le statut ayant pour code %s est introuvable.",code),status == null);
+			if(status != null && Boolean.TRUE.equals(NumberHelper.compare(operation.getStatus().getOrderNumber() , status.getOrderNumber(),operator))) {
+				throwablesMessages.add(String.format("%s %s est déjà %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName(),operation.getStatus().getName()));
+			}
+			return status;
 		}
 	}
 }

@@ -32,6 +32,7 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 	@JsonbProperty(value = JSON_CREATED) Boolean created;
 	@JsonbProperty(value = JSON_STARTED) Boolean started;
 	@JsonbProperty(value = JSON_EXECUTED) Boolean executed;
+	@JsonbProperty(value = JSON_NUMBER_OF_ACTS) Long numberOfActs;
 	@JsonbProperty(value = JSON_COLOR) ColorDtoImpl color;
 	
 	@Override @JsonbProperty(value = JSON_IDENTIFIER)
@@ -94,7 +95,7 @@ public class OperationDtoImpl extends AbstractIdentifiableSystemScalarStringIden
 		
 		map.putAll(Map.of(
 				JSON_COLOR,OperationImpl.FIELD_COLOR
-    			
+    			,JSON_NUMBER_OF_ACTS,OperationImpl.FIELD_NUMBER_OF_ACTS
 				,JSONS_STATUSES,OperationImpl.FIELDS_STATUSES
     			));
 		
