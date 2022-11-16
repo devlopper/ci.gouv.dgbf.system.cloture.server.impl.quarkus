@@ -20,4 +20,5 @@ public class MapperGetterImpl extends AbstractMapperGetterImpl implements Serial
 	@Inject ActTypeDtoImplMapper actTypeDtoImplMapper;
 	@Inject ActivityDtoImplMapper activityDtoImplMapper;
 	@Inject EconomicNatureDtoImplMapper economicNatureDtoImplMapper;
+	@Inject ExerciseDtoImplMapper exerciseDtoImplMapper;
 }

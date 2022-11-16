@@ -19,6 +19,7 @@ import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActTypeImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActivityImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.EconomicNatureImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ExerciseImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ImputationImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationStatusImpl;
@@ -31,6 +32,8 @@ import ci.gouv.dgbf.system.cloture.server.impl.service.ActivityDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ActivityDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.EconomicNatureDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.EconomicNatureDtoImplMapper;
+import ci.gouv.dgbf.system.cloture.server.impl.service.ExerciseDtoImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.service.ExerciseDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ImputationDtoImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.service.ImputationDtoImplMapper;
 import ci.gouv.dgbf.system.cloture.server.impl.service.OperationDtoImpl;
@@ -56,6 +59,10 @@ public class ApplicationLifeCycleListener {
     	VariableHelper.write(VariableName.SYSTEM_LOGGING_THROWABLE_PRINT_STACK_TRACE, Boolean.TRUE);
     	
     	SpecificPersistence.PARAMETER_NAME_SEARCH.set(Parameters.SEARCH);
+    	
+    	MapperClassGetter.MAP.put(ExerciseDtoImpl.class, ExerciseDtoImplMapper.class);
+    	PersistenceEntityClassGetterImpl.MAP.put(ExerciseDtoImpl.class,ExerciseImpl.class);
+    	ExerciseDtoImpl.setProjections();
     	
     	MapperClassGetter.MAP.put(ActTypeDtoImpl.class, ActTypeDtoImplMapper.class);
     	PersistenceEntityClassGetterImpl.MAP.put(ActTypeDtoImpl.class,ActTypeImpl.class);

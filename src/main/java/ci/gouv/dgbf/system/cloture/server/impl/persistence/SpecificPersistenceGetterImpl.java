@@ -12,6 +12,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActTypePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActivityPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.EconomicNaturePersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ExercisePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
@@ -32,5 +33,5 @@ public class SpecificPersistenceGetterImpl extends AbstractSpecificPersistenceGe
 	@Inject EconomicNaturePersistence ecnomicNaturePersistence;
 	@Inject ActTypePersistence actTypePersistence;
 	@Inject ActLockPersistence actLockPersistence;
-	
+	@Inject ExercisePersistence exercisePersistence;
 }

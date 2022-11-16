@@ -11,6 +11,19 @@ import io.quarkus.test.junit.QuarkusTestProfile;
 
 public interface Profiles {
 	
+	public class Exercise implements QuarkusTestProfile{
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			Map<String, String> map = Profile.buildConfig(Exercise.class);
+			return map;
+		}
+		
+		@Override
+		public Set<String> tags() {
+			return Profile.buildTags(Exercise.class);
+		}
+	}
+	
 	public class Act implements QuarkusTestProfile{
 		@Override
 		public Map<String, String> getConfigOverrides() {
