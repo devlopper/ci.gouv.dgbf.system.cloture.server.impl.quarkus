@@ -66,6 +66,42 @@ public class OperationServiceImpl extends AbstractSpecificServiceImpl<OperationD
 				, existingIgnorable, auditWho));
 	}
 	
+	/* Imputation */
+	
+	@Override
+	public Response addImputation(String identifier, List<String> actsIdentifiers, Boolean existingIgnorable,String auditWho) {
+		return buildResponseOk(business.addImputation(identifier, actsIdentifiers, existingIgnorable, auditWho));
+	}
+	
+	@Override
+	public Response addImputationComprehensively(String identifier, List<String> actsIdentifiers, String auditWho) {
+		return buildResponseOk(business.addImputationComprehensively(identifier, actsIdentifiers, auditWho));
+	}
+	
+	@Override
+	public Response addImputationByFilter(String identifier, String filterAsString, FilterFormat filterFormat,Boolean existingIgnorable, String auditWho) {
+		Filter filter = ValueHelper.defaultToIfNull(filterFormat, FilterFormat.JSON).equals(FilterFormat.JSON) ? Filter.instantiateFromJson(filterAsString) : new Filter().setValue(filterAsString);
+		return buildResponseOk(business.addImputationByFilter(identifier, filter, existingIgnorable, auditWho));
+	}
+	
+	@Override
+	public Response removeImputation(String identifier, List<String> actsIdentifiers, Boolean existingIgnorable,String auditWho) {
+		return buildResponseOk(business.removeImputation(identifier, actsIdentifiers, existingIgnorable, auditWho));
+	}
+	
+	@Override
+	public Response removeImputationComprehensively(String identifier, List<String> actsIdentifiers, String auditWho) {
+		return null;//buildResponseOk(business.removeImputationComprehensively(identifier, actsIdentifiers, auditWho));
+	}
+	
+	@Override
+	public Response removeImputationByFilter(String identifier, String filterAsString, FilterFormat filterFormat,Boolean existingIgnorable, String auditWho) {
+		return buildResponseOk(business.removeImputationByFilter(identifier, ValueHelper.defaultToIfNull(filterFormat, FilterFormat.JSON).equals(FilterFormat.JSON) ? Filter.instantiateFromJson(filterAsString) : new Filter().setValue(filterAsString)
+				, existingIgnorable, auditWho));
+	}
+	
+	/* Execution */
+	
 	@Override
 	public Response startExecution(String identifier,String auditWho) {
 		return buildResponseOk(business.startExecution(identifier, auditWho));

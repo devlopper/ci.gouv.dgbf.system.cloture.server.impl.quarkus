@@ -31,8 +31,11 @@ import org.cyk.utility.persistence.server.query.executor.field.CodeExecutor;
 
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationActBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.business.OperationBusiness;
+import ci.gouv.dgbf.system.cloture.server.api.business.OperationImputationBusiness;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Imputation;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
@@ -43,6 +46,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import ci.gouv.dgbf.system.cloture.server.impl.Configuration;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImplIdentifierCodeOperationIdentifierReader;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ImputationImplIdentifierActivityCodeEconomicNatureCodeOperationIdentifierReader;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
 import io.quarkus.vertx.ConsumeEvent;
@@ -56,8 +60,10 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Inject OperationPersistence persistence;
 	@Inject OperationStatusPersistence statusPersistence;
 	@Inject ActPersistence actPersistence;
+	@Inject ImputationPersistence imputationPersistence;
 	@Inject OperationActPersistence operationActPersistence;
 	@Inject OperationActBusiness operationActBusiness;
+	@Inject OperationImputationBusiness operationImputationBusiness;
 	@Inject EntityManager entityManager;
 	@Inject Configuration configuration;
 	
@@ -124,11 +130,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		return create(typeIdentifier, code, name, reason, auditWho, null);
 	}
 	
-	/* add */
+	/* add acts */
 
 	@Transactional
 	Object[] addActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired,Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager) {
-		Object[] array = validate(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.TRUE, Boolean.FALSE, auditWho);
+		Object[] array = validateActs(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.TRUE, Boolean.FALSE, auditWho);
 		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
 		if(CollectionHelper.isNotEmpty(acts))
@@ -153,7 +159,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 
 	@Override @Transactional
 	public Result addActComprehensively(String identifier, Collection<String> actsIdentifiers, String auditWho) {
-		Object[] array = validate(identifier, actsIdentifiers,Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, auditWho);
+		Object[] array = validateActs(identifier, actsIdentifiers,Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, auditWho);
 		OperationImpl operation = (OperationImpl) array[1];
 		Collection<Act> acts = (Collection<Act>) array[2];
 		Result result = openAddOrRemoveActResult(Boolean.TRUE);
@@ -247,12 +253,12 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		return new Object[]{operation[0],acts};
 	}
 	
-	/* remove */
+	/* remove acts */
 	
 	@Transactional
 	Object[] removeActInTransaction(String identifier, Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean existingIgnorable,String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate
 			,EntityManager entityManager) {
-		Object[] array = validate(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.FALSE, Boolean.FALSE, auditWho);
+		Object[] array = validateActs(identifier, actsIdentifiers,areActsIdentifiersRequired, existingIgnorable, Boolean.FALSE, Boolean.FALSE, auditWho);
 		Collection<Act> acts = (Collection<Act>) array[2];
 		Collection<OperationActImpl> operationActs = null;
 		if(CollectionHelper.isNotEmpty(acts))
@@ -307,6 +313,20 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		closeAddOrRemoveActResult(result, "%s %s dans %s","Retrait par filtre de %s par %s","%s retiré(s) par filtre", operation, acts, auditWho);
 		return result;
 	}
+	
+	/* add imputations */
+	
+	@Transactional
+	Object[] addImputationInTransaction(String identifier, Collection<String> imputationsIdentifiers,Boolean areImputationsIdentifiersRequired,Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager) {
+		Object[] array = validateImputations(identifier, imputationsIdentifiers,areImputationsIdentifiersRequired, existingIgnorable, Boolean.TRUE, Boolean.FALSE, auditWho);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Imputation> imputations = (Collection<Imputation>) array[2];
+		if(CollectionHelper.isNotEmpty(imputations))
+			((OperationImputationBusinessImpl)operationImputationBusiness).create(operation, imputations, auditIdentifier, auditFunctionality, auditWho, auditDate, entityManager);
+		return array;
+	}
+	
+	/* remove imputations */
 	
 	/* Start */
 	
@@ -394,11 +414,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	
 	/* Validation */
 	
-	private Object[] validate(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired,Boolean existingIgnorable,Boolean add,Boolean comprehensively,String auditWho) {
+	private Object[] validateActs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired,Boolean existingIgnorable,Boolean add,Boolean comprehensively,String auditWho) {
 		if(Boolean.TRUE.equals(comprehensively))
 			existingIgnorable = Boolean.TRUE;
 		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
-		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationInputs(identifier, actsIdentifiers,areActsIdentifiersRequired,comprehensively, auditWho, throwablesMessages);
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveActsToOperationInputs(identifier, actsIdentifiers,areActsIdentifiersRequired,comprehensively, auditWho, throwablesMessages);
 		throwablesMessages.throwIfNotEmpty();
 		
 		Collection<Object[]> arrays = new ActImplIdentifierCodeOperationIdentifierReader().readByIdentifiers(actsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
@@ -433,6 +453,40 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		result.close().setName(String.format(nameFormat,actsLabel,auditWho)).log(getClass());
 		result.addMessages(String.format(messageFormat, actsLabel));
 	}
+	
+	/**/
+	
+	private Object[] validateImputations(String identifier,Collection<String> imputationsIdentifiers,Boolean areImputationsIdentifiersRequired,Boolean existingIgnorable,Boolean add,Boolean comprehensively,String auditWho) {
+		if(Boolean.TRUE.equals(comprehensively))
+			existingIgnorable = Boolean.TRUE;
+		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveImputationsToOperationInputs(identifier, imputationsIdentifiers,areImputationsIdentifiersRequired,comprehensively, auditWho, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
+		Collection<Object[]> arrays = new ImputationImplIdentifierActivityCodeEconomicNatureCodeOperationIdentifierReader().readByIdentifiers(imputationsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
+		Operation operation = (Operation) objects[0];
+		ValidatorImpl.Operation.validateAddOrRemoveToOperation(arrays,imputationsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
+		Collection<Imputation> imputations = null;
+		if(CollectionHelper.isNotEmpty(imputationsIdentifiers))
+			for(List<String> batch : CollectionHelper.getBatches((List<String>)imputationsIdentifiers, 999)) {
+				Collection<Imputation> r = imputationPersistence.readManyByIdentifiers(batch ,List.of(ActImpl.FIELD_IDENTIFIER));
+				if(CollectionHelper.isEmpty(r))
+					continue;
+				if(imputations == null)
+					imputations = new ArrayList<>();
+				imputations.addAll(r);
+			}
+		
+		ValidatorImpl.validateIdentifiers(List.of(identifier),operation == null ? null : List.of(operation.getIdentifier()), throwablesMessages);
+		ValidatorImpl.validateIdentifiers(imputationsIdentifiers, FieldHelper.readSystemIdentifiersAsStrings(imputations), throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
+		Collection<String> processableIdentifiers = arrays == null ? null : arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[3] == null : array[3] != null).map(array -> (String)array[0]).collect(Collectors.toList());
+		imputations = processableIdentifiers == null ? null : imputations.stream().filter(imputation -> processableIdentifiers.contains(imputation.getIdentifier())).collect(Collectors.toList());
+		return new Object[] {arrays,operation,imputations};
+	}
+	
+	/**/
 	
 	@AllArgsConstructor @NoArgsConstructor
 	public static class EventMessage {

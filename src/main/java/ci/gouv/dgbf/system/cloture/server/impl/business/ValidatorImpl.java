@@ -156,12 +156,22 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			return status;
 		}
 		
-		static Object[] validateAddOrRemoveToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+		static Object[] validateAddOrRemoveActsToOperationInputs(String identifier,Collection<String> actsIdentifiers,Boolean areActsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
 			OperationImpl operation = StringHelper.isBlank(identifier) ? null : (OperationImpl) validateExistenceAndReturn(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.class, identifier
 					,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_STATUS,OperationTypeImpl.FIELD_NAME)
 					, __inject__(OperationPersistence.class), throwablesMessages);
 			if((areActsIdentifiersRequired == null || areActsIdentifiersRequired) && !Boolean.TRUE.equals(comprehensively))
 				throwablesMessages.addIfTrue(String.format("Les identifiants des %s sont requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL), CollectionHelper.isEmpty(actsIdentifiers));
+			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
+			return new Object[] {operation};
+		}
+		
+		static Object[] validateAddOrRemoveImputationsToOperationInputs(String identifier,Collection<String> imputationsIdentifiers,Boolean areImputationsIdentifiersRequired, Boolean comprehensively,String auditWho,ThrowablesMessages throwablesMessages) {
+			OperationImpl operation = StringHelper.isBlank(identifier) ? null : (OperationImpl) validateExistenceAndReturn(ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.class, identifier
+					,List.of(OperationImpl.FIELD_IDENTIFIER,OperationImpl.FIELD_STATUS,OperationTypeImpl.FIELD_NAME)
+					, __inject__(OperationPersistence.class), throwablesMessages);
+			if((areImputationsIdentifiersRequired == null || areImputationsIdentifiersRequired) && !Boolean.TRUE.equals(comprehensively))
+				throwablesMessages.addIfTrue(String.format("Les identifiants des %s sont requis",ci.gouv.dgbf.system.cloture.server.api.persistence.Imputation.NAME_PLURAL), CollectionHelper.isEmpty(imputationsIdentifiers));
 			Validator.getInstance().validateAuditWho(auditWho, throwablesMessages);
 			return new Object[] {operation};
 		}
