@@ -24,6 +24,32 @@ public interface Profiles {
 		}
 	}
 	
+	public class Activity implements QuarkusTestProfile{
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			Map<String, String> map = Profile.buildConfig(Activity.class);
+			return map;
+		}
+		
+		@Override
+		public Set<String> tags() {
+			return Profile.buildTags(Activity.class);
+		}
+	}
+	
+	public class Imputation implements QuarkusTestProfile{
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			Map<String, String> map = Profile.buildConfig(Imputation.class);
+			return map;
+		}
+		
+		@Override
+		public Set<String> tags() {
+			return Profile.buildTags(Imputation.class);
+		}
+	}
+	
 	public class Operation implements QuarkusTestProfile{
 		@Override
 		public Map<String, String> getConfigOverrides() {

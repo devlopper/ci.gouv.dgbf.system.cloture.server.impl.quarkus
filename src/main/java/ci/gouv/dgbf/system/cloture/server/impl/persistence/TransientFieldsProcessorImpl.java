@@ -8,6 +8,7 @@ import org.cyk.utility.__kernel__.collection.CollectionHelper;
 import org.cyk.utility.persistence.query.Filter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Act;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.Imputation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import io.quarkus.arc.Unremovable;
 
@@ -20,6 +21,8 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 			processOperations(CollectionHelper.cast(OperationImpl.class, objects),fieldsNames);
 		else if(Act.class.equals(klass) || ActImpl.class.equals(klass))
 			processActs(CollectionHelper.cast(ActImpl.class, objects),fieldsNames);
+		else if(Imputation.class.equals(klass) || ImputationImpl.class.equals(klass))
+			processImputations(CollectionHelper.cast(ImputationImpl.class, objects),fieldsNames);
 		else
 			super.__process__(klass,objects,filter, fieldsNames);
 	}
@@ -28,6 +31,13 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 		for(String fieldName : fieldsNames) {
 			if(ActImpl.FIELDS_CODE_NAME_TYPE_AS_STRING.equals(fieldName))
 				new ActImplCodeNameTypeAsStringReader().readThenSet(acts, null);
+		}
+	}
+	
+	public void processImputations(Collection<ImputationImpl> imputations,Collection<String> fieldsNames) {
+		for(String fieldName : fieldsNames) {
+			if(ImputationImpl.FIELDS_AS_STRING.equals(fieldName))
+				new ImputationImplAsStringReader().readThenSet(imputations, null);
 		}
 	}
 	
