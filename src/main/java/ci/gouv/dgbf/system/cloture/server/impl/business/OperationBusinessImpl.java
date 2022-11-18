@@ -38,6 +38,7 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.Imputation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
@@ -46,9 +47,11 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.Parameters;
 import ci.gouv.dgbf.system.cloture.server.impl.Configuration;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ActImplIdentifierCodeOperationIdentifierReader;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.ImputationImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.ImputationImplIdentifierActivityCodeEconomicNatureCodeOperationIdentifierReader;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationActImpl;
 import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImpl;
+import ci.gouv.dgbf.system.cloture.server.impl.persistence.OperationImputationImpl;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.eventbus.EventBus;
 import lombok.AllArgsConstructor;
@@ -62,6 +65,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 	@Inject ActPersistence actPersistence;
 	@Inject ImputationPersistence imputationPersistence;
 	@Inject OperationActPersistence operationActPersistence;
+	@Inject OperationImputationPersistence operationImputationPersistence;
 	@Inject OperationActBusiness operationActBusiness;
 	@Inject OperationImputationBusiness operationImputationBusiness;
 	@Inject EntityManager entityManager;
@@ -212,15 +216,19 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		return result;
 	}
 	
-	void normalizeFilterForAddOrRemoveActByFilter(Filter filter,Boolean add) {
+	void normalizeFilterForAddOrRemoveByFilter(Filter filter,Boolean add,String parameterName) {
 		if(filter == null)
 			return;
 		add = !add;
-		Field field = filter.getField(Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION);
+		Field field = filter.getField(parameterName);
 		if(field == null)
-			filter.addField(Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION, add);
+			filter.addField(parameterName, add);
 		else
 			field.setValue(add);
+	}
+	
+	void normalizeFilterForAddOrRemoveActByFilter(Filter filter,Boolean add) {
+		normalizeFilterForAddOrRemoveByFilter(filter, add, Parameters.ADDED_TO_SPECIFIED_OPERATION);
 	}
 	
 	Object[] addOrRemoveActInBatch(String identifier, Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager,Result result,List<String> actsIdentifiers,Boolean add) {
@@ -326,7 +334,171 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		return array;
 	}
 	
+	@Override
+	public Result addImputation(String identifier, Boolean existingIgnorable, String auditWho,String... imputationsIdentifiers) {
+		return addImputation(identifier,CollectionHelper.listOf(Boolean.TRUE, imputationsIdentifiers),existingIgnorable,auditWho);
+	}
+	
+	@Override
+	public Result addImputation(String identifier, Collection<String> imputationsIdentifiers, Boolean existingIgnorable,
+			String auditWho) {
+		Result result = openAddOrRemoveImputationResult(Boolean.TRUE);
+		Object[] array = addImputationInTransaction(identifier, imputationsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), ADD_IMPUTATION_AUDIT_IDENTIFIER, LocalDateTime.now(), entityManager);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Imputation> imputations = (Collection<Imputation>) array[2];
+		closeAddOrRemoveImputationResult(result, "%s %s dans %s","Ajout de %s par %s","%s ajoutée(s)", operation, imputations, auditWho);
+		return result;
+	}
+	
+	@Override
+	public Result addImputationComprehensively(String identifier, Collection<String> imputationsIdentifiers,String auditWho) {
+		Object[] array = validateImputations(identifier, imputationsIdentifiers,Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, auditWho);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Imputation> imputations = (Collection<Imputation>) array[2];
+		Result result = openAddOrRemoveImputationResult(Boolean.TRUE);
+		
+		String auditIdentifier = generateAuditIdentifier();
+		LocalDateTime auditDate = LocalDateTime.now();
+		
+		// deletions
+		Collection<OperationImputationImpl> deletableOperationImputations = CollectionHelper.cast(OperationImputationImpl.class, CollectionHelper.isEmpty(imputationsIdentifiers) 
+				? operationImputationPersistence.readByOperationIdentifier(identifier) : operationImputationPersistence.readByOperationIdentifierByNotImputationsIdentifiers(identifier, imputationsIdentifiers));
+		if(CollectionHelper.isNotEmpty(deletableOperationImputations))
+			((OperationImputationBusinessImpl)operationImputationBusiness).delete(deletableOperationImputations.stream().map(operationImputation -> entityManager.merge(operationImputation)).collect(Collectors.toList())
+					, auditIdentifier, REMOVE_ACT_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
+		
+		// creations
+		if(CollectionHelper.isNotEmpty(imputations))
+			((OperationImputationBusinessImpl)operationImputationBusiness).create(operation, imputations, auditIdentifier, ADD_ACT_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
+		
+		// Return of message
+		String imputationsLabel = String.format("%s %s dans %s",CollectionHelper.getSize(imputations),Imputation.NAME_PLURAL,operation.getName());
+		result.close().setName(String.format("Ajout exhaustif de %s par %s",imputationsLabel,auditWho)).log(getClass());
+		result.addMessages(String.format("%s ajoutée(s) exhaustivement", imputationsLabel));
+		return result;
+	}
+	
+	@Override
+	public Result addImputationComprehensively(String identifier, String auditWho, String... imputationsIdentifiers) {
+		return addImputationComprehensively(identifier,CollectionHelper.listOf(Boolean.TRUE, imputationsIdentifiers),auditWho);
+	}
+	
+	@Override
+	public Result addImputationByFilter(String identifier, Filter filter, Boolean existingIgnorable, String auditWho) {
+		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		Operation operation = (Operation) objects[0];
+		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilter(operation,throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
+		normalizeFilterForAddOrRemoveImputationByFilter(filter, Boolean.TRUE);
+		String auditIdentifier = generateAuditIdentifier();
+		LocalDateTime auditDate = LocalDateTime.now();
+		String auditFunctionality = ADD_ACT_BY_FILTER_AUDIT_IDENTIFIER;
+		Result result = openAddOrRemoveImputationResult(Boolean.TRUE);
+		List<String> imputationsIdentifiers = (List<String>) imputationPersistence.readIdentifiersAsStringsByFilter(filter);
+		Object[] array = addOrRemoveImputationInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, imputationsIdentifiers, Boolean.TRUE);
+		
+		Collection<Imputation> imputations = (Collection<Imputation>) array[1];
+		closeAddOrRemoveImputationResult(result, "%s %s dans %s","Ajout par filtre de %s par %s","%s ajoutée(s) par filtre", operation, imputations, auditWho);
+		return result;
+	}
+	
+	void normalizeFilterForAddOrRemoveImputationByFilter(Filter filter,Boolean add) {
+		normalizeFilterForAddOrRemoveByFilter(filter, add, Parameters.ADDED_TO_SPECIFIED_OPERATION);
+	}
+	
+	Object[] addOrRemoveImputationInBatch(String identifier, Boolean existingIgnorable, String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate,EntityManager entityManager,Result result,List<String> imputationsIdentifiers,Boolean add) {
+		List<List<String>> batches = CollectionHelper.getBatches(imputationsIdentifiers, 1000);
+		if(CollectionHelper.isEmpty(batches)) {
+			if(batches == null)
+				batches = new ArrayList<>();
+			batches.add(List.of());
+		}
+		Operation[] operation = {null};
+		Collection<Imputation> imputations = new ArrayList<>();
+		batches.parallelStream().forEach(batch -> {
+			Object[] array;
+			try {
+				if(Boolean.TRUE.equals(add))
+					array = addImputationInTransaction(identifier,batch ,Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager);
+				else
+					array = removeImputationInTransaction(identifier,batch ,Boolean.FALSE, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager);
+			} catch (Exception exception) {
+				result.addMessages(exception.getMessage());
+				return;
+			}
+			if(array == null)
+				return;
+			if(operation[0] == null)
+				operation[0] = (Operation) array[1];
+			if(CollectionHelper.isNotEmpty((Collection<Imputation>) array[2]))
+				imputations.addAll((Collection<Imputation>) array[2]);
+		});
+		return new Object[]{operation[0],imputations};
+	}
+	
 	/* remove imputations */
+	
+	@Transactional
+	Object[] removeImputationInTransaction(String identifier, Collection<String> imputationsIdentifiers,Boolean areImputationsIdentifiersRequired, Boolean existingIgnorable,String auditWho,String auditIdentifier,String auditFunctionality,LocalDateTime auditDate
+			,EntityManager entityManager) {
+		Object[] array = validateImputations(identifier, imputationsIdentifiers,areImputationsIdentifiersRequired, existingIgnorable, Boolean.FALSE, Boolean.FALSE, auditWho);
+		Collection<Imputation> imputations = (Collection<Imputation>) array[2];
+		Collection<OperationImputationImpl> operationImputations = null;
+		if(CollectionHelper.isNotEmpty(imputations))
+			for(List<Imputation> batch : CollectionHelper.getBatches((List<Imputation>)imputations, 999)) {
+				Collection<OperationImputationImpl> r = CollectionHelper.cast(OperationImputationImpl.class, operationImputationPersistence.readMany(new QueryExecutorArguments()
+						.addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER,identifier,Parameters.IMPUTATIONS_IDENTIFIERS,FieldHelper.readSystemIdentifiersAsStrings(batch))));
+				if(CollectionHelper.isEmpty(r))
+					continue;
+				if(operationImputations == null)
+					operationImputations = new ArrayList<>();
+				operationImputations.addAll(r);
+			}
+		if(CollectionHelper.isNotEmpty(operationImputations))
+			((OperationImputationBusinessImpl)operationImputationBusiness).delete(operationImputations.stream().map(operationImputation -> entityManager.merge(operationImputation)).collect(Collectors.toList())
+					, auditIdentifier, REMOVE_IMPUTATION_AUDIT_IDENTIFIER, auditWho, auditDate, entityManager);
+		return array;
+	}
+	
+	@Override
+	public Result removeImputation(String identifier, Collection<String> imputationsIdentifiers,Boolean existingIgnorable, String auditWho) {
+		Result result = openAddOrRemoveImputationResult(Boolean.FALSE);
+		Object[] array = removeImputationInTransaction(identifier, imputationsIdentifiers,Boolean.TRUE, existingIgnorable, auditWho, generateAuditIdentifier(), REMOVE_IMPUTATION_AUDIT_IDENTIFIER, LocalDateTime.now(), entityManager);
+		OperationImpl operation = (OperationImpl) array[1];
+		Collection<Imputation> imputations = (Collection<Imputation>) array[2];
+		closeAddOrRemoveImputationResult(result, "%s %s dans %s", "Retrait de %s par %s", "%s retirée(s)", operation, imputations, auditWho);
+		return result;
+	}
+	
+	@Override
+	public Result removeImputation(String identifier, Boolean existingIgnorable, String auditWho,String... imputationsIdentifiers) {
+		return removeImputation(identifier, CollectionHelper.listOf(Boolean.TRUE, imputationsIdentifiers), existingIgnorable, auditWho);
+	}
+	
+	@Override
+	public Result removeImputationByFilter(String identifier, Filter filter, Boolean existingIgnorable,String auditWho) {
+		ThrowablesMessages throwablesMessages = new ThrowablesMessages();
+		Object[] objects = ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilterInputs(identifier, filter, existingIgnorable, auditWho, throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		Operation operation = (Operation) objects[0];
+		ValidatorImpl.Operation.validateAddOrRemoveToOperationByFilter(operation,throwablesMessages);
+		throwablesMessages.throwIfNotEmpty();
+		
+		normalizeFilterForAddOrRemoveImputationByFilter(filter, Boolean.FALSE);
+		String auditIdentifier = generateAuditIdentifier();
+		LocalDateTime auditDate = LocalDateTime.now();
+		String auditFunctionality = REMOVE_IMPUTATION_BY_FILTER_AUDIT_IDENTIFIER;
+		Result result = openAddOrRemoveImputationResult(Boolean.TRUE);
+		List<String> imputationsIdentifiers = (List<String>) imputationPersistence.readIdentifiersAsStringsByFilter(filter);
+		Object[] array = addOrRemoveImputationInBatch(identifier, existingIgnorable, auditWho, auditIdentifier, auditFunctionality, auditDate, entityManager, result, imputationsIdentifiers, Boolean.FALSE);
+		
+		Collection<Imputation> imputations = (Collection<Imputation>) array[1];
+		closeAddOrRemoveImputationResult(result, "%s %s dans %s","Retrait par filtre de %s par %s","%s retirée(s) par filtre", operation, imputations, auditWho);
+		return result;
+	}
 	
 	/* Start */
 	
@@ -373,7 +545,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 			LogHelper.logWarning(String.format("Aucune %s trouvée avec l'identifiant %s",Operation.NAME, identifier), getClass());
 			return;
 		}
-		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_IDENTIFIER,ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
+		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_IDENTIFIER,ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
 				,Parameters.PROCESSED, Boolean.FALSE));
 		if(CollectionHelper.isEmpty(acts)) {
 			LogHelper.logWarning(String.format("Aucun %s trouvé dans %s avec l'identifiant %s",Act.NAME,Operation.NAME, identifier), getClass());
@@ -423,7 +595,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		
 		Collection<Object[]> arrays = new ActImplIdentifierCodeOperationIdentifierReader().readByIdentifiers(actsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
 		Operation operation = (Operation) objects[0];
-		ValidatorImpl.Operation.validateAddOrRemoveToOperation(arrays,actsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
+		ValidatorImpl.Operation.validateAddOrRemoveActsToOperation(arrays,actsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
 		Collection<Act> acts = null;
 		if(CollectionHelper.isNotEmpty(actsIdentifiers))
 			for(List<String> batch : CollectionHelper.getBatches((List<String>)actsIdentifiers, 999)) {
@@ -465,11 +637,11 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		
 		Collection<Object[]> arrays = new ImputationImplIdentifierActivityCodeEconomicNatureCodeOperationIdentifierReader().readByIdentifiers(imputationsIdentifiers, Map.of(Parameters.OPERATION_IDENTIFIER,identifier));
 		Operation operation = (Operation) objects[0];
-		ValidatorImpl.Operation.validateAddOrRemoveToOperation(arrays,imputationsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
+		ValidatorImpl.Operation.validateAddOrRemoveImputationsToOperation(arrays,imputationsIdentifiers,add,existingIgnorable,operation, throwablesMessages);
 		Collection<Imputation> imputations = null;
 		if(CollectionHelper.isNotEmpty(imputationsIdentifiers))
 			for(List<String> batch : CollectionHelper.getBatches((List<String>)imputationsIdentifiers, 999)) {
-				Collection<Imputation> r = imputationPersistence.readManyByIdentifiers(batch ,List.of(ActImpl.FIELD_IDENTIFIER));
+				Collection<Imputation> r = imputationPersistence.readManyByIdentifiers(batch ,List.of(ImputationImpl.FIELD_IDENTIFIER));
 				if(CollectionHelper.isEmpty(r))
 					continue;
 				if(imputations == null)
@@ -484,6 +656,16 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		Collection<String> processableIdentifiers = arrays == null ? null : arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[3] == null : array[3] != null).map(array -> (String)array[0]).collect(Collectors.toList());
 		imputations = processableIdentifiers == null ? null : imputations.stream().filter(imputation -> processableIdentifiers.contains(imputation.getIdentifier())).collect(Collectors.toList());
 		return new Object[] {arrays,operation,imputations};
+	}
+	
+	Result openAddOrRemoveImputationResult(Boolean add) {
+		return new Result().setName(String.format("%s",Boolean.TRUE.equals(add) ? ADD_IMPUTATION_LABEL : REMOVE_IMPUTATION_LABEL)).open();
+	}
+	
+	void closeAddOrRemoveImputationResult(Result result,String labelFormat,String nameFormat,String messageFormat,Operation operation,Collection<Imputation> imputations,String auditWho) {
+		String imputationsLabel = String.format(labelFormat,CollectionHelper.getSize(imputations),Imputation.NAME_PLURAL,operation == null ? "???" : operation.getName());
+		result.close().setName(String.format(nameFormat,imputationsLabel,auditWho)).log(getClass());
+		result.addMessages(String.format(messageFormat, imputationsLabel));
 	}
 	
 	/**/

@@ -5,7 +5,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.cyk.utility.__kernel__.collection.CollectionHelper;
-import org.cyk.utility.__kernel__.string.StringHelper;
 import org.cyk.utility.persistence.query.Filter;
 import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.persistence.server.query.string.AbstractSpecificQueryStringBuilder;
@@ -23,24 +22,19 @@ public class ImputationQueryStringBuilder extends AbstractSpecificQueryStringBui
 	@Getter @Inject ImputationPersistence persistence;
 	
 	@Override
-	protected Class<Imputation> getPeristenceClass() {
-		return Imputation.class;
-	}
-	
-	@Override
 	public void populatePredicates(QueryExecutorArguments queryExecutorArguments, Arguments arguments,Predicate predicate, Filter filter) {
 		super.populatePredicates(queryExecutorArguments, arguments, predicate, filter);
-		/*
+		
 		Boolean processed = queryExecutorArguments.getFilterFieldValueAsBoolean(null,Parameters.PROCESSED);
-		Boolean addedToSpecifiedOperation = queryExecutorArguments.getFilterFieldValueAsBoolean(Boolean.TRUE,Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION);
+		Boolean addedToSpecifiedOperation = queryExecutorArguments.getFilterFieldValueAsBoolean(Boolean.TRUE,Parameters.ADDED_TO_SPECIFIED_OPERATION);
 		
 		populatePredicatesExists(queryExecutorArguments, arguments, predicate, filter, Parameters.OPERATION_IDENTIFIER
-				,String.format("SELECT oa FROM %s oa WHERE oa.%s.identifier = :%s AND oa.%s = t%s",OperationActImpl.ENTITY_NAME,OperationActImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationActImpl.FIELD_ACT
-						,processed == null ? "" : (processed ? String.format(" AND oa.%s = %s", OperationActImpl.FIELD_PROCESSED,Boolean.TRUE.toString()) : String.format(" AND (oa.%1$s IS NULL OR oa.%1$s = %2$s)", OperationActImpl.FIELD_PROCESSED,Boolean.FALSE.toString())))
+				,String.format("SELECT oi FROM %s oi WHERE oi.%s.identifier = :%s AND oi.%s = t%s",OperationImputationImpl.ENTITY_NAME,OperationImputationImpl.FIELD_OPERATION,Parameters.OPERATION_IDENTIFIER,OperationImputationImpl.FIELD_IMPUTATION
+						,processed == null ? "" : (processed ? String.format(" AND oi.%s = %s", OperationImputationImpl.FIELD_PROCESSED,Boolean.TRUE.toString()) : String.format(" AND (oi.%1$s IS NULL OR oi.%1$s = %2$s)", OperationImputationImpl.FIELD_PROCESSED,Boolean.FALSE.toString())))
 				,!Boolean.TRUE.equals(addedToSpecifiedOperation));
-		
+		/*
 		if(queryExecutorArguments.getFilterFieldValue(Parameters.ACTS_CODES) != null) {
-			predicate.add(String.format("t.%s IN :%s", ActImpl.FIELD_CODE,Parameters.ACTS_CODES));
+			predicate.add(String.format("t.%s IN :%s", ImputationImpl.FIELD_CODE,Parameters.ACTS_CODES));
 			filter.addField(Parameters.ACTS_CODES, queryExecutorArguments.getFilterFieldValue(Parameters.ACTS_CODES));
 		}
 		*/

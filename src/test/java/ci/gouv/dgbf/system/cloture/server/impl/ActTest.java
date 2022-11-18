@@ -75,13 +75,13 @@ public class ActTest {
 	
 	@Test
 	void persistence__readMany_operation_identifier_1_ACT_ADDED_TO_SPECIFIED_OPERATION_true() {
-		Collection<Act> acts = persistence.readMany(new QueryExecutorArguments().addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, "1",Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION,Boolean.TRUE));
+		Collection<Act> acts = persistence.readMany(new QueryExecutorArguments().addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, "1",Parameters.ADDED_TO_SPECIFIED_OPERATION,Boolean.TRUE));
 		assertThat(acts).isNull();
 	}
 	
 	@Test
 	void persistence__readMany_operation_identifier_1_ACT_ADDED_TO_SPECIFIED_OPERATION_false() {
-		Collection<Act> acts = persistence.readMany(new QueryExecutorArguments().addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, "1",Parameters.ACT_ADDED_TO_SPECIFIED_OPERATION,Boolean.FALSE));
+		Collection<Act> acts = persistence.readMany(new QueryExecutorArguments().addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, "1",Parameters.ADDED_TO_SPECIFIED_OPERATION,Boolean.FALSE));
 		assertThat(acts).isNotNull();
 		assertThat(acts.stream().map(x -> x.getIdentifier()).collect(Collectors.toList())).containsExactly("1","2","3","4","5","6");
 	}

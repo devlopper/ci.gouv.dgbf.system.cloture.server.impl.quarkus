@@ -65,7 +65,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
   	@Transient String statusAsString;
   	
   	@Transient Boolean created, started,executed;
-  	@Transient Long numberOfActs;
+  	@Transient Long numberOfActs,numberOfImputations;
   	
   	@Transient AuditedActionImpl creation;
   	@Transient AuditedActionImpl execution;
@@ -131,6 +131,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String FIELD_CREATION = "creation";
 	public static final String FIELD_EXECUTION = "execution";
 	public static final String FIELD_COLOR = "color";
+	public static final String FIELD_NUMBER_OF_IMPUTATIONS = "numberOfImputations";
 	public static final String FIELD_NUMBER_OF_ACTS = "numberOfActs";
 	
 	public static final String FIELDS_STRINGS = "strings";

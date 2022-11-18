@@ -47,6 +47,8 @@ public class TransientFieldsProcessorImpl extends org.cyk.utility.persistence.se
 				new OperationImplStringsReader().readThenSet(operations, null);
 			else if(OperationImpl.FIELD_NUMBER_OF_ACTS.equals(fieldName))
 				new OperationImplNumberOfActsReader().readThenSet(operations, null);
+			else if(OperationImpl.FIELD_NUMBER_OF_IMPUTATIONS.equals(fieldName))
+				new OperationImplNumberOfImputationsReader().readThenSet(operations, null);
 			else if(OperationImpl.FIELD_COLOR.equals(fieldName))
 				new OperationImplColorReader().readThenSet(operations, null);
 			else if(OperationImpl.FIELDS_STATUSES.equals(fieldName))

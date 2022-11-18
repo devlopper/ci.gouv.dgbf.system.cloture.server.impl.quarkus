@@ -15,6 +15,7 @@ import org.cyk.utility.persistence.query.QueryExecutorArguments;
 import org.cyk.utility.service.client.SpecificServiceGetter;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.ImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
@@ -28,6 +29,7 @@ public class Assertor {
 	@Inject SpecificServiceGetter specificServiceGetter;
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject ActPersistence actPersistence;
+	@Inject ImputationPersistence imputationPersistence;
 	@Inject OperationPersistence operationPersistence;
 	
 	public void assertIdentifiers(Collection<?> objects,Collection<String> expectedIdentifiers) {
@@ -49,6 +51,18 @@ public class Assertor {
 	
 	public void assertOperationActs(String identifier,String...expectedActsIdentifiers) {
 		assertOperationActs(identifier, CollectionHelper.listOf(Boolean.TRUE,expectedActsIdentifiers));
+	}
+	
+	public void assertOperationImputations(String identifier,Collection<String> expectedImputationsIdentifiers) {
+		Collection<String> identifiers = FieldHelper.readSystemIdentifiersAsStrings(imputationPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_IDENTIFIER).addFilterField(Parameters.OPERATION_IDENTIFIER, identifier)));
+		if(CollectionHelper.isEmpty(expectedImputationsIdentifiers))
+			assertThat(identifiers).isNull();
+		else
+			assertThat(identifiers).containsExactly(expectedImputationsIdentifiers.toArray(new String[] {}));
+	}
+	
+	public void assertOperationImputations(String identifier,String...expectedImputationsIdentifiers) {
+		assertOperationImputations(identifier, CollectionHelper.listOf(Boolean.TRUE,expectedImputationsIdentifiers));
 	}
 	
 	public void assertOperationStatusCode(String identifier,String expectedStatusCode) {

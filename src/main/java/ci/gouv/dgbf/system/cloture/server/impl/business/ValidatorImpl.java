@@ -184,7 +184,7 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			validateAddOrRemoveToOperationInputs(identifier,actsIdentifiers,  Boolean.TRUE, auditWho, throwablesMessages);
 		}*/
 		
-		static void validateAddOrRemoveToOperation(Collection<Object[]> arrays,Collection<String> actsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+		static void validateAddOrRemoveActsToOperation(Collection<Object[]> arrays,Collection<String> actsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
 			Configuration configuration = __inject__(Configuration.class);
 			OperationStatus createdStatus = readOneOperationStatus(configuration.operation().status().createdCode(),operation,ComparisonOperator.GT,throwablesMessages);
 			if(createdStatus != null) {
@@ -197,6 +197,22 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			if(CollectionHelper.isEmpty(existingArrays))
 				return;
 			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Act.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déjà été ajoutés" : "ne sont pas ajoutés"
+				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
+		}
+		
+		static void validateAddOrRemoveImputationsToOperation(Collection<Object[]> arrays,Collection<String> imputationsIdentifiers,Boolean add,Boolean existingIgnorable,ci.gouv.dgbf.system.cloture.server.api.persistence.Operation operation,ThrowablesMessages throwablesMessages) {
+			Configuration configuration = __inject__(Configuration.class);
+			OperationStatus createdStatus = readOneOperationStatus(configuration.operation().status().createdCode(),operation,ComparisonOperator.GT,throwablesMessages);
+			if(createdStatus != null) {
+				
+			}
+			
+			if(CollectionHelper.isEmpty(arrays) || Boolean.TRUE.equals(existingIgnorable))
+				return;
+			Collection<Object[]> existingArrays = arrays.stream().filter(array -> Boolean.TRUE.equals(add) ? array[3] != null : array[3] == null).collect(Collectors.toList());
+			if(CollectionHelper.isEmpty(existingArrays))
+				return;
+			throwablesMessages.add(String.format("Les %s suivants %s : %s",ci.gouv.dgbf.system.cloture.server.api.persistence.Imputation.NAME_PLURAL,Boolean.TRUE.equals(add) ? "ont déjà été ajoutées" : "ne sont pas ajoutées"
 				, existingArrays.stream().map(array -> (String)array[1]).collect(Collectors.joining(","))));
 		}
 		

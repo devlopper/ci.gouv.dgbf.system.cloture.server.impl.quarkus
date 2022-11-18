@@ -132,6 +132,13 @@ public class OperationTest {
 	}
 	
 	@Test
+	void controller_readOne_numberOfImputations() {
+		ci.gouv.dgbf.system.cloture.server.client.rest.Operation operation = controller.getByIdentifier("has_2_imputations",new Controller.GetArguments().projections(OperationDto.JSON_IDENTIFIER,OperationDto.JSON_NUMBER_OF_IMPUTATIONS));
+		assertThat(operation).isNotNull();
+		assertThat(operation.getNumberOfImputations()).isEqualTo(2l);
+	}
+	
+	@Test
 	void persistence_readMany() {
 		Collection<Operation> operations = persistence.readMany(new QueryExecutorArguments());
 		assertThat(operations).isNotNull();
@@ -167,6 +174,8 @@ public class OperationTest {
 		controller.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,"D002", null, "Instruction 002", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
 	}
+	
+	/* Add act */
 	
 	@Test
 	void business_addAct___add_empty_1() {
@@ -223,23 +232,6 @@ public class OperationTest {
 	}
 	
 	@Test
-	void business_removeAct__exception_not_added___1() {
-		assertor.assertOperationActs("remove_notempty_exception", (String[]) null);
-		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
-			business.removeAct("remove_notempty_exception", List.of("remove_notempty_exception_1"), null, "meliane");
-	    });
-		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ne sont pas ajoutés : remove_notempty_exception_1");
-		assertor.assertOperationActs("remove_notempty_exception", (String[]) null);
-	}
-		
-	@Test
-	void business_removeAct_not_added__1_ignoreExisting_true() {
-		assertor.assertOperationActs("remove_empty", (String[]) null);
-		business.removeAct("remove_empty", List.of("1"), Boolean.TRUE, "meliane");
-		assertor.assertOperationActs("remove_empty", (String[]) null);
-	}
-	
-	@Test
 	void business_addActComprehensively() {
 		assertor.assertOperationActs("add_comprehensively_notempty", "add_comprehensively_notempty_1","add_comprehensively_notempty_2");
 		business.addActComprehensively("add_comprehensively_notempty", List.of("add_comprehensively_notempty_2","add_comprehensively_notempty_3"), "meliane");
@@ -278,6 +270,32 @@ public class OperationTest {
 		assertor.assertOperationActs("add_byfilter2",(String[]) null);
 		business.addActByFilter("add_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "ADDBYFILTER"),null, "meliane");
 		assertor.assertOperationActs("add_byfilter2", "add_byfilter2_2","add_byfilter2_3");
+	}
+	
+	/* Remove Act */
+	
+	@Test
+	void business_removeAct___remove_notempty_1() {
+		assertor.assertOperationActs("remove_notempty", "remove_notempty_1");
+		business.removeAct("remove_notempty", List.of("remove_notempty_1"), null, "meliane");
+		assertor.assertOperationActs("removenot_empty", (String[]) null);
+	}
+	
+	@Test
+	void business_removeAct__exception_not_added___1() {
+		assertor.assertOperationActs("remove_notempty_exception", (String[]) null);
+		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			business.removeAct("remove_notempty_exception", List.of("remove_notempty_exception_1"), null, "meliane");
+	    });
+		assertThat(exception.getMessage()).isEqualTo("Les Actes suivants ne sont pas ajoutés : remove_notempty_exception_1");
+		assertor.assertOperationActs("remove_notempty_exception", (String[]) null);
+	}
+		
+	@Test
+	void business_removeAct_not_added__1_ignoreExisting_true() {
+		assertor.assertOperationActs("remove_empty", (String[]) null);
+		business.removeAct("remove_empty", List.of("1"), Boolean.TRUE, "meliane");
+		assertor.assertOperationActs("remove_empty", (String[]) null);
 	}
 	
 	@Test
@@ -321,6 +339,24 @@ public class OperationTest {
 		business.removeActByFilter("remove_byfilter2", new Filter().addField(Parameters.ACT_TYPE_IDENTIFIER, "REMOVEBYFILTER"),null, "meliane");
 		assertor.assertOperationActs("remove_byfilter2",(String[]) null);
 	}
+	
+	/* Add Imputation */
+	
+	@Test
+	void business_addImputation___add_empty_1() {
+		assertor.assertOperationImputations("add_empty", (String[]) null);
+		business.addImputation("add_empty", List.of("1"), null, "meliane");
+		assertor.assertOperationImputations("add_empty", "1");
+	}
+	
+	@Test
+	void business_removeImputation___remove_not_empty_1() {
+		assertor.assertOperationImputations("remove_notempty", "remove_notempty_1");
+		business.removeImputation("remove_notempty", List.of("remove_notempty_1"), null, "meliane");
+		assertor.assertOperationImputations("remove_notempty", (String[]) null);
+	}
+	
+	/* Start */
 	
 	@Test
 	void business_start_actsCountIsZero() {
