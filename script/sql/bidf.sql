@@ -52,8 +52,20 @@ FROM t_regie_paiement@dblink_bidf_exe a;
 
 -- Liste des imputations
 CREATE OR REPLACE VIEW VA_IMPUTATION AS
-SELECT ld.exo_num||ld.ads_id||ld.nat_id AS "IDENTIFIANT",TO_CHAR(ld.exo_num) AS "EXERCICE",ld.exo_num AS "EXERCICE_ANNEE",ld.ads_id AS "ACTIVITE",ld.nat_id AS "NATURE_ECONOMIQUE"
-FROM ligne_de_depenses ld;
+SELECT ld.exo_num||ld.ads_id||ld.nat_id AS "IDENTIFIANT",ld.exo_num||ads.ads_code||ne.nat_code AS "CODE",ads.ads_liblg||' '||ne.nat_liblg AS "LIBELLE"
+,TO_CHAR(ld.exo_num) AS "EXERCICE",ld.exo_num AS "EXERCICE_ANNEE",ld.ads_id AS "ACTIVITE",ads.ads_code AS "ACTIVITE_CODE",ld.nat_id AS "NATURE_ECONOMIQUE",ne.nat_code AS "NATURE_ECONOMIQUE_CODE"
+,ld.ldep_id AS "LDEP_ID",ads.ads_code||' '||ne.nat_code AS "R_LIGNE"
+FROM ligne_de_depenses ld
+LEFT JOIN activite_de_service ads ON ads.ads_id = ld.ads_id
+LEFT JOIN nature_economique ne ON ne.nat_id = ld.nat_id;
+
+-- Liste des imputations à déverouiller
+CREATE OR REPLACE VIEW VA_IMPUTATION_A_DEVEROUILLER AS
+SELECT i.exercice_annee AS "EXO_NUM",i.ldep_id AS "LDEP_ID",i.r_ligne AS "R_LIGNE",SYSDATE AS "DATE_DEBUT_OUVERTURE_EXCEPTION",'NOUVO' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",SYSDATE AS "DATE_ETAT"
+FROM TA_OPERATION_IMPUTATION oi
+JOIN TA_OPERATION o ON o.identifiant = oi.operation
+LEFT JOIN VMA_IMPUTATION i ON i.identifiant = oi.imputation
+WHERE oi.traite IS NULL OR oi.traite = 0;
 
 -- Liste des verrous
 CREATE OR REPLACE VIEW "VA_WORKFLOW_VERROU" AS

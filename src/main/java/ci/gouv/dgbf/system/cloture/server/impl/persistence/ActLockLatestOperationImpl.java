@@ -3,13 +3,9 @@ package ci.gouv.dgbf.system.cloture.server.impl.persistence;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 
 import org.cyk.utility.persistence.entity.AbstractIdentifiableSystemScalarStringImpl;
 
@@ -19,8 +15,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter @Setter @Accessors(chain=true) 
-@Entity(name = ActLockLatestOperationImpl.ENTITY_NAME) @Access(AccessType.FIELD)
-@Table(name=ActLockLatestOperationImpl.TABLE_NAME)
+//@Entity(name = ActLockLatestOperationImpl.ENTITY_NAME) @Access(AccessType.FIELD)
+//@Table(name=ActLockLatestOperationImpl.TABLE_NAME)
 public class ActLockLatestOperationImpl extends AbstractIdentifiableSystemScalarStringImpl implements Serializable {
 
 	@Column(name = ActLockLatestOperationImpl.COLUMN_OPERATION_TYPE) @Enumerated(EnumType.STRING) ActOperationType operationType;
