@@ -58,13 +58,50 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE PROCEDURE PA_VERROUILLER(actes_identifiants IN VARCHAR2,imputation_identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
+-- Liste des imputations à déverouiller et à déverser
+CREATE OR REPLACE VIEW VA_IPTT_A_DVRL_A_DVS AS
+SELECT i.exercice_annee AS "EXO_NUM",i.ldep_id AS "LDEP_ID",i.r_ligne AS "R_LIGNE",CAST (SYSDATE AS TIMESTAMP) AS "DATE_DEBUT_OUVERTURE_EXCEPTION",NULL AS "DATE_FIN_OUVERTURE_EXCEPTION"
+,'NOUVO' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
+FROM TA_OPERATION_IMPUTATION oi
+JOIN TA_OPERATION o ON o.identifiant = oi.operation AND o.type = 'DEVERROUILLAGE'
+LEFT JOIN VMA_IMPUTATION i ON i.identifiant = oi.imputation
+WHERE (oi.traite IS NULL OR oi.traite = 0) AND i.exercice_annee||i.ldep_id NOT IN (SELECT los.exo_num||los.ldep_id FROM LIGNE_OUVERTURE_SPECIALE@dblink_elabo_bidf los);
+COMMENT ON TABLE VA_IPTT_A_DVRL_A_DVS IS 'Liste des imputations à déverouiller et à déverser'; 
+
+-- Liste des imputations à verouiller et à déverser
+CREATE OR REPLACE VIEW VA_IPTT_A_VRL_A_DVS AS
+SELECT i.exercice_annee AS "EXO_NUM",i.ldep_id AS "LDEP_ID",i.r_ligne AS "R_LIGNE",los.date_debut_ouverture_exception,CAST (SYSDATE AS TIMESTAMP) AS "DATE_FIN_OUVERTURE_EXCEPTION"
+,'NOUVO' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
+FROM TA_OPERATION_IMPUTATION oi
+JOIN TA_OPERATION o ON o.identifiant = oi.operation AND o.type = 'VERROUILLAGE'
+JOIN VMA_IMPUTATION i ON i.identifiant = oi.imputation
+JOIN LIGNE_OUVERTURE_SPECIALE@dblink_elabo_bidf los ON los.exo_num = i.exercice_annee AND los.ldep_id = i.ldep_id AND los.etat = 'PRCH'
+WHERE (oi.traite IS NULL OR oi.traite = 0);
+COMMENT ON TABLE VA_IPTT_A_VRL_A_DVS IS 'Liste des imputations à verouiller et à déverser'; 
+
+-- Liste des imputations à déverser
+CREATE OR REPLACE VIEW VA_IMPUTATION_A_DEVERSER AS
+SELECT * FROM VA_IPTT_A_DVRL_A_DVS iad
+UNION
+SELECT * FROM VA_IPTT_A_VRL_A_DVS iav;
+COMMENT ON TABLE VA_IMPUTATION_A_DEVERSER IS 'Liste des imputations à déverser'; 
+
+CREATE OR REPLACE PROCEDURE PA_EXECUTER_OPERATION(identifiant IN VARCHAR2) AUTHID CURRENT_USER AS
 BEGIN
-    FOR t IN (SELECT REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) IS NOT NULL)
+	DBMS_OUTPUT.PUT_LINE('Exécution de l''opération <<'||identifiant||'>> en cours');
+    FOR t IN (SELECT exo_num,ldep_id,r_ligne,date_debut_ouverture_exception,date_fin_ouverture_exception,etat,commentaire_etat,date_etat,type_operation,imputation FROM VA_IMPUTATION_A_DEVERSER WHERE operation = identifiant)
     	LOOP
-    	    DBMS_OUTPUT.PUT_LINE('VERROUILLER '||t.parts);
+    		IF t.type_operation = 'DEVERROUILLAGE' THEN
+    			INSERT INTO ligne_ouverture_speciale@dblink_elabo_bidf(exo_num,ldep_id,r_ligne,date_debut_ouverture_exception,date_fin_ouverture_exception,etat,commentaire_etat,date_etat) VALUES(t.exo_num,t.ldep_id,t.r_ligne,t.date_debut_ouverture_exception,t.date_fin_ouverture_exception,t.etat,t.commentaire_etat,t.date_etat);
+    			--DBMS_OUTPUT.PUT_LINE('INSERT de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
+    		ELSE
+    			UPDATE ligne_ouverture_speciale@dblink_elabo_bidf SET date_fin_ouverture_exception = t.date_fin_ouverture_exception WHERE exo_num = t.exo_num AND ldep_id = t.ldep_id;
+    			--DBMS_OUTPUT.PUT_LINE('UPDATE de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
+    		END IF;
     	    -- dbms_lock.SLEEP(1);
     	END LOOP;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('L''opération <<'||identifiant||'>> a été exécutée');
 END;
 /
 
@@ -73,6 +110,16 @@ BEGIN
     FOR t IN (SELECT REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) IS NOT NULL)
     	LOOP
     	    DBMS_OUTPUT.PUT_LINE('DEVERROUILLER '||t.parts);
+    	    -- dbms_lock.SLEEP(1);
+    	END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PA_VERROUILLER(actes_identifiants IN VARCHAR2,imputation_identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
+BEGIN
+    FOR t IN (SELECT REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) IS NOT NULL)
+    	LOOP
+    	    DBMS_OUTPUT.PUT_LINE('VERROUILLER '||t.parts);
     	    -- dbms_lock.SLEEP(1);
     	END LOOP;
 END;
