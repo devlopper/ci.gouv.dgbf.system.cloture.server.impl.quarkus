@@ -61,7 +61,7 @@ END;
 -- Liste des imputations à déverouiller et à déverser
 CREATE OR REPLACE VIEW VA_IPTT_A_DVRL_A_DVS AS
 SELECT i.exercice_annee AS "EXO_NUM",i.ldep_id AS "LDEP_ID",i.r_ligne AS "R_LIGNE",CAST (SYSDATE AS TIMESTAMP) AS "DATE_DEBUT_OUVERTURE_EXCEPTION",NULL AS "DATE_FIN_OUVERTURE_EXCEPTION"
-,'NOUVO' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
+,'NOUV' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
 FROM TA_OPERATION_IMPUTATION oi
 JOIN TA_OPERATION o ON o.identifiant = oi.operation AND o.type = 'DEVERROUILLAGE'
 LEFT JOIN VMA_IMPUTATION i ON i.identifiant = oi.imputation
@@ -71,7 +71,7 @@ COMMENT ON TABLE VA_IPTT_A_DVRL_A_DVS IS 'Liste des imputations à déverouiller
 -- Liste des imputations à verouiller et à déverser
 CREATE OR REPLACE VIEW VA_IPTT_A_VRL_A_DVS AS
 SELECT i.exercice_annee AS "EXO_NUM",i.ldep_id AS "LDEP_ID",i.r_ligne AS "R_LIGNE",los.date_debut_ouverture_exception,CAST (SYSDATE AS TIMESTAMP) AS "DATE_FIN_OUVERTURE_EXCEPTION"
-,'NOUVO' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
+,'MODI' AS "ETAT",o.motif AS "COMMENTAIRE_ETAT",CAST (SYSDATE AS TIMESTAMP) AS "DATE_ETAT",o.identifiant AS "OPERATION",o.type AS "TYPE_OPERATION",oi.identifiant AS "IMPUTATION"
 FROM TA_OPERATION_IMPUTATION oi
 JOIN TA_OPERATION o ON o.identifiant = oi.operation AND o.type = 'VERROUILLAGE'
 JOIN VMA_IMPUTATION i ON i.identifiant = oi.imputation
@@ -95,13 +95,13 @@ BEGIN
     			INSERT INTO ligne_ouverture_speciale@dblink_elabo_bidf(exo_num,ldep_id,r_ligne,date_debut_ouverture_exception,date_fin_ouverture_exception,etat,commentaire_etat,date_etat) VALUES(t.exo_num,t.ldep_id,t.r_ligne,t.date_debut_ouverture_exception,t.date_fin_ouverture_exception,t.etat,t.commentaire_etat,t.date_etat);
     			--DBMS_OUTPUT.PUT_LINE('INSERT de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
     		ELSE
-    			UPDATE ligne_ouverture_speciale@dblink_elabo_bidf SET date_fin_ouverture_exception = t.date_fin_ouverture_exception WHERE exo_num = t.exo_num AND ldep_id = t.ldep_id;
+    			UPDATE ligne_ouverture_speciale@dblink_elabo_bidf SET date_fin_ouverture_exception = t.date_fin_ouverture_exception,commentaire_etat = t.commentaire_etat WHERE exo_num = t.exo_num AND ldep_id = t.ldep_id;
     			--DBMS_OUTPUT.PUT_LINE('UPDATE de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
     		END IF;
     	    -- dbms_lock.SLEEP(1);
     	END LOOP;
-    COMMIT;
     DBMS_OUTPUT.PUT_LINE('L''opération <<'||identifiant||'>> a été exécutée');
+    ut_bidf_tamp.ofg_ouverture_speciale_ligne@dblink_elabo_bidf;
 END;
 /
 

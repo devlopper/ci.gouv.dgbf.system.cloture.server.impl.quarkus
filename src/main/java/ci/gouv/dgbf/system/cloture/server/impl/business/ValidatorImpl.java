@@ -22,6 +22,7 @@ import org.cyk.utility.persistence.query.QueryExecutorArguments;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ActOperationType;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
@@ -244,8 +245,10 @@ public class ValidatorImpl extends Validator.AbstractImpl implements Serializabl
 			Configuration configuration = __inject__(Configuration.class);
 			OperationStatus startedStatus = readOneOperationStatus(configuration.operation().status().startedCode(),operation,ComparisonOperator.GTE,throwablesMessages);
 			if(startedStatus != null && operation.getStatus().getOrderNumber() < startedStatus.getOrderNumber()) {
-				throwablesMessages.addIfTrue(String.format("%s %s doit contenir au moins un acte",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName())
-						, NumberHelper.isLessThanOrEqualZero(__inject__(OperationActPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()))));
+				Long numberOfActs = __inject__(OperationActPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()));
+				Long numberOfImputations = __inject__(OperationImputationPersistence.class).count(new QueryExecutorArguments().addFilterField(Parameters.OPERATION_IDENTIFIER, operation.getIdentifier()));
+				throwablesMessages.addIfTrue(String.format("%s %s doit contenir au moins un acte ou une imputation",ci.gouv.dgbf.system.cloture.server.api.persistence.Operation.NAME,operation.getName())
+						, NumberHelper.isLessThanOrEqualZero(numberOfActs) && NumberHelper.isLessThanOrEqualZero(numberOfImputations));
 			}
 		}
 		

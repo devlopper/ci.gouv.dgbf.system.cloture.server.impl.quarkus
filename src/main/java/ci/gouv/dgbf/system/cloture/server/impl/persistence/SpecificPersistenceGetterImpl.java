@@ -14,7 +14,9 @@ import ci.gouv.dgbf.system.cloture.server.api.persistence.ActivityPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.EconomicNaturePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ExercisePersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.ImputationPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationActPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationGroupPersistence;
+import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationImputationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatusPersistence;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationTypePersistence;
@@ -25,6 +27,8 @@ public class SpecificPersistenceGetterImpl extends AbstractSpecificPersistenceGe
 
 	@Inject OperationGroupPersistence operationGroupPersistence;
 	@Inject OperationPersistence operationPersistence;
+	@Inject OperationActPersistence operationActPersistence;
+	@Inject OperationImputationPersistence operationImputationPersistence;
 	@Inject OperationTypePersistence operationTypePersistence;
 	@Inject OperationStatusPersistence operationStatusPersistence;
 	@Inject ActPersistence actPersistence;

@@ -547,15 +547,13 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		}
 		Collection<Act> acts = actPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ActImpl.FIELD_IDENTIFIER,ActImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
 				,Parameters.PROCESSED, Boolean.FALSE));
-		if(CollectionHelper.isEmpty(acts)) {
-			LogHelper.logWarning(String.format("Aucun %s trouvé dans %s avec l'identifiant %s",Act.NAME,Operation.NAME, identifier), getClass());
+		Collection<Imputation> imputations = imputationPersistence.readMany(new QueryExecutorArguments().addProjectionsFromStrings(ImputationImpl.FIELD_IDENTIFIER,ImputationImpl.FIELD_REFERENCE).addFilterFieldsValues(Parameters.OPERATION_IDENTIFIER, identifier,Parameters.ADDED_TO_SPECIFIED_OPERATION, Boolean.TRUE
+				,Parameters.PROCESSED, Boolean.FALSE));
+		if(CollectionHelper.isEmpty(acts) && CollectionHelper.isEmpty(imputations)) {
+			LogHelper.logWarning(String.format("Aucun %s ou aucune %s trouvé(e) dans %s avec l'identifiant %s",Act.NAME,Imputation.NAME,Operation.NAME, identifier), getClass());
 			return;
 		}
-		String procedureName = null;
-		if(operation.getType().getCode().equals(configuration.operation().type().lockingCode()))
-			procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK;
-		else if(operation.getType().getCode().equals(configuration.operation().type().unlockingCode()))
-			procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK;
+		String procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE;
 		if(StringHelper.isBlank(procedureName)) {
 			LogHelper.logWarning(String.format("Impossible de déduire le nom de la procédure stockée à exécuter. %s(%s)",Operation.NAME, identifier), getClass());
 			return;
@@ -563,17 +561,31 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		String auditIdentifier = generateAuditIdentifier();
 		String auditFunctionnality = EXECUTION_AUDIT_IDENTIFIER;
 		LocalDateTime auditWhen = LocalDateTime.now();
-		procedureExecutorGetter.getProcedureExecutor().execute(procedureName,OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS,acts.stream().map(act -> act.getReference()).collect(Collectors.joining(",")));
 		
-		Collection<OperationActImpl> operationActs = vEntityManager.createNamedQuery(OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_ACTS_IDENTIFIERS, OperationActImpl.class).setParameter(Parameters.OPERATION_IDENTIFIER, identifier)
-				.setParameter(Parameters.ACTS_IDENTIFIERS, acts.stream().map(act -> act.getIdentifier()).collect(Collectors.toSet())).getResultList();	
+		procedureExecutorGetter.getProcedureExecutor().execute(procedureName,OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIER,identifier);
+		
+		Collection<OperationActImpl> operationActs = CollectionHelper.isEmpty(acts) ? null : 
+			vEntityManager.createNamedQuery(OperationActImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_ACTS_IDENTIFIERS, OperationActImpl.class).setParameter(Parameters.OPERATION_IDENTIFIER, identifier)
+				.setParameter(Parameters.ACTS_IDENTIFIERS,  acts.stream().map(act -> act.getIdentifier()).collect(Collectors.toSet())).getResultList();	
+		Collection<OperationImputationImpl> operationImputations = vEntityManager.createNamedQuery(OperationImputationImpl.QUERY_READ_BY_OPERATION_IDENTIFIER_BY_IMPUTATIONS_IDENTIFIERS, OperationImputationImpl.class).setParameter(Parameters.OPERATION_IDENTIFIER, identifier)
+				.setParameter(Parameters.IMPUTATIONS_IDENTIFIERS, CollectionHelper.isEmpty(imputations) ? null : imputations.stream().map(imputation -> imputation.getIdentifier()).collect(Collectors.toSet())).getResultList();	
+		
 		vEntityManager = EntityManagerGetter.getInstance().get();
 		vEntityManager.getTransaction().begin();
-		for(OperationActImpl operationAct : operationActs) {
-			operationAct.setProcessed(Boolean.TRUE);
-			audit(operationAct, auditIdentifier, auditFunctionnality, auditWho, auditWhen);
-			vEntityManager.merge(operationAct);
-		}
+		if(CollectionHelper.isNotEmpty(operationActs))
+			for(OperationActImpl operationAct : operationActs) {
+				operationAct.setProcessed(Boolean.TRUE);
+				audit(operationAct, auditIdentifier, auditFunctionnality, auditWho, auditWhen);
+				vEntityManager.merge(operationAct);
+			}
+		
+		if(CollectionHelper.isNotEmpty(operationImputations))
+			for(OperationImputationImpl operationImputation : operationImputations) {
+				operationImputation.setProcessed(Boolean.TRUE);
+				audit(operationImputation, auditIdentifier, auditFunctionnality, auditWho, auditWhen);
+				vEntityManager.merge(operationImputation);
+			}
+		
 		vEntityManager.getTransaction().commit();
 		
 		operation.setStatus(statusPersistence.readOne(new QueryExecutorArguments().addFilterField(Parameters.CODE, configuration.operation().status().executedCode())));
@@ -582,6 +594,7 @@ public class OperationBusinessImpl extends AbstractSpecificBusinessImpl<Operatio
 		vEntityManager.getTransaction().begin();
 		vEntityManager.merge(operation);
 		vEntityManager.getTransaction().commit();
+		
 	}
 	
 	/* Validation */

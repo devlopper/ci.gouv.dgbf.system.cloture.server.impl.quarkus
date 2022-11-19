@@ -45,11 +45,8 @@ import lombok.experimental.Accessors;
 })
 @NamedStoredProcedureQueries(value = {
 		@NamedStoredProcedureQuery(
-			name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK
-			,parameters = {@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS , mode = ParameterMode.IN,type = String.class)}
-		),@NamedStoredProcedureQuery(
-			name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK
-			,parameters = {@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS , mode = ParameterMode.IN,type = String.class)}
+			name = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE,procedureName = OperationImpl.STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE
+			,parameters = {@StoredProcedureParameter(name = OperationImpl.STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIER , mode = ParameterMode.IN,type = String.class)}
 		)
 	})
 @AuditOverrides({
@@ -150,7 +147,10 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
 	public static final String COLUMN___AUDIT_FUNCTIONALITY__ = "AUDIT_FONCTIONNALITE";
 	public static final String COLUMN___AUDIT_WHEN__ = "AUDIT_DATE";
 	
+	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_EXECUTE = "PA_EXECUTER_OPERATION";
+	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIER = "IDENTIFIANT";
+	/*
 	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_LOCK = "PA_VERROUILLER";
 	public static final String STORED_PROCEDURE_QUERY_PROCEDURE_NAME_UNLOCK = "PA_DEVERROUILLER";
-	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS = "IDENTIFIANTS";
+	public static final String STORED_PROCEDURE_QUERY_PARAMETER_NAME_IDENTIFIERS = "IDENTIFIANTS";*/
 }
