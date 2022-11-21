@@ -2,11 +2,13 @@ package ci.gouv.dgbf.system.cloture.server.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import org.cyk.utility.__kernel__.time.TimeHelper;
 import org.cyk.utility.persistence.query.Filter;
@@ -44,6 +46,7 @@ public class OperationTest {
 	@Inject OperationController controller;
 	
 	@Inject Configuration configuration;
+	@Inject EntityManager entityManager;
 	
 	@Test
 	void persistence_type_readMany() {
@@ -156,8 +159,10 @@ public class OperationTest {
 	@Test
 	void business_create() {
 		Long count = persistence.count();
+		Long auditCount = ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_AUD").getResultList().get(0)).longValue();
 		business.create(Configuration.Operation.Type.CODE_DEVERROUILLAGE,null, null, "Instruction 001", "christian");
 		assertThat(persistence.count()).isEqualTo(count+1l);
+		assertThat(((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_AUD").getResultList().get(0)).longValue()).isEqualTo(auditCount+1l);
 	}
 	
 	@Test
@@ -179,9 +184,11 @@ public class OperationTest {
 	
 	@Test
 	void business_addAct___add_empty_1() {
+		Long auditCount = ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_ACTE_AUD").getResultList().get(0)).longValue();
 		assertor.assertOperationActs("add_empty", (String[]) null);
 		business.addAct("add_empty", List.of("1"), null, "meliane");
 		assertor.assertOperationActs("add_empty", "1");
+		assertThat(((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_ACTE_AUD").getResultList().get(0)).longValue()).isEqualTo(auditCount+1l);
 	}
 	
 	@Test
@@ -344,9 +351,11 @@ public class OperationTest {
 	
 	@Test
 	void business_addImputation___add_empty_1() {
+		Long auditCount = ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_IMPUTATION_AUD").getResultList().get(0)).longValue();
 		assertor.assertOperationImputations("add_empty", (String[]) null);
 		business.addImputation("add_empty", List.of("1"), null, "meliane");
 		assertor.assertOperationImputations("add_empty", "1");
+		assertThat(((BigInteger) entityManager.createNativeQuery("SELECT COUNT(identifiant) FROM TA_OPERATION_IMPUTATION_AUD").getResultList().get(0)).longValue()).isEqualTo(auditCount+1l);
 	}
 	
 	@Test
@@ -363,7 +372,7 @@ public class OperationTest {
 		Exception exception = Assertions.assertThrows(RuntimeException.class, () -> {
 			business.startExecution("start_actscountiszero", "christian");
 	    });
-		assertThat(exception.getMessage()).isEqualTo("Opération 1 doit contenir au moins un acte");
+		assertThat(exception.getMessage()).isEqualTo("Opération 1 doit contenir au moins un acte ou une imputation");
 	}
 	
 	@Test
@@ -406,6 +415,11 @@ public class OperationTest {
 	}
 	
 	public static String PA_DEVERROUILLER(String identifiers) {
+		TimeHelper.pause(1000l * 5);
+		return null;
+	}
+	
+	public static String PA_EXECUTER_OPERATION(String identifier) {
 		TimeHelper.pause(1000l * 5);
 		return null;
 	}

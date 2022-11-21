@@ -93,34 +93,11 @@ BEGIN
     	LOOP
     		IF t.type_operation = 'DEVERROUILLAGE' THEN
     			INSERT INTO ligne_ouverture_speciale@dblink_elabo_bidf(exo_num,ldep_id,r_ligne,date_debut_ouverture_exception,date_fin_ouverture_exception,etat,commentaire_etat,date_etat) VALUES(t.exo_num,t.ldep_id,t.r_ligne,t.date_debut_ouverture_exception,t.date_fin_ouverture_exception,t.etat,t.commentaire_etat,t.date_etat);
-    			--DBMS_OUTPUT.PUT_LINE('INSERT de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
     		ELSE
     			UPDATE ligne_ouverture_speciale@dblink_elabo_bidf SET date_fin_ouverture_exception = t.date_fin_ouverture_exception,commentaire_etat = t.commentaire_etat WHERE exo_num = t.exo_num AND ldep_id = t.ldep_id;
-    			--DBMS_OUTPUT.PUT_LINE('UPDATE de <<'||t.imputation||'>> dans la table ligne_ouverture_speciale du BIDF');
     		END IF;
-    	    -- dbms_lock.SLEEP(1);
     	END LOOP;
     DBMS_OUTPUT.PUT_LINE('L''opération <<'||identifiant||'>> a été exécutée');
     ut_bidf_tamp.ofg_ouverture_speciale_ligne@dblink_elabo_bidf;
-END;
-/
-
-CREATE OR REPLACE PROCEDURE PA_DEVERROUILLER(actes_identifiants IN VARCHAR2,imputation_identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
-BEGIN
-    FOR t IN (SELECT REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) IS NOT NULL)
-    	LOOP
-    	    DBMS_OUTPUT.PUT_LINE('DEVERROUILLER '||t.parts);
-    	    -- dbms_lock.SLEEP(1);
-    	END LOOP;
-END;
-/
-
-CREATE OR REPLACE PROCEDURE PA_VERROUILLER(actes_identifiants IN VARCHAR2,imputation_identifiants IN VARCHAR2) AUTHID CURRENT_USER AS
-BEGIN
-    FOR t IN (SELECT REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) AS parts FROM dual CONNECT BY REGEXP_SUBSTR(actes_identifiants, '[^,]+', 1, level) IS NOT NULL)
-    	LOOP
-    	    DBMS_OUTPUT.PUT_LINE('VERROUILLER '||t.parts);
-    	    -- dbms_lock.SLEEP(1);
-    	END LOOP;
 END;
 /

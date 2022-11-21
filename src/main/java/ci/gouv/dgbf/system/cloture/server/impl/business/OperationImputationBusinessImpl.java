@@ -24,7 +24,7 @@ public class OperationImputationBusinessImpl extends AbstractSpecificBusinessImp
 	void create(Operation operation,Collection<Imputation> imputations,String auditIdentifier,String auditFunctionality, String auditWho,LocalDateTime auditDate,EntityManager entityManager) {
 		imputations.forEach(act -> {
 			OperationImputationImpl operationImputation = new OperationImputationImpl();
-			operationImputation.setIdentifier(String.format("%s_%s", operation.getIdentifier(),act.getIdentifier())).setOperation(operation).setImputation(act);
+			operationImputation.setIdentifier(String.format("%s_%s", operation.getIdentifier(),act.getIdentifier())).setImputation(act).setOperation(operation);
 			audit(operationImputation, auditIdentifier, auditFunctionality, auditWho, auditDate);
 			entityManager.persist(operationImputation);
 		});

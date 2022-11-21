@@ -24,7 +24,7 @@ public class OperationActBusinessImpl extends AbstractSpecificBusinessImpl<Opera
 	void create(Operation operation,Collection<Act> acts,String auditIdentifier,String auditFunctionality, String auditWho,LocalDateTime auditDate,EntityManager entityManager) {
 		acts.forEach(act -> {
 			OperationActImpl operationAct = new OperationActImpl();
-			operationAct.setIdentifier(String.format("%s_%s", operation.getIdentifier(),act.getIdentifier())).setOperation(operation).setAct(act);
+			operationAct.setIdentifier(String.format("%s_%s", operation.getIdentifier(),act.getIdentifier())).setAct(act).setOperation(operation);
 			audit(operationAct, auditIdentifier, auditFunctionality, auditWho, auditDate);
 			entityManager.persist(operationAct);
 		});

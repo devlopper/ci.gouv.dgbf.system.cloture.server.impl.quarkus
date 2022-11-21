@@ -95,6 +95,14 @@ public interface Configuration extends org.cyk.quarkus.extension.core_.configura
 			}*/
 		}
 		
+		Imputation imputation();
+		
+		public static interface Imputation {
+			public static interface Workflow {
+				
+			}
+		}
+		
 		Colors colors();
 		
 		public static interface Colors {

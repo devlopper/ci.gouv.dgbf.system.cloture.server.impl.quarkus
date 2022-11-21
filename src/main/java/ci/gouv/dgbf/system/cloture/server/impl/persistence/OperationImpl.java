@@ -25,6 +25,8 @@ import org.cyk.utility.persistence.server.model.Color;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.AuditOverrides;
 import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import ci.gouv.dgbf.system.cloture.server.api.persistence.Operation;
 import ci.gouv.dgbf.system.cloture.server.api.persistence.OperationStatus;
@@ -58,7 +60,7 @@ public class OperationImpl extends AbstractIdentifiableSystemScalarStringIdentif
  	@NotNull @ManyToOne @JoinColumn(name = COLUMN_TYPE,nullable = false) OperationTypeImpl type;
   	@Transient String typeAsString;
   	@NotNull @Column(name = COLUMN_REASON,nullable = false) String reason;
-  	@NotNull @ManyToOne @JoinColumn(name = COLUMN_STATUS,nullable = false) OperationStatusImpl status;
+  	@NotNull @ManyToOne @JoinColumn(name = COLUMN_STATUS,nullable = false) @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED) OperationStatusImpl status;
   	@Transient String statusAsString;
   	
   	@Transient Boolean created, started,executed;
